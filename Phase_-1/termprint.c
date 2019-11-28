@@ -36,7 +36,8 @@ static int term_putchar(char c) {
 
 
 void term_puts(const char *str) {
-    while (*str) //While pointer != from NULL
+    /*While pointer != from NULL*/
+    while (*str)
         if (term_putchar(*str++))
             return;
 }
