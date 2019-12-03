@@ -36,10 +36,10 @@ typedef struct {
 
 /* Device register type for terminals; fields have different meanings */
 typedef struct {
-  unsigned int recv_status;
-    unsigned int recv_command;
-    unsigned int transm_status;
-    unsigned int transm_command;
+  unsigned int recv_status; /*In this chanel both the data requested and/or a status code are returned*/
+    unsigned int recv_command; /*This is the "channel" to ask data from the stdin of the terminal*/
+    unsigned int transm_status; /*In this chanel both the data transmitted and/or a status code are returned*/
+    unsigned int transm_command; /*This is the "channel" for transfer data to stdout of the terminal*/
 } termreg_t;
 
 /* With a pointer to devreg_t we can refer to a "generic" device register, and
