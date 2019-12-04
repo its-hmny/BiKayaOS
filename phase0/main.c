@@ -9,7 +9,7 @@ int main(void) {
     /*Need something that wait for the user input to be done bedore proceeding??*/
 
     char usr_input[STR_LENGHT];
-    term_gets(usr_input, STR_LENGHT); 
+    term_gets(usr_input, STR_LENGHT - 1); 
 
     /* Go to sleep indefinetely */
     while (1) 
