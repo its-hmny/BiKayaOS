@@ -1,4 +1,7 @@
 #include "include/system.h"
+#include "include/termutils.h"
+
+/*This file contains all of the function related to terminal device*/
 
 /*LIST OF THE POSSIBLE ERROR CODE RETURNED FROM tp->*_status*/
 #define TERM_N_INSTALLED   0
@@ -47,8 +50,10 @@ static int term_putchar(char c) {
     while ((stat = trans_status(term0_reg)) == ST_BUSY)
         ;
 
+    /*The acknowledgement makes the terminal avaiable to other once finished*/
     term0_reg->transm_command = CMD_ACK;
 
+    /*Error handler, return error code*/
     if (stat != ST_TRANSMITTED)
         return -1;
     else
@@ -56,7 +61,7 @@ static int term_putchar(char c) {
 }
 
 static int term_getchar() {
-    /*Check that ther terminal is ready and there are no error after the reset*/
+    /*Check that ther terminal is ready and there are no error*/
     unsigned int stat = recv_status(term0_reg); int char_read;
     if (stat != ST_READY && stat != ST_RECEIVED)
         return -1;
@@ -65,7 +70,7 @@ static int term_getchar() {
     term0_reg->recv_command = (CMD_RECEIVE);
 
     /*Wait for the terminal to fetch and transfer the data requested*/ 
-    while ((stat = recv_status(term0_reg) == ST_BUSY))
+    while ((stat = recv_status(term0_reg)) == ST_BUSY)
         ;
 
     /*Once exit from the cicle the data may/may not have been fetched but it's stored anyway some result in char_read, the data
@@ -75,7 +80,7 @@ static int term_getchar() {
     /*We now "free" the terminal with the ACK interrupt*/
     term0_reg->recv_command = CMD_ACK;
 
-    /*THE ERROR IS HERE, THE EXECUTION STOPPED HERE!!*/
+    /*Checks for error and returns error code*/
     if (stat != ST_RECEIVED) 
         return -1;
     else
@@ -92,26 +97,27 @@ void term_puts(const char *str) {
 
 /*First step to read a string from stdin of the terminal and return a pointer*/
 void term_gets(char usr_input[], unsigned int STR_LENGHT) {
-    int i;
+    int i, letter;
 
     /*Stops at the penultimate index and then puts str terminator at the end (last index)*/
-    for (i = 0; i < STR_LENGHT-2; i = i + 1) {
-        int letter = term_getchar();
+    for (i = 0; i < STR_LENGHT-1; i = i + 1) {
+        letter = term_getchar();
 
-        /*Error handler, stops the execution*/
+        /*Error handler, stops the execution and print an error message*/
         if (letter == -1) {
             term_puts("ERROR: reading from terminal\n");
             usr_input[0] = '\0';
             return;
         }
-
+        /*If the usr has pressed ENTER then stop the execution and return the string*/
+        else if ((char)letter == '\n') {
+            usr_input[i] = '\0';
+            return;
+        }
         else 
             usr_input[i] = (char)letter;
     }
 
     /*Terminate the string with the 0, and return the readed string*/
     usr_input[i] = '\0';
-
-    /*TODO REMOVE for double check pourpose*/
-    term_puts(usr_input);
 }

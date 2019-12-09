@@ -26,7 +26,7 @@ all : kernel.core.umps
 kernel.core.umps : kernel
 	umps2-elf2umps -k $<
 	
-kernel : main.o termutils.o crtso.o libumps.o
+kernel : main.o termutils.o devutils.o crtso.o libumps.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 
 clean :

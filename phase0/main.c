@@ -1,15 +1,20 @@
-#include "termutils.h"
-#include "system.h"
+#include "include/termutils.h"
+#include "include/devutils.h"
+#include "include/system.h"
 
 #define STR_LENGHT         30
 
 int main(void) {
     term_puts("Hello from Phase 0 of the BiKayaOS, please enter a string:\n");
-
-    /*Need something that wait for the user input to be done bedore proceeding??*/
+    term_puts("Note that you can write at max 30 letter\n");
 
     char usr_input[STR_LENGHT];
-    term_gets(usr_input, STR_LENGHT - 1); 
+    term_gets(usr_input, STR_LENGHT);
+
+    /*If an error occured term_gets return an empty string with a '\0' in the first index*/
+    if (usr_input[0])
+        print(&usr_input);
+    
 
     /* Go to sleep indefinetely */
     while (1) 

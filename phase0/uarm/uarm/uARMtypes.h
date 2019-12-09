@@ -28,25 +28,25 @@
 
 /* Device register type for disks, tapes and printers (dtp) */
 typedef struct {
-  unsigned int status;
-    unsigned int command;
-    unsigned int data0;
-    unsigned int data1;
+    unsigned int status; /*Here lays the status of the of the transfer*/
+    unsigned int command;/*This is the channel to comunicate with the device (RESET, ACK, PRINTCHR)*/
+    unsigned int data0;  /*Here is where a a char has to be put for transmission*/
+    unsigned int data1;  /*This registrer is never used (at least for printers)*/
 } dtpreg_t;
 
 /* Device register type for terminals; fields have different meanings */
 typedef struct {
-  unsigned int recv_status; /*In this chanel both the data requested and/or a status code are returned*/
-    unsigned int recv_command; /*This is the "channel" to ask data from the stdin of the terminal*/
+    unsigned int recv_status;   /*In this chanel both the data requested and/or a status code are returned*/
+    unsigned int recv_command;  /*This is the "channel" to ask data from the stdin of the terminal*/
     unsigned int transm_status; /*In this chanel both the data transmitted and/or a status code are returned*/
-    unsigned int transm_command; /*This is the "channel" for transfer data to stdout of the terminal*/
+    unsigned int transm_command;/*This is the "channel" for transfer data to stdout of the terminal*/
 } termreg_t;
 
 /* With a pointer to devreg_t we can refer to a "generic" device register, and
    then use the appropriate union member to access the fields (not strictly
      necessary, but for convenience and clarity) */
 typedef union {
-  dtpreg_t dtp;
+    dtpreg_t dtp;
     termreg_t term;
 } devreg_t;
 
