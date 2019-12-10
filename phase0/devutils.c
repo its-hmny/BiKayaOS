@@ -1,5 +1,6 @@
 #include "include/system.h"
 #include "include/termutils.h"
+#include "include/devutils.h"
 
 /*This file contains all of the function related to general device (printers, tapes, disk, etc.)*/
 
@@ -18,7 +19,7 @@
 #define STATUS_MASK        0xFF
 #define DATA_MASK          0xFF
 
-static dtpreg_t *printer0_reg = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, 0); /*THE ERROR IS HERE WTF*/
+static dtpreg_t *printer0_reg = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, 0);
 
 static unsigned int dev_status(dtpreg_t *dev_p) {
     return((dev_p->status) & STATUS_MASK);
@@ -64,7 +65,7 @@ void print (char *buffer) {
         }           
 }
 
-void statFinder (unsigned int stat) {
+/*void statFinder (unsigned int stat) {
     if(stat == 0)
         term_puts("0");
     else if(stat == 1)
