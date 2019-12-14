@@ -21,6 +21,7 @@
 
 static dtpreg_t *printer0_reg = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, 0);
 
+/*Returns the status written in the registrer with the opportune bit mask*/
 static unsigned int dev_status(dtpreg_t *dev_p) {
     return((dev_p->status) & STATUS_MASK);
 }

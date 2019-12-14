@@ -11,7 +11,7 @@ int main(void) {
     char usr_input[STR_LENGHT];
     term_gets(usr_input, STR_LENGHT);
 
-    /*If an error occured term_gets return an empty string with a '\0' in the first index*/
+    /*If an error occured term_gets return an empty string with a '\0' in the first index, same for an empty string*/
     if (usr_input[0])
         print(&usr_input);
 
