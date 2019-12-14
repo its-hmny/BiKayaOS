@@ -1,6 +1,6 @@
 #ifndef __DEVUTILS_H__
 #define __DEVUTILS_H__
 
-void print(char* buffer);
+void send_printer(char* buffer);
 
 #endif

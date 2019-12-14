@@ -13,11 +13,10 @@ int main(void) {
 
     /*If an error occured term_gets return an empty string with a '\0' in the first index, same for an empty string*/
     if (usr_input[0])
-        print(&usr_input);
+        send_printer(&usr_input);
 
     /* Go to sleep indefinetely */
     while (1) 
         WAIT();
     return 0;
 }
-

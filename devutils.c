@@ -52,7 +52,7 @@ static unsigned int print_char(char c) {
 }
 
 /*Takes as input a pointer to a string/char array that MUST BE null terminated (\0), else it will go to infinite loop*/
-void print (char *buffer) {
+void send_printer (char *buffer) {
     while (1) 
         /*If we have arrived at the null then we print the \n value*/
         if ((*buffer) == 0) {

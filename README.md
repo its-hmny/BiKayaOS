@@ -1,5 +1,5 @@
 # BiKayaOS
-**A variation of the Kaya OS that can run on both uARM and uMPS, this is the project for the OS course during the academic year 2019/2020**
+**A variation of the Kaya OS that can run on both uARM and uMPS architechture, this is the project for the OS course during the academic year 2019/2020**
 
 This project is written by [Enea Guidi](https://github.com/its-hmny), [Marco Tomasone](https://github.com/MarcoTomasone), [Luca Genova](https://github.com/Lucajett99) and [Simone Boldrini](https://github.com/minosse99). The goal of the project is to write a kernel wich can run both on uMPS and uARM architechture, the project is divided in 3 main phases:
 
@@ -14,15 +14,15 @@ to build respectively the uarm version or the umps version, if everything has be
 
 ## **Phase 0**
 
-## Goal
+### Goal
 The target of this project is to read a string from the user input (via terminal) and then to put that string to the printer device. In order to do this we had at first to implement a function to read characters from the terminal and save them, at the same time
 handling possible error from the terminal device. 
 
-## Implementation
+### Implementation
 In order to do so we have written two function in the **termutils.c** file respectively *term_getchar()* and *term_gets()* that executed the following algorithm:
 
-1) Controls that the terminal is open "correctly"
-2) Send the receive command in the tp->recv_command "channel"
+1) Controls that the terminal is open correctly
+2) Send the receive command in the **tp->recv_command** "channel"
 3) Wait for the terminal to execute the command and retrieves the data fetched
 4) Check for possible error before returning the value retrieved and if an error is present it returns an error code
 5) Executes until the endline char ("\n") is returned
