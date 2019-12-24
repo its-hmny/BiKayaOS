@@ -1,11 +1,11 @@
 #ifdef TARGET_UMPS
-#include "umps/libumps.h"
-#include "umps/arch.h"
-#include "umps/types.h"
+#include "uMPS/libumps.h"
+#include "uMPS/arch.h"
+#include "uMPS/types.h"
 #endif
 #ifdef TARGET_UARM
-#include "uarm/libuarm.h"
-#include "uarm/arch.h"
-#include "uarm/uARMtypes.h"
+#include "uARM/uarm/libuarm.h"
+#include "uARM/uarm/arch.h"
+#include "uARM/uarm/uARMtypes.h"
 #endif
 

@@ -3,16 +3,16 @@ default:
 	@echo "Please specify a target"
 
 umps:
-	$(MAKE) -f umpsmake
+	$(MAKE) -f uMPS_make
 	
 umps2:
-	$(MAKE) -f umpsmake
+	$(MAKE) -f uMPS_make
 
 uarm:
-	$(MAKE) -f uarmmake
+	$(MAKE) -f uARM_make
 
 clean:
-	$(MAKE) -f uarmmake clean
-	$(MAKE) -f umpsmake clean
+	$(MAKE) -f uARM_make clean
+	$(MAKE) -f uMPS_make clean
 
 .PHONY: umps umps2 uarm clean default
