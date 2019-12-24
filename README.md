@@ -1,5 +1,5 @@
 # BiKayaOS
-**A variation of the Kaya OS that can run on both uARM and uMPS architechture, this is the project for the OS course during the academic year 2019/2020**
+**A variation of the Kaya OS that can run on both uARM and uMPS architechtures, this is the project for the OS course during the academic year 2019/2020**
 
 This project is written by [Enea Guidi](https://github.com/its-hmny), [Marco Tomasone](https://github.com/MarcoTomasone), [Luca Genova](https://github.com/Lucajett99) and [Simone Boldrini](https://github.com/minosse99). The goal of the project is to write a kernel wich can run both on uMPS and uARM architechture, the project is divided in 3 main phases:
 
@@ -10,7 +10,7 @@ In order to use effectively this project you both need the [uARM](http://mellota
 usr@computer:~/BiKayaOS$ make uarm
 usr@computer:~/BiKayaOS$ make umps
 ```
-to build respectively the uarm version or the umps version, if everything has been set correctly the compilation should go fine. After that remember to set the kernel.core.uarm and the kernel.stab.uarm  (respectively .umps) as Core and Symbol Table file in the respective simulators, then boot up the machines
+to build respectively the uARM version or the uMPS version, if everything has been set correctly the compilation should go fine. After that remember to set the kernel.core.uarm and the kernel.stab.uarm  (respectively kernel.*.umps) as Core and Symbol Table file in the respective simulators, then boot up the machines
 
 ## **Phase 0**
 
@@ -19,7 +19,7 @@ The target of this project is to read a string from the user input (via terminal
 handling possible error from the terminal device. 
 
 ### Implementation
-In order to do so we have written two function in the **termutils.c** file respectively *term_getchar()* and *term_gets()* that executed the following algorithm:
+In order to do so we have written two function in the **term_utils.c** file respectively *term_getchar()* and *term_gets()* that executed the following algorithm:
 
 1) Controls that the terminal is open correctly
 2) Send the receive command in the **tp->recv_command** "channel"
@@ -30,8 +30,9 @@ In order to do so we have written two function in the **termutils.c** file respe
 In case of error the method print out a message and then stops the execution indeterminately
 *term_gets()* takes two parameters the char array and its length and cycles until the endline is retrieved or until the max index is reached.
 
-When the input is read the string is passed to the *print()* method in the **devutils.c** file. This is a simple infinite loop cycle that loops till the \0 is reached and at every iteration calls the *print_char()* method that as for the term_getchar() above puts the char in the registrer and checks for error before and after the instruction execution
+When the input is read the string is passed to the *print()* method in the **printer_utils.c** file. This is a simple infinite loop cycle that loops till the \0 is reached and at every iteration calls the *print_char()* method that as for the term_getchar() above puts the char in the registrer and checks for error before and after the instruction execution
 
+Both the term_utils and the printer_utils source and headers are in ./device.
 
 There isn't any type of iteration so after everything went fine the system will put himself on an endless sleep cicle, and should be manually resetted.
 
