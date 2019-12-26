@@ -2,7 +2,7 @@
 #include "term_utils.h"
 #include "printer_utils.h"
 
-/*This file contains all of the function related to general device (printers, tapes, disk, etc.)*/
+/*This file contains all of the function related to printers devices*/
 
 /*LIST OF POSSIBLE ERROR CODE RETURNED BY THE STATUS REGISTRER*/
 #define DEV_N_INSTALLED    0
@@ -17,7 +17,6 @@
 #define PRINT_CHR          2
 
 #define STATUS_MASK        0xFF
-#define DATA_MASK          0xFF
 
 static dtpreg_t *printer0_reg = (dtpreg_t *) DEV_REG_ADDR(IL_PRINTER, 0);
 
@@ -28,6 +27,7 @@ static unsigned int dev_status(dtpreg_t *dev_p) {
 
 static unsigned int print_char(char c) {
     unsigned int stat = dev_status(printer0_reg);
+    /*Check the if the device is ready/installed before using it*/
     if (stat != DEV_READY || stat == DEV_N_INSTALLED)
         return -1;
 
