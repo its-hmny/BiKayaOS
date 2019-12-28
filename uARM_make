@@ -7,12 +7,13 @@ LD = $(XT_PRG_PREFIX)ld
 # uARM-related paths
 UARM_DIR = ./include/uARM
 DEVICE_DIR = ./device
+PCB_ASL_DIR = ./pcb_asl
 INCLUDE_DIR = ./include
 
 # Compiler options
 CFLAGS_LANG = 
 CFLAGS_UARM = -mcpu=arm7tdmi -DTARGET_UARM=1
-CFLAGS = $(CFLAGS_LANG) $(CFLAGS_UARM) -I$(DEVICE_DIR) -I$(UARM_DIR) -I$(UARM_DIR)/uarm -I$(INCLUDE_DIR) -DUARM=1 -Wall -O0
+CFLAGS = $(CFLAGS_LANG) $(CFLAGS_UARM) -I$(DEVICE_DIR) -I$(PCB_ASL_DIR) -I$(UARM_DIR) -I$(UARM_DIR)/uarm -I$(INCLUDE_DIR) -DUARM=1 -Wall -O0
 
 # Linker options
 LDFLAGS = -G 0 -nostdlib -T $(UARM_DIR)/elf32ltsarm.h.uarmcore.x
@@ -27,12 +28,12 @@ all : kernel.core.uarm
 kernel.core.uarm : kernel
 	elf2uarm -k $<
 
-kernel : phase0_test.o device/term_utils.o device/printer_utils.o crtso.o libuarm.o
+kernel : phase1_test.o device/term_utils.o device/printer_utils.o pcb_asl/pcb.o pcb_asl/asl.o crtso.o libuarm.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 
 clean:
 	-rm -rf *.o kernel kernel.*.uarm
-	-rm $(DEVICE_DIR)/*.o
+	-rm $(DEVICE_DIR)/*.o $(PCB_ASL_DIR)/*.o
 
 # Pattern rule for assembly modules
 %.o : %.s
