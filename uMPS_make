@@ -33,7 +33,7 @@ kernel : phase1_test.o device/term_utils.o device/printer_utils.o pcb_asl/pcb.o 
 
 clean :
 	-rm -rf *.o kernel kernel.*.umps
-	-rm $(DEVICE_DIR)/*.o &(PCB_ASL_DIR)/*.o 
+	-rm $(DEVICE_DIR)/*.o $(PCB_ASL_DIR)/*.o 
 
 # Pattern rule for assembly modules
 %.o : %.S

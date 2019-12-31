@@ -10,7 +10,7 @@
 /* Maxi number of overall (eg, system, daemons, user) concurrent processes */
 #define MAXPROC 20
 
-#define UPROCMAX 3  /* number of usermode processes (not including master proc and system daemons */
+#define UPROCMAX 3  /* Number of usermode processes (not including master proc and system daemons */
 
 #define	HIDDEN static
 #define	TRUE 	1
@@ -21,6 +21,6 @@
 
 #define DEV_PER_INT 8 /* Maximum number of devices per interrupt line */
 
-#define CR 0x0a   /* carriage return as returned by the terminal */
+#define CR 0x0a   /* Carriage return as returned by the terminal */
 
 #endif
