@@ -262,4 +262,13 @@ static struct list_head *list_prev(const struct list_head *current) {
 	&pos->member != (head);        \
 	pos = container_of(pos->member.prev, typeof(*pos), member))
 
+/*
+    Macro che "pulisce" i puntatori di una list head dai precendenti valori conenuti
+
+    list: un elemento (anche punatore) di tipo list_head. L'elemento che deve essere pulito
+*/
+#define WIPE_LIST_HEAD(list)    \
+    list.prev = NULL;   \
+    list.next = NULL;
+    
 #endif

@@ -5,11 +5,15 @@
 #define HIDDEN static
 
 HIDDEN LIST_HEAD(pcbFree_queue);
-HIDDEN LIST_HEAD(pcbActive_queue);
 
+/*This method cleans the pcb from the previous data that was stored in it*/
 HIDDEN void wipe_Pcb(pcb_t *block) {
-    /*Need to wipe clean the memory, if setting everything to zero (every bit)*/
-    /*Need something better than bruteforce wipe, so many wasted line of code*/
+    WIPE_LIST_HEAD(block->p_child);
+    WIPE_LIST_HEAD(block->p_next);
+    WIPE_LIST_HEAD(block->p_sib);
+    block->p_parent = NULL;
+    block->p_semkey = NULL;
+    block->priority = 0; /*Check if 0 is a correct value for this field*/
 }
 
 void initPcbs(void) {
@@ -45,10 +49,13 @@ pcb_t *allocPcb(void) {
     else return (NULL);
 }
 
-void mkEmptyProcQ(struct list_head *head) {}
+void mkEmptyProcQ(struct list_head *head) {
+    HIDDEN LIST_HEAD(pcbActive_queue);
+    head = &pcbActive_queue;
+}
 
 int emptyProcQ(struct list_head *head) {
-    return(NULL);
+    return(list_empty(head));
 }
 
 void insertProcQ(struct list_head *head, pcb_t *p) {}
