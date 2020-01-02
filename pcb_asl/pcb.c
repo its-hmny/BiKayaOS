@@ -1,5 +1,6 @@
 #include "../include/const.h"
 #include "../include/listx.h"
+#include "../include/types_bikaya.h"
 #include "pcb.h"
 
 #define HIDDEN static
@@ -7,13 +8,13 @@
 HIDDEN LIST_HEAD(pcbFree_queue);
 
 /*This method cleans the pcb from the previous data that was stored in it*/
-HIDDEN void wipe_Pcb(pcb_t *block) {
-    WIPE_LIST_HEAD(block->p_child);
-    WIPE_LIST_HEAD(block->p_next);
-    WIPE_LIST_HEAD(block->p_sib);
-    block->p_parent = NULL;
-    block->p_semkey = NULL;
-    block->priority = 0; /*Check if 0 is a correct value for this field*/
+HIDDEN void wipe_Pcb(void *block, unsigned int val, unsigned int size) {
+    if (size) {
+        char *toWipe = block;
+        
+        while(size--)
+            *toWipe++ = val;
+    }
 }
 
 void initPcbs(void) {
@@ -25,28 +26,24 @@ void initPcbs(void) {
     }
 }
 
-void freePcb(pcb_t *p) {
-    /*list_del automatically removes it from the list it belongs (in this case the active pcb list)*/
-    list_del(&(p->p_next));
-    /*Then return the same pcb to a the pcbFree_queue*/
-    list_add_tail(&(p->p_next), &(pcbFree_queue));
+void freePcb(struct pcb_t *p) {
+    /*Returns the given pcb to a the pcbFree_queue*/
+    list_add_tail(&p->p_next, &pcbFree_queue);
 }
 
 pcb_t *allocPcb(void) {
     /*Returns NULL if the pcbFree_List is empty (no free pcbs avaiable)*/
-    struct list_head *freeElement = list_next(&pcbFree_queue);
+    if (list_empty(&pcbFree_queue))
+        return (NULL);
 
     /*Delete the pcb from the pcbFree_queue, obtain the pcb_t struct with "container_of" and return it*/
-    if (freeElement != NULL) {
-        list_del(freeElement); 
-        pcb_t *freePCb = container_of(freeElement, struct pcb_t, p_next);
-        
+    else {
+        pcb_t *freePcb = container_of(pcbFree_queue.next, struct pcb_t, p_next);
+        list_del(pcbFree_queue.next);
         /*Before returning the Pcb it sets all the values to zeros*/
-        wipe_Pcb(freePCb);
-        return (freePcb);
+        wipe_Pcb(freePcb, 0, sizeof(freePcb));
+        return(wipe_Pcb);
     }
-    
-    else return (NULL);
 }
 
 void mkEmptyProcQ(struct list_head *head) {
