@@ -55,14 +55,48 @@ int emptyProcQ(struct list_head *head) {
     return(list_empty(head));
 }
 
-void insertProcQ(struct list_head *head, pcb_t *p) {}
+void insertProcQ(struct list_head *head, pcb_t *p) {
+    struct list_head *tmp;
+    pcb_t *last_examined_pcb;
+    /*Initial check that the parameter are correct*/
+    if (head == NULL || p == NULL)
+        return;
+
+    /*A list with only one element is always sorted (semiquote)*/
+    else if (list_empty(head))
+        list_add(&p->p_next, head);
+
+    /*Insert the element maintaining the sorting property of the queue*/
+    else {
+        list_for_each(tmp, head) {
+            last_examined_pcb = container_of(tmp, struct pcb_t, p_next);
+
+            /*If the PCB has to stay in the middle of the queue, adds it in between and returns*/
+            if (p->priority > last_examined_pcb->priority) {
+                __list_add(&p->p_next, tmp->prev, tmp);
+                return;
+            }
+        }
+
+        /*If the cicle loops til the end then the pcb has to be put in the queue tail*/
+        list_add_tail(&p->p_next, head);
+    }
+}
 
 pcb_t *headProcQ(struct list_head *head) {
-    return(NULL);
+    if ((head == NULL) || list_empty(head))
+        return (NULL);
+
+    return(container_of(head->next, struct pcb_t, p_next));
 }
 
 pcb_t *removeProcQ(struct list_head *head) {
-    return(NULL);
+    if ((head == NULL)  || list_empty(head))
+        return (NULL);
+
+    pcb_t *rmdPCB = headProcQ(head);
+    list_del(head->next);
+    return (rmdPCB);
 }
 
 pcb_t *outProcQ(struct list_head *head, pcb_t *p) {
