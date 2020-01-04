@@ -44,8 +44,8 @@
 #include "include/uARM/uarm/arch.h"
 #endif
 
-#include "pcb_asl/pcb.h"
-#include "pcb_asl/asl.h"
+#include "process/pcb.h"
+#include "process/asl.h"
 
 #define MAXSEM MAXPROC
 

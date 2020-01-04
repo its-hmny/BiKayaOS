@@ -1,7 +1,7 @@
 #ifndef ASL_H
 #define ASL_H
 
-#include <types_bikaya.h>
+#include "../include/types_bikaya.h"
 
 /* ASL handling functions */
 semd_t* getSemd(int *key);

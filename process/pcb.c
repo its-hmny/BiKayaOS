@@ -41,8 +41,8 @@ pcb_t *allocPcb(void) {
         pcb_t *freePcb = container_of(pcbFree_queue.next, struct pcb_t, p_next);
         list_del(pcbFree_queue.next);
         /*Before returning the Pcb it sets all the values to zeros*/
-        wipe_Pcb(freePcb, 0, sizeof(freePcb));
-        return(wipe_Pcb);
+        wipe_Pcb(freePcb, 0, sizeof(struct pcb_t));
+        return(freePcb);
     }
 }
 
@@ -100,7 +100,7 @@ pcb_t *removeProcQ(struct list_head *head) {
 }
 
 pcb_t *outProcQ(struct list_head *head, pcb_t *p) {
-    return(NULL);
+    return(NULL); /*Remove a specific element p from the process queue*/
 }
 
 int emptyChild(pcb_t *this) {
