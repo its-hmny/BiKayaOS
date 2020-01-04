@@ -38,10 +38,10 @@ pcb_t *allocPcb(void) {
 
     /*Delete the pcb from the pcbFree_queue, obtain the pcb_t struct with "container_of" and return it*/
     else {
-        pcb_t *freePcb = container_of(pcbFree_queue.next, struct pcb_t, p_next);
+        pcb_t *freePcb = container_of(pcbFree_queue.next, pcb_t, p_next);
         list_del(pcbFree_queue.next);
         /*Before returning the Pcb it sets all the values to zeros*/
-        wipe_Pcb(freePcb, 0, sizeof(struct pcb_t));
+        wipe_Pcb(freePcb, 0, sizeof(pcb_t));
         return(freePcb);
     }
 }
@@ -69,7 +69,7 @@ void insertProcQ(struct list_head *head, pcb_t *p) {
     /*Insert the element maintaining the sorting property of the queue*/
     else {
         list_for_each(tmp, head) {
-            last_examined_pcb = container_of(tmp, struct pcb_t, p_next);
+            last_examined_pcb = container_of(tmp, pcb_t, p_next);
 
             /*If the PCB has to stay in the middle of the queue, adds it in between and returns*/
             if (p->priority > last_examined_pcb->priority) {
@@ -87,7 +87,7 @@ pcb_t *headProcQ(struct list_head *head) {
     if ((head == NULL) || list_empty(head))
         return (NULL);
 
-    return(container_of(head->next, struct pcb_t, p_next));
+    return(container_of(head->next, pcb_t, p_next));
 }
 
 pcb_t *removeProcQ(struct list_head *head) {
@@ -100,7 +100,22 @@ pcb_t *removeProcQ(struct list_head *head) {
 }
 
 pcb_t *outProcQ(struct list_head *head, pcb_t *p) {
-    return(NULL); /*Remove a specific element p from the process queue*/
+    struct list_head *tmp;
+    pcb_t *block;
+
+    if (head == NULL || list_empty(head) || p == NULL)
+        return (NULL);
+
+    list_for_each(tmp, head) {
+        block = container_of(tmp, pcb_t, p_next);
+        
+        if (p == block) {
+            list_del(tmp);
+            return (block);
+        }
+    }
+
+    return (NULL);
 }
 
 int emptyChild(pcb_t *this) {
