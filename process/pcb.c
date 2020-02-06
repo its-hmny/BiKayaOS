@@ -5,6 +5,7 @@
 
 #define HIDDEN static
 
+pcb_t pcbTmp_arr[MAXPROC];
 HIDDEN LIST_HEAD(pcbFree_queue);
 
 /*This method cleans the pcb from the previous data that was stored in it*/
@@ -18,7 +19,7 @@ HIDDEN void wipe_Pcb(void *block, unsigned int val, unsigned int size) {
 }
 
 void initPcbs(void) {
-    pcb_t pcbTmp_arr[MAXPROC];
+    
     unsigned int i;
     
     for (i = 0; i < MAXPROC; i++) {
@@ -73,7 +74,7 @@ void insertProcQ(struct list_head *head, pcb_t *p) {
 
             /*If the PCB has to stay in the middle of the queue, adds it in between and returns*/
             if (p->priority > last_examined_pcb->priority) {
-                __list_add(&p->p_next, tmp->prev, tmp);
+                list_add(&(p->p_next), tmp->prev);
                 return;
             }
         }
@@ -91,11 +92,11 @@ pcb_t *headProcQ(struct list_head *head) {
 }
 
 pcb_t *removeProcQ(struct list_head *head) {
-    if ((head == NULL)  || list_empty(head))
-        return (NULL);
-
     pcb_t *rmdPCB = headProcQ(head);
-    list_del(head->next);
+    
+    if (rmdPCB != NULL)    
+        list_del(&(rmdPCB->p_next));
+    
     return (rmdPCB);
 }
 
