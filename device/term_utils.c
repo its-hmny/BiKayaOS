@@ -1,9 +1,9 @@
 #include "../include/system.h"
 #include "term_utils.h"
 
-/*This file contains all of the function related to terminal device*/
+//This file contains all of the function related to terminal device
 
-/*LIST OF THE POSSIBLE ERROR CODE RETURNED FROM tp->*_status*/
+//LIST OF THE POSSIBLE ERROR CODE RETURNED FROM tp->*_status
 #define TERM_N_INSTALLED   0
 #define ST_READY           1
 #define ILLEGAL_OPCODE     2
@@ -13,7 +13,7 @@
 #define ST_TRANSMITTED     5
 #define ST_RECEIVED        5
 
-/*LIIST OF THE POSSIBLE COMMAND INPUT TO tp->*_command*/
+//LIIST OF THE POSSIBLE COMMAND INPUT TO tp->*_command
 #define RESET              0
 #define CMD_ACK            1       /*Interrupt to free the terminal and make it avaiable to other user*/
 #define CMD_TRANSMIT       2
@@ -23,21 +23,21 @@
 #define TERM_STATUS_MASK   0xFF    /*0.0.0.11111111 => 255. Used to mask the first 12 bit (most significant one)*/
 #define DATA_MASK          0xFF00  /*The mask to clean the data rcv'd => 0.0.11111111.0*/
 
-/*Assignation of the terminal file with the built-in macro*/
+//Assignation of the terminal file with the built-in macro
 static termreg_t *term0_reg = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, 0);
 
-/*This function return the status of the terminal pointer given in input*/
+//This function return the status of the terminal pointer given in input
 static unsigned int trans_status(termreg_t *tp) {
     return ((tp->transm_status) & TERM_STATUS_MASK);
 }
 
-/*Return staus of the terminal pointer for receiving pourpose*/
+//Return staus of the terminal pointer for receiving pourpose
 static unsigned int recv_status(termreg_t *tp) {
     return((tp->recv_status) & TERM_STATUS_MASK);
 } 
 
 static int term_putchar(char c) {
-    /*Check that terminal is ready, there are no errors*/
+    //Check that terminal is ready, there are no errors
     unsigned int stat = trans_status(term0_reg);
     if (stat != ST_READY && stat != ST_TRANSMITTED)
         return -1;
@@ -46,14 +46,14 @@ static int term_putchar(char c) {
     message but in next 8 bit there has to be the data to be transmitted*/
     term0_reg->transm_command = ((c << CHAR_OFFSET) | CMD_TRANSMIT);
 
-    /*Wait if it's busy (busy waiting!)*/
+    //Wait if it's busy (busy waiting!)
     while ((stat = trans_status(term0_reg)) == ST_BUSY)
         ;
 
-    /*The acknowledgement makes the terminal avaiable to other once finished*/
+    //The acknowledgement makes the terminal avaiable to other once finished
     term0_reg->transm_command = CMD_ACK;
 
-    /*Error handler, return error code*/
+    //Error handler, return error code
     if (stat != ST_TRANSMITTED)
         return -1;
     else
