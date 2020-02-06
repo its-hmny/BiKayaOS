@@ -11,7 +11,7 @@ PROCESS_DIR = ./process
 INCLUDE_DIR = ./include
 
 # Compiler options
-CFLAGS_LANG = -ffreestanding -ansi -DTARGET_UMPS=1
+CFLAGS_LANG = -ffreestanding -DTARGET_UMPS=1
 CFLAGS_MIPS = -mips1 -mabi=32 -mno-gpopt -G 0 -mno-abicalls -fno-pic -mfp32
 CFLAGS = $(CFLAGS_LANG) $(CFLAGS_MIPS) -I$(DEVICE_DIR) -I$(PROCESS_DIR) -I$(UMPS2_DIR) -I$(INCLUDE_DIR) -DUMPS=1 -Wall -O0
 
