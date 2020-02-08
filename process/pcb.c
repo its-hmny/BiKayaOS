@@ -120,15 +120,57 @@ pcb_t *outProcQ(struct list_head *head, pcb_t *p) {
 }
 
 int emptyChild(pcb_t *this) {
-    return(NULL);
+ //return 1 (TRUE) if pcb *this haven't got a child,otherwise return 0(FALSE)
+    if (this->p_child == NULL)
+        return 1;
+    else 
+        return 0;
 }
 
-void insertChild(pcb_t *prnt, pcb_t *p) {}
+void insertChild(pcb_t *prnt, pcb_t *p) {
+    p->p_parent = prnt;
+    p->p_sib = prnt->p_child;
+    prnt->p_child = p;
+
+    }
 
 pcb_t *removeChild(pcb_t *p) {
-    return(NULL);
+    if(p->p_child == NULL)
+        return(NULL);
+    else{
+        pcb_t *tmp = p;
+        pcb_t *pparent = p->p_parent;
+        pparent->p_child = tmp->p_sib;
+        tmp->p_sib = NULL;
+        tmp->p_parent = NULL;
+        return tmp; 
+
+    }
 }
 
 pcb_t *outChild(pcb_t *p) {
-    return(NULL);
+    if(p->p_parent == NULL)
+        return(NULL);
+    else{
+            pcb_t* pparent = p->p_parent;
+            pcb_t* pp = pparent->p_child;
+            pcb_t* pp1 = pp->p_sib;
+            if(pp == p){
+                return removeChild(p);
+            }else if(pp ->p_sib == p){
+                
+                pp1 = pp1->p_sib;
+                return p;
+            }else {
+                while(pp1 ->p_sib != NULL){
+                    if(pp1 == p)
+                        pp->p_sib = pp1->p_sib;
+                    pp = pp1;
+                    pp1= pp1->p_sib;
+                    
+                }
+                return p;
+            }
+        }
+    }
 }
