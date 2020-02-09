@@ -43,6 +43,8 @@ pcb_t *allocPcb(void) {
         list_del(pcbFree_queue.next);
         /*Before returning the Pcb it sets all the values to zeros*/
         wipe_Pcb(freePcb, 0, sizeof(pcb_t));
+        INIT_LIST_HEAD(&(freePcb->p_child));
+        INIT_LIST_HEAD(&(freePcb->p_sib));
         return(freePcb);
     }
 }
@@ -120,7 +122,7 @@ pcb_t *outProcQ(struct list_head *head, pcb_t *p) {
 }
 
 int emptyChild(pcb_t *this) {
-    return(NULL);
+    return(list_empty(&(this->p_child)));
 }
 
 void insertChild(pcb_t *prnt, pcb_t *p) {}

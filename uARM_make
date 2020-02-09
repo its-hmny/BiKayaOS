@@ -28,7 +28,7 @@ all : kernel.core.uarm
 kernel.core.uarm : kernel
 	elf2uarm -k $<
 
-kernel : phase0_test.o device/term_utils.o device/printer_utils.o process/pcb.o process/asl.o crtso.o libuarm.o
+kernel : phase1_test.o device/term_utils.o device/printer_utils.o process/pcb.o process/asl.o crtso.o libuarm.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 
 clean:
