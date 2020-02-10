@@ -4,8 +4,8 @@
 #include "asl.h"
 
 #define HIDDEN static;
-struct list_head *semd_h;
-struct list_head *semdFree_h;
+struct list_head *semd_h; //sentinella asl
+struct list_head *semdFree_h; //sentinella lista libera
 
 
 semd_t* getSemd(int *key) {
