@@ -184,7 +184,8 @@ int main() {
     addokbuf(" Added 10 entries to the free PCB list   \n");
 
     /* Create a 10-element process queue */
-    INIT_LIST_HEAD(&qa);
+    // INIT_LIST_HEAD(&qa);
+    mkEmptyProcQ(&qa);
 
     if (!emptyProcQ(&qa))
         adderrbuf("ERROR: emptyProcQ(qa): unexpected FALSE   ");
