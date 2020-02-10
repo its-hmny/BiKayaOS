@@ -4,12 +4,12 @@
 #include "asl.h"
 
 #define HIDDEN static;
+
 struct list_head *semd_h; //sentinella asl
 struct list_head *semdFree_h; //sentinella lista libera
 
 
 semd_t* getSemd(int *key) {
-
     return(NULL);
 }
 
@@ -23,81 +23,78 @@ pcb_t* removeBlocked(int *key) {
     return(NULL);
 }
 
-/*DESCRIZIONE: Rimuove il PCB puntato da p dalla coda del
-semaforo su cui è bloccato (indicato da p->p_semKey). Se il
-PCB non compare in tale coda, allora restituisce NULL
-(condizione di errore). Altrimenti, restituisce p. Se la coda
-dei processi bloccati per il semaforo diventa vuota,x
-rimuove il descrittore corrispondente dalla ASL e lo
-inserisce nella coda dei descrittori liberi (semdFree).*/
+/*
+    This function removes the PCB pointed by p from the semaphor's queue (found with the semkey)
+    where it's blocked, then if the queue after the removal becomes empty the function deletes
+    also the semaphore descriptor from the list and insert it back in the free list.
 
+    p: the PCB wich has to be removed from the queue
+    return: the PCB removed if found, NULL if not found 
+*/
 pcb_t* outBlocked(pcb_t *p) {
-    struct semd_t* semd = getSemd(p->p_semkey);
-    struct list_head* pos;
-    int guardia=1;
-    
-    if(semd==NULL)
-        return NULL;
-    
-    //NON SO SE È POSSIBILE CHE LA CHIAVE COMBACI MA NON SI TROVA ALL'INTERNO DELLA CODA, IN QUEL CASO BISOGNA FARE ANCHE IL CONTROLLO ALL'INTERNO DELLA CODA
+    semd_t *semd = getSemd(p->p_semkey);
+    struct list_head *pos;
 
-    else{
-        list_for_each(pos,&semd->s_procQ){  //scorro finchè non trovo il pcb che voglio eliminare
-            if((pos->next==p) && (guardia=1)){
-                pos=pos->next;
-                list_del(pos);
-                guardia=0;
-                }
-        }
+    if (p == NULL && semd == NULL)
+        return NULL;
+
+    // Cicles till the PCB is found
+    list_for_each(pos,&(semd->s_procQ)) {  
+        //USA CONTAINER OF PER RICAVARE IL PCB
+        //Luca questo ramo if è sbagliato, anche la condizione
+        if (pos->next == p) { }
+        
     }
 
-    if(list_empty(&semd->s_procQ)){ //controllo se posso spostare il semd da quelli attivi a quelli liberi
+    // Checks if the list has been emptied, fare a parte come HIDDEN
+    if (list_empty(&(semd->s_procQ))) { 
         list_del(semd); 
-        list_add_tail(semd,semdFree_h);
+        list_add_tail(semd, semdFree_h);
     }
 
-    return(pos);
+    return(pos); //Ritorni un list_head invece che un pcb_t
 }
 
-/*DESCRIZIONE: Restituisce (senza rimuovere) il puntatore al
-PCB che si trova in testa alla coda dei processi associata al
-SEMD con chiave key. Ritorna NULL se il SEMD non
-compare nella ASL oppure se compare ma la sua coda dei
-processi è vuota.*/
+/*
+    This function gets the semaphor through the semkey, checks for args and the sem
+    to be not NULL (error checking) and then returns the first PCB in the blocked sem queue
 
+    key: the semaphore's key of wich we want to obtain the blocked PCB
+    return: the first blocked PCB on the semaphore queue if found, else NULL 
+*/
 pcb_t* headBlocked(int *key) {
-    struct semd_t* semd = getSemd(key);
+    semd_t* semd = getSemd(key);
     struct list_head* pos;
     
-    //controllo se semd appartiene agli ASL o se ha la coda vuota, non so se basta solo la prima codizione dato che se non appartiene agli ASL allora ha la coda sicuramente vuota
-    if((semd==NULL) || (list_empty(&semd->s_procQ))) //non so se la sentinella ci sia a prescindere e quindi la conta come elemento della lista
+    //Arguments check 
+    if (semd == NULL || list_empty(&semd->s_procQ)) 
         return NULL;
-    else
-    {
-        return (container_of(list_next(&semd->s_procQ), struct pcb_t, p_next)); //list_next(semd->s_procQ) perchè il primo è l'elemento sentinella
-    }
-    //ritorna il puntatore ad una struttura contenete quel PCB
 
-
+    //Takes the first element in the queue and returns it
+    pos = list_next(&(semd->s_procQ));
+    return (container_of(pos, pcb_t, p_next));
 }
 
-/*DESCRIZIONE: Rimuove il PCB
-puntato da p dalla coda del semaforo
-su cui è bloccato (indicato da
-p->p_semKey). Inoltre, elimina tutti i
-processi dell’albero radicato in p (ossia
-tutti i processi che hanno come avo p)
-dalle eventuali code dei semafori su
-cui sono bloccati.*/
+/*
+    This function removes the PCB p from his semaphor queue, then iterates through
+    all of his own tree (wich root is p himself) removing recursively from their own queue
+    his sons, grandsons and so on
 
+    p: is the PCB root from wich we want to start removing (the root)
+    return: void
+*/
 void outChildBlocked(pcb_t *p) {
-    struct pcb_t *avo=outBlocked(p);
+    struct pcb_t *root = outBlocked(p);
   
-    if(list_empty(&avo->p_child)==FALSE){
-        struct list_head *tmp=&avo->p_child;
-        struct list_head *pos;
+    //Check if the root has childs
+    if (! list_empty(&(root->p_child))) {
+        struct list_head *tmp;
 
-        for (pos=(tmp)->next; pos != tmp; pos=pos->next)  //l'avevo fatta con list_for_each(pos,&tmp) solo che mi dava errore e mi diceva di espanderla così
-            outChildBlocked(container_of(pos,struct pcb_t, p_sib)); //richiamo la funzione per tutti i figli
+    //Obtains the child PCB with container_of and recursively removes the grandchild of the actual root
+        list_for_each(tmp, &(root->p_child)) {
+            pcb_t *child = container_of(tmp, pcb_t, p_sib);
+            outChildBlocked(child);
+            //Dove li salviamo tutti sti PCB deallocati??
+        }
     }
 }

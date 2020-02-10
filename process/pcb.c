@@ -192,12 +192,12 @@ pcb_t *outProcQ(struct list_head *head, pcb_t *p) {
     list_for_each(tmp, head) {
         block = container_of(tmp, pcb_t, p_next);
         
-        if (p == block) {
+        if (p == block) { //If there's a match returns the found/given pcb
             list_del(tmp);
             return (block);
         }
     }
-
+    //If there's no match then returns NULL
     return (NULL);
 }
 
