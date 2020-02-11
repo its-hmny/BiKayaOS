@@ -171,7 +171,7 @@ void outChildBlocked(pcb_t *p) {
     struct pcb_t *root = outBlocked(p);
   
     //Check if the root has childs
-    if (! list_empty(&(root->p_child))) {
+    if (root != NULL && ! list_empty(&(root->p_child))) {
         struct list_head *tmp;
 
     //Obtains the child PCB with container_of and recursively removes the grandchild of the actual root

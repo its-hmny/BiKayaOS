@@ -202,13 +202,18 @@ pcb_t *outProcQ(struct list_head *head, pcb_t *p) {
 }
 
 /*
-    This function check that the given PCB has no childs.
+    This function check that the given PCB has no childs. If the argument
+    is NULL then returnes FALSE.
 
     this: a pointer to the PCB we want to check
     return: 1 if the PCB has no child, 0 else
 */
 int emptyChild(pcb_t *this) {
-    return(list_empty(&(this->p_child)));
+    if (this != NULL)
+        return(list_empty(&(this->p_child)));
+    
+    else 
+        return (FALSE);
 }
 
 void insertChild(pcb_t *prnt, pcb_t *p) {}
