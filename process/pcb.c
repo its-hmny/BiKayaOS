@@ -179,13 +179,12 @@ pcb_t *removeProcQ(struct list_head *head) {
 */
 pcb_t *outProcQ(struct list_head *head, pcb_t *p) {
     struct list_head *tmp;
-    pcb_t *block;
 
     if (head == NULL || list_empty(head) || p == NULL)
         return (NULL);
 
     list_for_each(tmp, head) {
-        block = container_of(tmp, pcb_t, p_next);
+        pcb_t *block = container_of(tmp, pcb_t, p_next);
         
         if (p == block) { //If there's a match returns the found/given pcb
             list_del(tmp);
@@ -213,10 +212,11 @@ void insertChild(pcb_t *prnt, pcb_t *p) {
 }
 pcb_t *removeChild(pcb_t *p) {
     struct list_head *tmp = &p->p_child;
+
     if (p == NULL || list_empty(tmp))
         return (NULL);
 
-    tmp = tmp->next;
+    tmp = list_next(tmp);
     list_del(tmp);
     return(container_of(tmp, pcb_t, p_sib));
     
