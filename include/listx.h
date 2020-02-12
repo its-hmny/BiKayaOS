@@ -1,4 +1,5 @@
-/* Subset of the Linux Kernel source file: "include/linux/list.h" CPLv2 */
+/* subset of the Linux Kernel source file: "include/linux/list.h"
+CPLv2 */
 #ifndef _LISTX_H
 #define _LISTX_H
 
@@ -87,7 +88,8 @@ struct list_head {
     
     return: void
 */
-static void INIT_LIST_HEAD(struct list_head *list) {
+static inline void INIT_LIST_HEAD(struct list_head *list)
+{
 	list->next = list;
 	list->prev = list;
 }
@@ -99,7 +101,10 @@ static void INIT_LIST_HEAD(struct list_head *list) {
     prev: elemento che deve precedere new
     next: elemento che deve seguire new
 */
-static void __list_add(struct list_head *new, struct list_head *prev, struct list_head *next) {
+static inline void __list_add(struct list_head *new,
+		struct list_head *prev,
+		struct list_head *next)
+{
 	next->prev = new;
 	new->next = next;
 	new->prev = prev;
@@ -114,7 +119,8 @@ static void __list_add(struct list_head *new, struct list_head *prev, struct lis
 
     return: void
 */
-static void list_add(struct list_head *new, struct list_head *head) {
+static inline void list_add(struct list_head *new, struct list_head *head)
+{
 	__list_add(new, head, head->next);
 }
 
@@ -126,7 +132,8 @@ static void list_add(struct list_head *new, struct list_head *head) {
 
     return: void
 */
-static void list_add_tail(struct list_head *new, struct list_head *head) {
+static inline void list_add_tail(struct list_head *new, struct list_head *head)
+{
 	__list_add(new, head->prev, head);
 }
 
@@ -138,7 +145,8 @@ static void list_add_tail(struct list_head *new, struct list_head *head) {
 
     return: void
 */
-static void __list_del(struct list_head * prev, struct list_head * next) {
+static inline void __list_del(struct list_head * prev, struct list_head * next)
+{
 	next->prev = prev;
 	prev->next = next;
 }
@@ -150,7 +158,8 @@ static void __list_del(struct list_head * prev, struct list_head * next) {
 
     return: void
 */
-static void list_del(struct list_head *entry) {
+static inline void list_del(struct list_head *entry)
+{
 	__list_del(entry->prev, entry->next);
 }
 
@@ -162,7 +171,9 @@ static void list_del(struct list_head *entry) {
 
     return: 0 se list non e' l'ultimo elemento, 1 altrimenti
 */
-static int list_is_last(const struct list_head *list, const struct list_head *head) {
+static inline int list_is_last(const struct list_head *list,
+		const struct list_head *head)
+{
 	return list->next == head;
 }
 
@@ -173,7 +184,8 @@ static int list_is_last(const struct list_head *list, const struct list_head *he
 
     return: 1 se la lista e' vuota, 0 altrimenti
 */
-static int list_empty(const struct list_head *head) {
+static inline int list_empty(const struct list_head *head)
+{
 	return head->next == head;
 }
 
@@ -185,7 +197,8 @@ static int list_empty(const struct list_head *head) {
 
     return: current->next se la lista non e' vuota, NULL altrimenti
 */
-static struct list_head *list_next(const struct list_head *current) {
+static inline struct list_head *list_next(const struct list_head *current)
+{
 	if (list_empty(current))
 		return NULL;
 	else
@@ -200,7 +213,8 @@ static struct list_head *list_next(const struct list_head *current) {
 
     return: current->prev se la lista non e' vuota, NULL altrimenti
 */
-static struct list_head *list_prev(const struct list_head *current) {
+static inline struct list_head *list_prev(const struct list_head *current)
+{
 	if (list_empty(current))
 		return NULL;
 	else

@@ -1,14 +1,12 @@
 #include "../include/types_bikaya.h"
 #include "../include/listx.h"
 #include "../include/const.h"
-#include "pcb.h"
 #include "asl.h"
 
-#define HIDDEN static;
-
-semd_t semdTmp_arr[MAXPROC];
+HIDDEN semd_t semdTmp_arr[MAXPROC];
 HIDDEN LIST_HEAD(semdFree_list); //Free semaphores list
-HIDDEN LIST_HEAD(semdAct_list); // Active semaphore list
+HIDDEN LIST_HEAD(semdActive_list); // Active semaphore list
+
 
 /*
     Auxiliary function to remove a semaphore with an empty process queue from 
@@ -18,9 +16,9 @@ HIDDEN LIST_HEAD(semdAct_list); // Active semaphore list
     return: void
 */
 HIDDEN void rmvEmptySemd(struct semd_t* semd){
-    if (list_empty(&(semd->s_procQ))) { 
-        list_del(&(semd->s_next)); 
-        list_add_tail(&(semd->s_next), &semdFree_list);
+    if (list_empty(&semd->s_procQ)) { 
+        list_del(&semd->s_next); 
+        list_add_tail(&semd->s_next, &semdFree_list);
     }
 }
 
@@ -33,12 +31,12 @@ HIDDEN void rmvEmptySemd(struct semd_t* semd){
 */
 semd_t* getSemd(int *key) {
     struct list_head *pos;
-    semd_t *tmp;
     
-    list_for_each(pos, &semdAct_list){
-        tmp = container_of(tmp , semd_t , s_next);
+    list_for_each(pos, &semdActive_list){
+        semd_t *tmp = container_of(pos , semd_t , s_next);
+        
         if (tmp->s_key == key)
-            return tmp;
+            return (tmp);
     }
     
     return(NULL);
@@ -49,11 +47,10 @@ semd_t* getSemd(int *key) {
     semd free list. 
 */
 void initASL(void) {
-    unsigned int i;
-    
-    for(i = 0; i < MAXPROC ; i++) {
-        INIT_LIST_HEAD(&(semdTmp_arr[i].s_procQ)); //Initialize s_procQ to empty list
-        list_add_tail(&(semdTmp_arr[i].s_next), &semdFree_list);
+
+    for(unsigned int i = 0; i < MAXPROC ; i++) {
+        INIT_LIST_HEAD(&semdTmp_arr[i].s_procQ); //Initialize s_procQ to empty list
+        list_add_tail(&semdTmp_arr[i].s_next, &semdFree_list);
     } 
 }
 
@@ -63,26 +60,31 @@ void initASL(void) {
 
     key: the key corresponding to the semaphor in wich we have to add the PCB
     p: the PCB desired to be added
-    return: 1 on success, on fail
+    return: 1 on success, 0 on fail
 */
 int insertBlocked(int *key, pcb_t* p) {
      semd_t *tmp = getSemd(key); //Find the semd through his own key
-     pcb_t *proc;
     
     if (tmp == NULL) {
         if (! list_empty(&semdFree_list)) {
+            //Gets a new semaphor and adds it to the ASL (Active Semaphor List)
             tmp = container_of(list_next(&semdFree_list), semd_t, s_next); //Obtain the first semd in the free queue
-            list_del(&(tmp->s_next));
-            list_add_tail(&(tmp->s_next), &semdAct_list);
+            list_del(&tmp->s_next);
+            list_add_tail(&tmp->s_next, &semdActive_list);
+            
+            //Adds the PCB p to the semaphor process queue and sets the key
+            list_add_tail(&p->p_next, &tmp->s_procQ);
+            p->p_semkey = key;
             tmp->s_key = key;
-            return (TRUE);
+
+            return (FALSE);
         } 
         else
-            return (FALSE);
+            return (TRUE);
     }
 
-    list_add_tail(&(p->p_next), &(tmp->s_procQ));
-    return (TRUE);  
+    list_add_tail(&p->p_next, &tmp->s_procQ);
+    return (FALSE);  
 }
 
 /*
@@ -95,16 +97,15 @@ int insertBlocked(int *key, pcb_t* p) {
 */
 pcb_t* removeBlocked(int *key) {
     semd_t *semd = getSemd(key);
-    struct list_head *pos;
-    pcb_t *proc;
     
     if (semd == NULL || list_empty(&semd->s_procQ))
         return (NULL);
         
-    pos = list_next(&semd->s_procQ);
-    proc = container_of(pos, pcb_t , p_next);
+    struct list_head *pos = list_next(&semd->s_procQ);
+    pcb_t *proc = container_of(pos, pcb_t , p_next);
     list_del(pos);
 
+    //Checks that the semd s_procQ hasn't become empty and eventually deallocates it
     rmvEmptySemd(semd);
 
     return(proc);   
@@ -121,17 +122,16 @@ pcb_t* removeBlocked(int *key) {
 pcb_t* outBlocked(pcb_t *p) {
     semd_t *semd = getSemd(p->p_semkey);
     struct list_head *pos;
-    struct pcb_t *tmp;
 
     if (p == NULL && semd == NULL)
         return NULL;
 
     // Cicles till the PCB is found
-    list_for_each(pos, &(semd->s_procQ)) {  
-        tmp = container_of(pos, pcb_t, p_next);
+    list_for_each(pos, &semd->s_procQ) {  
+        pcb_t *tmp = container_of(pos, pcb_t, p_next);
         
         if (p == tmp) { 
-            list_del(&(tmp->p_next));
+            list_del(&tmp->p_next);
             rmvEmptySemd(semd); //If the semd->s_procQ became an empty list, removes semd from the semdActive_list
             return (tmp);
         }
@@ -155,7 +155,7 @@ pcb_t* headBlocked(int *key) {
         return NULL;
 
     //Takes the first element in the queue and returns it
-    pos = list_next(&(semd->s_procQ));
+    pos = list_next(&semd->s_procQ);
     return (container_of(pos, pcb_t, p_next));
 }
 
@@ -171,17 +171,13 @@ void outChildBlocked(pcb_t *p) {
     struct pcb_t *root = outBlocked(p);
   
     //Check if the root has childs
-    if (root != NULL && ! list_empty(&(root->p_child))) {
+    if (root != NULL && ! list_empty(&root->p_child)) {
         struct list_head *tmp;
 
     //Obtains the child PCB with container_of and recursively removes the grandchild of the actual root
-        list_for_each(tmp, &(root->p_child)) {
+        list_for_each(tmp, &root->p_child) {
             pcb_t *child = container_of(tmp, pcb_t, p_sib);
             outChildBlocked(child);
-            freePcb(child);
         }
     }
-
-    //Then deallocates the root pcb
-    freePcb(root);
 }

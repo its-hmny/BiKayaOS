@@ -32,9 +32,6 @@
  *
  */
 
-#include "include/const.h"
-#include "include/listx.h"
-
 #ifdef TARGET_UMPS
 #include "include/uMPS/libumps.h"
 #include "include/uMPS/arch.h"
@@ -44,6 +41,8 @@
 #include "include/uARM/uarm/arch.h"
 #endif
 
+#include "include/const.h"
+#include "include/listx.h"
 #include "process/pcb.h"
 #include "process/asl.h"
 
@@ -185,7 +184,6 @@ int main() {
 
     /* Create a 10-element process queue */
     INIT_LIST_HEAD(&qa);
-    //mkEmptyProcQ(&qa);
 
     if (!emptyProcQ(&qa))
         adderrbuf("ERROR: emptyProcQ(qa): unexpected FALSE   ");
@@ -244,7 +242,7 @@ int main() {
         freePcb(q);
     }
 
-    /* Removing the last element */
+    // Removing the last element
     q = removeProcQ(&qa);
     if (q != minproc)
         adderrbuf("ERROR: removeProcQ(): failed on last entry   ");
@@ -295,7 +293,7 @@ int main() {
     /* Check removeChild */
     q = removeChild(procp[0]);
     if (q == NULL || q != procp[2])
-        adderrbuf("ERROR: removeChild(procp[0]) failed ");
+        adderrbuf("ERROR: removeChild(procp[0]) failed (first remove)");
 
     q = removeChild(procp[7]);
     if (q == NULL || q != procp[9])
@@ -303,7 +301,7 @@ int main() {
 
     q = removeChild(procp[0]);
     if (q == NULL || q != procp[3])
-        adderrbuf("ERROR: removeChild(procp[0]) failed ");
+        adderrbuf("ERROR: removeChild(procp[0]) failed (second remove)");
 
     q = removeChild(procp[0]);
     if (q == NULL || q != procp[7])
@@ -334,7 +332,7 @@ int main() {
 
     /* check ASL */
     initASL();
-    addokbuf("Initializing active semaphore list   \n");
+    addokbuf("\n\n Initializing active semaphore list   \n");
 
     /* check removeBlocked and insertBlocked */
     addokbuf(" Test insertBlocked(): test #1 started  \n");

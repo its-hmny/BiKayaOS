@@ -2,7 +2,7 @@
 #define PCB_H
 #include "../include/types_bikaya.h"
 
-/* PCB handling functions */
+/* PCB HANDLING FUNCTIONS */
 
 /* PCB free list handling functions */
 void initPcbs(void);
@@ -14,10 +14,8 @@ void mkEmptyProcQ(struct list_head *head);
 int emptyProcQ(struct list_head *head);
 void insertProcQ(struct list_head *head, pcb_t *p);
 pcb_t *headProcQ(struct list_head *head);
-
 pcb_t *removeProcQ(struct list_head *head);
 pcb_t *outProcQ(struct list_head *head, pcb_t *p);
-
 
 /* Tree view functions */
 int emptyChild(pcb_t *this);
