@@ -6,7 +6,7 @@
 
 #define HIDDEN static
 
-pcb_t pcbTmp_arr[MAXPROC];
+HIDDEN pcb_t pcbTmp_arr[MAXPROC];
 HIDDEN LIST_HEAD(pcbFree_queue);
 
 
@@ -38,12 +38,10 @@ HIDDEN void wipe_Pcb(void *block, unsigned int size) {
     return: void
 */
 void initPcbs(void) {
-    
     unsigned int i;
     
-    for (i = 0; i < MAXPROC; i++) {
+    for (i = 0; i < MAXPROC; i++)
         list_add_tail(&pcbTmp_arr[i].p_next, &pcbFree_queue);
-    }
 }
 
 /*
@@ -54,12 +52,9 @@ void initPcbs(void) {
     return: void
 */
 void freePcb(pcb_t *p) {
-    if (emptyChild(p)) {
-        list_del(&p->p_next);
-        list_del(&p->p_sib);
-        list_add_tail(&p->p_next, &pcbFree_queue);
-    }
-    else PANIC();
+    list_del(&p->p_next);
+    list_del(&p->p_sib);
+    list_add_tail(&p->p_next, &pcbFree_queue);
 }
 
 /*
@@ -75,14 +70,15 @@ pcb_t *allocPcb(void) {
         return (NULL);
 
     //Delete the pcb from the pcbFree_queue, obtain the pcb_t struct with "container_of" and return it
-    else {
-        pcb_t *freePcb = container_of(pcbFree_queue.next, pcb_t, p_next);
-        list_del(pcbFree_queue.next);
-        wipe_Pcb(freePcb, sizeof(pcb_t));
-        INIT_LIST_HEAD(&(freePcb->p_child));
-        INIT_LIST_HEAD(&(freePcb->p_sib));
-        return(freePcb);
-    }
+    pcb_t *freePcb = container_of(list_next(&pcbFree_queue), pcb_t, p_next);
+    list_del(&(freePcb->p_next));
+
+    //Wipes the PCB and initialize his list to empty list
+    wipe_Pcb(freePcb, sizeof(pcb_t));
+    INIT_LIST_HEAD(&(freePcb->p_child));
+    INIT_LIST_HEAD(&(freePcb->p_sib));
+
+    return(freePcb);
 }
 
 /*
@@ -95,7 +91,6 @@ pcb_t *allocPcb(void) {
 */
 void mkEmptyProcQ(struct list_head *head) {
     INIT_LIST_HEAD(head);
-    
 }
 
 /*
@@ -216,12 +211,37 @@ int emptyChild(pcb_t *this) {
         return (FALSE);
 }
 
-void insertChild(pcb_t *prnt, pcb_t *p) {}
+void insertChild(pcb_t *prnt, pcb_t *p) {
+    p->p_parent = prnt;
+    list_add_tail(&(p->p_sib), &(prnt->p_child));
+}
 
 pcb_t *removeChild(pcb_t *p) {
-    return(NULL);
+    struct list_head *childList = &p->p_child;
+
+    if (list_empty(childList))
+        return (NULL);
+    
+    pcb_t *firstChild = container_of(list_next(childList), pcb_t, p_sib);
+    return (firstChild);
 }
 
 pcb_t *outChild(pcb_t *p) {
-    return(NULL);
+    pcb_t *parent = p->p_parent;
+    pcb_t *evalChild;
+    struct list_head *tmp, *head;
+
+    if (parent == NULL || list_empty(&(parent->p_child)))
+        return (NULL);
+
+    head = &(parent->p_child);
+
+    list_for_each(tmp, head) {
+        evalChild = container_of(tmp, pcb_t, p_sib);
+
+        if (p == evalChild)
+            return (evalChild);
+    }
+
+    return (NULL);
 }

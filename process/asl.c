@@ -12,7 +12,7 @@ HIDDEN LIST_HEAD(semdAct_list); // Active semaphore list
 
 /*
     Auxiliary function to remove a semaphore with an empty process queue from 
-    the active semaphore list
+    the active semaphore list, it removes it only if empty
     
     semd: the semaphore that as to be removed if empty
     return: void
