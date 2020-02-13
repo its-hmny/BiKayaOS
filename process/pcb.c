@@ -18,13 +18,11 @@ HIDDEN LIST_HEAD(pcbFree);
     
     return: void
 */
-void *wipe_Pcb(void *memaddr, int null, unsigned int size) {
+void wipe_Pcb(void *memaddr, unsigned int size) {
     unsigned char* tmp_p = memaddr;
     
     while(size--)
-        *tmp_p++ = (unsigned char) null;
-    
-    return memaddr;
+        *tmp_p++ = (unsigned char) 0;
 }
 
 /*
@@ -69,10 +67,11 @@ pcb_t *allocPcb(void) {
     else {
         //Delete the pcb from the pcbFree_queue, obtain the pcb_t struct with "container_of" and return it
         pcb_t *newPcb = container_of(tmp, pcb_t, p_next);
-        list_del(tmp);
+        list_del(&newPcb->p_next);
 
         //Wipes the PCB and initialize his list to empty list
-        newPcb = wipe_Pcb(newPcb, 0, sizeof(pcb_t));
+        wipe_Pcb(newPcb, sizeof(pcb_t));
+        INIT_LIST_HEAD(&newPcb->p_next);
         INIT_LIST_HEAD(&newPcb->p_child);
         INIT_LIST_HEAD(&newPcb->p_sib);
 
@@ -162,7 +161,7 @@ pcb_t *headProcQ(struct list_head *head) {
 pcb_t *removeProcQ(struct list_head *head) {
     pcb_t *toRemove = headProcQ(head);
 
-    if (head != NULL)
+    if (toRemove != NULL)
         list_del(&toRemove->p_next);
     
     return(toRemove);
