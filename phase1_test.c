@@ -167,11 +167,11 @@ int main() {
     /* Check allocPcb */
     for (i = 0; i < MAXPROC; i++) {
         if ((procp[i] = allocPcb()) == NULL)
-            adderrbuf("allocPcb(): unexpected NULL   ");
+            adderrbuf("allocPcb(): unexpected NULL   \n");
     }
 
     if (allocPcb() != NULL) {
-        adderrbuf(" ERROR: allocPcb(): allocated more than MAXPROC entries   ");
+        adderrbuf(" ERROR: allocPcb(): allocated more than MAXPROC entries   \n");
     }
     addokbuf(" allocPcb test OK   \n");
 

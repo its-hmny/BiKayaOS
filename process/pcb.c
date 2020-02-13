@@ -18,14 +18,13 @@ HIDDEN LIST_HEAD(pcbFree);
     
     return: void
 */
-HIDDEN void *wipe_Pcb(void *block, unsigned int size) {
-    if (size) {
-        char *toWipe = block;
-        
-        while(size--)
-            *toWipe++ = 0;
-    }
-    return (block);
+void *wipe_Pcb(void *memaddr, int null, unsigned int size) {
+    unsigned char* tmp_p = memaddr;
+    
+    while(size--)
+        *tmp_p++ = (unsigned char) null;
+    
+    return memaddr;
 }
 
 /*
@@ -73,7 +72,7 @@ pcb_t *allocPcb(void) {
         list_del(tmp);
 
         //Wipes the PCB and initialize his list to empty list
-        newPcb = wipe_Pcb(newPcb, sizeof(pcb_t));
+        newPcb = wipe_Pcb(newPcb, 0, sizeof(pcb_t));
         INIT_LIST_HEAD(&newPcb->p_child);
         INIT_LIST_HEAD(&newPcb->p_sib);
 

@@ -1,13 +1,13 @@
 #ifndef _TYPES11_H
 #define _TYPES11_H
 #ifdef TARGET_UMPS
-#include <uMPS/types.h>
+#include "uMPS/umps/types.h"
 #endif
 #ifdef TARGET_UARM
 #define UARM_MACHINE_COMPILING
-#include <uARM/uarm/uARMtypes.h>
+#include "uARM/uarm/uARMtypes.h"
 #endif
-#include <listx.h>
+#include "listx.h"
 
 typedef unsigned int memaddr;
 
