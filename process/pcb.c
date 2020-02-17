@@ -204,10 +204,26 @@ int emptyChild(pcb_t *this) {
     return (this != NULL && list_empty(&this->p_child));
 }
 
+/*
+    This function insert the p PCB in the child list of the PCB prnt
+    It doesn't check that p has another father when added so it must
+    be checked NULL
+
+    prnt: the PCB wich is the father
+    p: the PCB wich has to be inserted
+    return: void
+*/
 void insertChild(pcb_t *prnt, pcb_t *p) {
     p->p_parent = prnt;
     list_add_tail(&p->p_sib, &prnt->p_child);
 }
+
+/*
+    This function removes the first child of the given PCB p
+    
+    p: the PCB of wich we want to obtain the first son in the list
+    return: NULL if the PCB p has no child, the first son on success
+*/
 pcb_t *removeChild(pcb_t *p) {
     struct list_head *tmp = &p->p_child;
 
@@ -219,6 +235,15 @@ pcb_t *removeChild(pcb_t *p) {
     return(container_of(tmp, pcb_t, p_sib));
     
 }
+
+/*
+    Removes the PCB p from his siblings list (also the child list of the 
+    father), if p has no parent or the PCB isn't in the child list of the 
+    father returns NULL
+
+    p: the PCB we want to remove from the child list
+    return: the given PCB if found, else NULL
+*/
 pcb_t *outChild(pcb_t *p) {
     if (p->p_parent == NULL)
         return(NULL);
