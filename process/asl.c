@@ -58,7 +58,7 @@ void initASL(void) {
     Inserts the given PCB p in the semd with the matching key, if a semd with the same key
     doesn't exist, the function tries to allocate a new one if avaiable else returns NULL
 
-    key: the key corresponding to the semaphor in wich we have to add the PCB
+    key: the key corresponding to the semaphore in wich we have to add the PCB
     p: the PCB desired to be added
     return: 1 on success, 0 on fail
 */
@@ -67,12 +67,12 @@ int insertBlocked(int *key, pcb_t* p) {
     
     if (tmp == NULL) {
         if (! list_empty(&semdFree_list)) {
-            //Gets a new semaphor and adds it to the ASL (Active Semaphor List)
+            //Gets a new semaphore and adds it to the ASL (Active Semaphor List)
             tmp = container_of(list_next(&semdFree_list), semd_t, s_next); //Obtain the first semd in the free queue
             list_del(&tmp->s_next);
             list_add_tail(&tmp->s_next, &semdActive_list);
             
-            //Adds the PCB p to the semaphor process queue and sets the key
+            //Adds the PCB p to the semaphore process queue and sets the key
             list_add_tail(&p->p_next, &tmp->s_procQ);
             p->p_semkey = key;
             tmp->s_key = key;
@@ -88,11 +88,11 @@ int insertBlocked(int *key, pcb_t* p) {
 }
 
 /*
-    Remove the first PCB blocked on the semaphor with the corresponding key
+    Remove the first PCB blocked on the semaphore with the corresponding key
     after the removal of the process from the queue checks that the queue hasn't become empty
     and if happened return the semd to the free list (rmvEmptySemd)
 
-    key: the key associated to the semaphor
+    key: the key associated to the semaphore
     return: the first PCB of that semaphore, NULL if error happened
 */
 pcb_t* removeBlocked(int *key) {
@@ -112,7 +112,7 @@ pcb_t* removeBlocked(int *key) {
 }
 
 /*
-    This function removes the PCB pointed by p from the semaphor's queue (found with the semkey)
+    This function removes the PCB pointed by p from the semaphore's queue (found with the semkey)
     where it's blocked, then if the queue after the removal becomes empty the function deletes
     also the semaphore descriptor from the list and insert it back in the free list.
 
@@ -139,7 +139,7 @@ pcb_t* outBlocked(pcb_t *p) {
 }
 
 /*
-    This function gets the semaphor through the semkey, checks for args and the semd
+    This function gets the semaphore through the semkey, checks for args and the semd
     to be not NULL (error checking) and then returns the first PCB in the blocked sem queue
     but WITHOUT removing it from the queue.
 
@@ -160,7 +160,7 @@ pcb_t* headBlocked(int *key) {
 }
 
 /*
-    This function removes the PCB p from his semaphor queue, then iterates through
+    This function removes the PCB p from his semaphore queue, then iterates through
     all of his own tree (wich root is p himself) removing recursively from their own queue
     his sons, grandsons and so on
 
