@@ -136,6 +136,8 @@ pcb_t* outBlocked(pcb_t *p) {
             return (tmp);
         }
     }
+
+    return (NULL);
 }
 
 /*
