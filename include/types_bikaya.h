@@ -23,8 +23,10 @@ typedef struct pcb_t {
     /* Processor state, etc */
     state_t p_s;
 
-    /* Process priority */
+    /* Process priority (aged by the scheduling process) */
     int priority;
+    /* Original process priority*/
+    int original_priority;
 
     /* Key of the semaphore on which the process is eventually blocked */
     int *p_semkey;

@@ -28,7 +28,7 @@ all : kernel.core.umps
 kernel.core.umps : kernel
 	umps2-elf2umps -k $<
 	
-kernel : phase1_test.o device/term_utils.o device/printer_utils.o process/pcb.o process/asl.o crtso.o libumps.o
+kernel : phase1,5_test.o device/term_utils.o device/printer_utils.o process/pcb.o process/asl.o crtso.o libumps.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 
 clean :
