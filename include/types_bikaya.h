@@ -45,4 +45,16 @@ typedef struct semd_t {
     struct list_head s_procQ;
 } semd_t;
 
+
+
+typedef struct {
+    unsigned int interruptEnabled : 1;
+    unsigned int kernelMode : 1;
+    unsigned int PO_mask : 4;
+    unsigned int interrupt_mask : 8;
+    unsigned int virtualMemory : 1;
+    unsigned int PO_VirtMem : 2;
+    unsigned int timerEnabled : 1;
+} process_option;
+
 #endif

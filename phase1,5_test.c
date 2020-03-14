@@ -1,5 +1,5 @@
-#include "const.h"
-#include "listx.h"
+#include "./include/const.h"
+#include "./include/listx.h"
 #ifdef TARGET_UMPS
 #include "./include/uMPS/libumps.h"
 #include "./include/uMPS/arch.h"
@@ -146,4 +146,18 @@ void test3() {
 
     termprint("Good job from test3\n");
     SYSCALL(SYS3, 0, 0, 0);
+}
+
+struct list_head ready_queue;
+pcb_t* proc_1, proc_2, proc_3;
+
+// BiKayaOS entry point
+void main(void) {
+    // Populate the New Areas in the ROM reserved frame
+    initNewArea();
+
+    // Initializes the PCB and the ready queue
+    initPcbs();
+    mkEmptyProcQ(&ready_queue);
+    termprint("PCB and ready queue initialized!\n");
 }
