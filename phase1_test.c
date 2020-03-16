@@ -32,16 +32,7 @@
  *
  */
 
-#ifdef TARGET_UMPS
-#include "include/uMPS/libumps.h"
-#include "include/uMPS/arch.h"
-#endif
-#ifdef TARGET_UARM
-#include "include/uARM/uarm/libuarm.h"
-#include "include/uARM/uarm/arch.h"
-#endif
-
-#include "include/const.h"
+#include "include/system_const.h"
 #include "include/listx.h"
 #include "process/pcb.h"
 #include "process/asl.h"

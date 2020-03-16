@@ -1,6 +1,6 @@
 #include "device/term_utils.h"
 #include "device/printer_utils.h"
-#include "include/system.h"
+#include "include/system_const.h"
 
 #define STR_LENGHT         30
 

@@ -1,6 +1,6 @@
-#include "../include/const.h"
-#include "../include/listx.h"
+#include "../include/system_const.h"
 #include "../include/types_bikaya.h"
+#include "../include/listx.h"
 #include "pcb.h"
 
 HIDDEN pcb_t pcbTable[MAXPROC];

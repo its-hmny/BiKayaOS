@@ -1,15 +1,5 @@
-#include "./include/const.h"
+#include "./include/system_const.h"
 #include "./include/listx.h"
-#ifdef TARGET_UMPS
-#include "./include/uMPS/libumps.h"
-#include "./include/uMPS/arch.h"
-#endif
-
-#ifdef TARGET_UARM
-#include "./include/uARM/uarm/libuarm.h"
-#include "./include/uARM/uarm/arch.h"
-#endif
-
 #include "./process/pcb.h"
 
 #define TOD_LO     *((unsigned int *)BUS_REG_TOD_LO)
@@ -153,8 +143,9 @@ pcb_t* proc_1, proc_2, proc_3;
 
 // BiKayaOS entry point
 void main(void) {
+    termprint("Welcome to phase 1.5 of BiKayaOS \n");
     // Populate the New Areas in the ROM reserved frame
-    initNewArea();
+    initNewArea(0, 0);
 
     // Initializes the PCB and the ready queue
     initPcbs();

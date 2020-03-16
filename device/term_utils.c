@@ -1,4 +1,4 @@
-#include "../include/system.h"
+#include "../include/system_const.h"
 #include "term_utils.h"
 
 //This file contains all of the function related to terminal device

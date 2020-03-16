@@ -1,4 +1,4 @@
-#include "../include/system.h"
+#include "../include/system_const.h"
 #include "term_utils.h"
 #include "printer_utils.h"
 

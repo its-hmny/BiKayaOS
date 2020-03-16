@@ -1,33 +1,6 @@
-#include "include/types_bikaya.h"
-#include "include/const.h"
-#include "include/system.h"
+#include "../include/types_bikaya.h"
+#include "../include/system_const.h"
 
-#define HIDDEN static
-
-// Status registrer bits for enabling/disabling interrupts in the given process
-#define DISABLE_INTERRUPT 0
-#define ENABLE_INTERRUPT 1 
-#define INTERRUPT_MASK_SHIFT 8
-
-// Status registrer bits for enabling/disabling kernel mode in the given process
-#define KERNEL_MD_ON 0
-#define USR_MD_ON 1
-#define KM_SHIFT 1
-
-#define PO_MASK_SHIFT 2
-
-#define VIRT_MEM_ON 1
-#define VIRT_MEM_OFF 0
-#define VIRT_MEM_SHIFT 24
-
-#define VIRTMEM_PO_SHIFT 25
-
-#define TIMER_ENABLED 1
-#define TIMER_DISABLED 0
-#define TIMER_SHIFT 27
-
-// The last 30 word of the state_t struct, that are auxiliary registrers (intermediate values, etc)
-#define GPR_LENGTH 30
 /*
 Prese dal sorgente per facilitare QUESTO E PER UMPS
 
@@ -80,7 +53,7 @@ void initNewArea(memaddr handler, memaddr RRF_addr) {
     state_t *newArea = RRF_addr; // Set the location of the New Area to the handler
 
     // Set the state of the handler with disabled interrupt, kernel mode and so on (status register)
-    process_option execpt_handler_option = { DISABLE_INTERRUPT, KERNEL_MD_ON, NULL, NULL, VIRT_MEM_OFF, NULL, TIMER_ENABLED };
+    process_option execpt_handler_option = { DISABLE_INTERRUPT, KERNEL_MD_ON, 0, 0, VIRT_MEM_OFF, 0, TIMER_ENABLED };
     setStatusReg(&newArea->status, &execpt_handler_option);
 
     // Set the other register
@@ -88,11 +61,15 @@ void initNewArea(memaddr handler, memaddr RRF_addr) {
     newArea->cause = 0;
     
     //Clean the GPR, HI and LO register
-    for (int i = 0; i <= GPR_LENGTH; i++)
-        newArea->gpr[i] = 0;
+    unsigned int *tmp_registrer = newArea->gpr[1];
+    for (int i = 0; i <= GPR_LENGTH; i++) {
+        newArea->gpr[i];
+        // tmp_registrer = 0;
+        // tmp_registrer++;
+    }
 
     newArea->pc_epc = handler;
-    newArea->reg_sp = RAMTOP;
+    newArea->reg_sp = 0; //RAMTOP
 }
 
 void setStatusReg(unsigned int *statusReg, process_option *option) {

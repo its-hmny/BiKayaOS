@@ -1,9 +1,9 @@
 /* -*- mode: asm; tab-width: 8; indent-tabs-mode: t -*- */
 
-#include <umps/regdef.h>
-#include <umps/arch.h>
-#include <umps/aout.h>
-#include <umps/bios_defs.h>
+#include "regdef.h"
+#include "arch.h"
+#include "aout.h"
+#include "bios_defs.h"
 
 #define CORE_TEXT_VADDR 0x20001000
 

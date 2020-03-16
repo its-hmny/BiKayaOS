@@ -1,6 +1,6 @@
+#include "../include/system_const.h"
 #include "../include/types_bikaya.h"
 #include "../include/listx.h"
-#include "../include/const.h"
 #include "asl.h"
 
 HIDDEN semd_t semdTmp_arr[MAXPROC];
