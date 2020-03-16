@@ -1,5 +1,6 @@
 #include "./include/system_const.h"
-#include "./include/listx.h"
+#include "./generics/utils.h"
+#include "include/listx.h"
 #include "./process/pcb.h"
 
 #define TOD_LO     *((unsigned int *)BUS_REG_TOD_LO)
@@ -138,17 +139,54 @@ void test3() {
     SYSCALL(SYS3, 0, 0, 0);
 }
 
+#define N_WRITE_PROC 3
 struct list_head ready_queue;
-pcb_t* proc_1, proc_2, proc_3;
+pcb_t* writeProcess[N_WRITE_PROC];
+
+//TODO REMOVE
+void tmpHander() {
+    termprint("I catched an exception, I'm the handler btw\n");
+}
 
 // BiKayaOS entry point
 void main(void) {
     termprint("Welcome to phase 1.5 of BiKayaOS \n");
+    
     // Populate the New Areas in the ROM reserved frame
-    initNewArea(0, 0);
+    initNewArea((memaddr)tmpHander, (memaddr)NEW_AREA_INTERRUPT);
+    initNewArea((memaddr)tmpHander, (memaddr)NEW_AREA_TLB);
+    initNewArea((memaddr)tmpHander, (memaddr)NEW_AREA_TRAP);
+    initNewArea((memaddr)tmpHander, (memaddr)NEW_AREA_SYSCALL);
+
+    termprint("Initialized all the new areas for exception handling\n");
 
     // Initializes the PCB and the ready queue
     initPcbs();
     mkEmptyProcQ(&ready_queue);
     termprint("PCB and ready queue initialized!\n");
+
+    // Alloc 3 PCB and set's their states
+    for (int i = 0; i < N_WRITE_PROC; i++) {
+        writeProcess[i] = allocPcb();
+        
+        if (writeProcess == NULL) {
+            termprint("Unexpected NULL in allocPCB()\n");
+            PANIC();
+        }
+
+        // TODO Set the status option
+        setStatusReg(&(writeProcess[i]->p_s.status), NULL);
+        setStackP(&writeProcess[i]->p_s, (memaddr)(RAMTOP-FRAMESIZE*i));
+
+        insertProcQ(&ready_queue, writeProcess[i]);
+    }
+
+    termprint("Created 3 process and set their p_s->status register\n");
+    termprint("Also added them to the ready process queue\n");
+    termprint("Also setted their stack pointer\n");
+
+    setPC(&writeProcess[1]->p_s, (memaddr)test1);
+    setPC(&writeProcess[2]->p_s, (memaddr)test2);
+    setPC(&writeProcess[3]->p_s, (memaddr)test3);
+    termprint("Set the 3 process PC to their function\n");
 }

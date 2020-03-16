@@ -1,5 +1,6 @@
 #include "../include/types_bikaya.h"
 #include "../include/system_const.h"
+#include "./utils.h"
 
 /*
 Prese dal sorgente per facilitare QUESTO E PER UMPS
@@ -19,29 +20,7 @@ typedef struct state {
 #define reg_at  gpr[0]
 #define reg_v0  gpr[1]
 #define reg_v1  gpr[2]
-#define reg_a0  gpr[3]
-#define reg_a1  gpr[4]
-#define reg_a2  gpr[5]
-#define reg_a3  gpr[6]
-#define reg_t0  gpr[7]
-#define reg_t1  gpr[8]
-#define reg_t2  gpr[9]
-#define reg_t3  gpr[10]
-#define reg_t4  gpr[11]
-#define reg_t5  gpr[12]
-#define reg_t6  gpr[13]
-#define reg_t7  gpr[14]
-#define reg_s0  gpr[15]
-#define reg_s1  gpr[16]
-#define reg_s2  gpr[17]
-#define reg_s3  gpr[18]
-#define reg_s4  gpr[19]
-#define reg_s5  gpr[20]
-#define reg_s6  gpr[21]
-#define reg_s7  gpr[22]
-#define reg_t8  gpr[23]
-#define reg_t9  gpr[24]
-#define reg_gp  gpr[25]
+.................. and so on
 #define reg_sp  gpr[26]
 #define reg_fp  gpr[27]
 #define reg_ra  gpr[28]
@@ -61,18 +40,14 @@ void initNewArea(memaddr handler, memaddr RRF_addr) {
     newArea->cause = 0;
     
     //Clean the GPR, HI and LO register
-    unsigned int *tmp_registrer = newArea->gpr[1];
-    for (int i = 0; i <= GPR_LENGTH; i++) {
-        newArea->gpr[i];
-        // tmp_registrer = 0;
-        // tmp_registrer++;
-    }
+    for (int i = 0; i <= GPR_LENGTH; i++)
+        newArea->gpr[i] = 0;
 
-    newArea->pc_epc = handler;
-    newArea->reg_sp = 0; //RAMTOP
+    setPC(newArea, (memaddr)handler);
+    setStackP(newArea, (memaddr)RAMTOP);
 }
 
-void setStatusReg(unsigned int *statusReg, process_option *option) {
+void setStatusReg(memaddr *statusReg, process_option *option) {
     *statusReg |= option->interruptEnabled;
     *statusReg |= (option->kernelMode << KM_SHIFT);
     *statusReg |= (option->PO_mask << PO_MASK_SHIFT);
@@ -80,4 +55,12 @@ void setStatusReg(unsigned int *statusReg, process_option *option) {
     *statusReg |= (option->virtualMemory << VIRT_MEM_SHIFT);
     *statusReg |= (option->PO_VirtMem << VIRTMEM_PO_SHIFT);
     *statusReg |= (option->timerEnabled << TIMER_SHIFT);
+}
+
+inline void setPC(state_t *process, memaddr function) {
+    process->pc_epc = function;
+}
+
+inline void setStackP(state_t *process, memaddr memLocation) {
+    process->reg_sp = memLocation;
 }

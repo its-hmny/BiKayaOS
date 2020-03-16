@@ -32,7 +32,7 @@
 #define CR 0x0a   // Carriage return as returned by the terminal
 
 
-/*  CONSTANT FOR STATE_T STRUCT AND SUBSEQUENT REGISTER  */
+/* ======== CONSTANTS FOR STATE_T STRUCT AND SUBSEQUENT REGISTER ============= */
 
 // Status registrer bits for enabling/disabling interrupts in the given process
 #define DISABLE_INTERRUPT 0
@@ -58,3 +58,17 @@
 
 // The last 30 word of the state_t struct, that are auxiliary registrers (intermediate values, etc)
 #define GPR_LENGTH 30
+
+/* ======================== OLD/NEW AREAS ============================== */
+#define NEW_AREA_SYSCALL 0x200003d4
+#define OLD_AREA_SYSCALL 0x20000348
+#define NEW_AREA_TRAP 0x200002bc
+#define OLD_AREA_TRAP 0x20000230
+#define NEW_AREA_TLB 0x200001a4
+#define OLD_AREA_TLB 0x20000118
+#define NEW_AREA_INTERRUPT 0x2000008c
+#define OLD_AREA_INTERRUPT 0x20000000
+
+#define RAMBASE    *((unsigned int *)BUS_REG_RAM_BASE)
+#define RAMSIZE    *((unsigned int *)BUS_REG_RAM_SIZE)
+#define RAMTOP     (RAMBASE + RAMSIZE)
