@@ -32,7 +32,7 @@ void initNewArea(memaddr handler, memaddr RRF_addr) {
     state_t *newArea = RRF_addr; // Set the location of the New Area to the handler
 
     // Set the state of the handler with disabled interrupt, kernel mode and so on (status register)
-    process_option execpt_handler_option = { DISABLE_INTERRUPT, KERNEL_MD_ON, 0, 0, VIRT_MEM_OFF, 0, TIMER_ENABLED };
+    process_option execpt_handler_option = { DISABLE_INTERRUPT, KERNEL_MD_ON, 0, 0, VIRT_MEM_OFF, 0, TIMER_DISABLED };
     setStatusReg(&newArea->status, &execpt_handler_option);
 
     // Set the other register
@@ -57,10 +57,10 @@ void setStatusReg(memaddr *statusReg, process_option *option) {
     *statusReg |= (option->timerEnabled << TIMER_SHIFT);
 }
 
-inline void setPC(state_t *process, memaddr function) {
+void setPC(state_t *process, memaddr function) {
     process->pc_epc = function;
 }
 
-inline void setStackP(state_t *process, memaddr memLocation) {
+void setStackP(state_t *process, memaddr memLocation) {
     process->reg_sp = memLocation;
 }

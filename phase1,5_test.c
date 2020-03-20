@@ -142,8 +142,12 @@ void test3() {
 #define N_WRITE_PROC 3
 struct list_head ready_queue;
 pcb_t* writeProcess[N_WRITE_PROC];
+memaddr writerFunc[N_WRITE_PROC] = { (memaddr)test1, (memaddr)test2, (memaddr)test3 };
 
-//TODO REMOVE
+// Questo va sistemato
+process_option writer_opt = { ENABLE_INTERRUPT, KERNEL_MD_ON, 0, 0, VIRT_MEM_OFF, 0, TIMER_ENABLED };
+
+//TODO REMOVE dovrebbero essere tutti del tipo void handler(void)
 void tmpHander() {
     termprint("I catched an exception, I'm the handler btw\n");
 }
@@ -174,19 +178,19 @@ void main(void) {
             PANIC();
         }
 
-        // TODO Set the status option
-        setStatusReg(&(writeProcess[i]->p_s.status), NULL);
-        setStackP(&writeProcess[i]->p_s, (memaddr)(RAMTOP-FRAMESIZE*i));
+        // Set the status registrer with the requested option
+        setStatusReg(&writeProcess[i]->p_s.status, &writer_opt);
+        // Set Stack Pointer to a free memory location
+        setStackP(&writeProcess[i]->p_s, (memaddr)(RAMTOP-(FRAMESIZE*i)));
+        // Give the process an arbitrary priority
+        writeProcess[i]->priority = i;
+        // Sets the Program Counter to the entry point of the function
+        setPC(&writeProcess[i]->p_s, writerFunc[i]);
 
         insertProcQ(&ready_queue, writeProcess[i]);
     }
 
-    termprint("Created 3 process and set their p_s->status register\n");
-    termprint("Also added them to the ready process queue\n");
-    termprint("Also setted their stack pointer\n");
-
-    setPC(&writeProcess[1]->p_s, (memaddr)test1);
-    setPC(&writeProcess[2]->p_s, (memaddr)test2);
-    setPC(&writeProcess[3]->p_s, (memaddr)test3);
-    termprint("Set the 3 process PC to their function\n");
+    termprint("Created 3 process, set status register and stack pointer,\n");
+    termprint("give 'em priority and set their PC.\n");
+    termprint("Also added to the ready queue\n");
 }

@@ -72,3 +72,4 @@
 #define RAMBASE    *((unsigned int *)BUS_REG_RAM_BASE)
 #define RAMSIZE    *((unsigned int *)BUS_REG_RAM_SIZE)
 #define RAMTOP     (RAMBASE + RAMSIZE)
+#define FRAMESIZE 4096
