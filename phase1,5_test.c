@@ -145,7 +145,7 @@ pcb_t* writeProcess[N_WRITE_PROC];
 memaddr writerFunc[N_WRITE_PROC] = { (memaddr)test1, (memaddr)test2, (memaddr)test3 };
 
 // Questo va sistemato
-process_option writer_opt = { ENABLE_INTERRUPT, KERNEL_MD_ON, 0, 0, VIRT_MEM_OFF, 0, TIMER_ENABLED };
+process_option writer_opt = { ENABLE_INTERRUPT, KERNEL_MD_ON, 0, ALL_INTRRPT_ENABLED, VIRT_MEM_OFF, 0, TIMER_ENABLED };
 
 //TODO REMOVE dovrebbero essere tutti del tipo void handler(void)
 void tmpHander() {

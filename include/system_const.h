@@ -38,6 +38,8 @@
 #define DISABLE_INTERRUPT 0
 #define ENABLE_INTERRUPT 1 
 #define INTERRUPT_MASK_SHIFT 8
+// ALL interrupts line enabled
+#define ALL_INTRRPT_ENABLED 255 
 
 // Status registrer bits for enabling/disabling kernel mode in the given process
 #define KERNEL_MD_ON 0
