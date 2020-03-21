@@ -7,6 +7,7 @@
 #include "uARM/uarm/libuarm.h"
 #include "uARM/uarm/arch.h"
 #include "uARM/uarm/uARMtypes.h"
+#include "uARM/uarm/uARMconst.h"
 #endif
 
 /**************************************************************************** 
@@ -58,20 +59,49 @@
 #define TIMER_DISABLED 0
 #define TIMER_SHIFT 27
 
-// The last 30 word of the state_t struct, that are auxiliary registrers (intermediate values, etc)
-#define GPR_LENGTH 30
 
-/* ======================== OLD/NEW AREAS ============================== */
-#define NEW_AREA_SYSCALL 0x200003d4
-#define OLD_AREA_SYSCALL 0x20000348
-#define NEW_AREA_TRAP 0x200002bc
-#define OLD_AREA_TRAP 0x20000230
-#define NEW_AREA_TLB 0x200001a4
-#define OLD_AREA_TLB 0x20000118
+#ifdef TARGET_UMPS
+    // Status, program counter and stack poiter register in uMPS
+#define STATUS_REG(state) state->status
+#define PC_REG(state)     state->pc_epc
+#define SP_REG(state)     state->reg_sp
+#endif
+#ifdef TARGET_UARM
+    // Status, program counter and stack poiter register in uARM
+#define STATUS_REG(state) state->cpsr
+#define PC_REG(state)     state->pc
+#define SP_REG(state)     state->sp
+#endif
+
+/* ==================== OLD/NEW AREAS AND RAM address =========================== */
+#ifdef TARGET_UMPS
+    // uMPS New/Old Areas address
+#define NEW_AREA_SYSCALL   0x200003d4
+#define OLD_AREA_SYSCALL   0x20000348
+#define NEW_AREA_TRAP      0x200002bc
+#define OLD_AREA_TRAP      0x20000230
+#define NEW_AREA_TLB       0x200001a4
+#define OLD_AREA_TLB       0x20000118
 #define NEW_AREA_INTERRUPT 0x2000008c
 #define OLD_AREA_INTERRUPT 0x20000000
-
+    // uMPS's beginning address of RAM and size of a RAM page
 #define RAMBASE    *((unsigned int *)BUS_REG_RAM_BASE)
 #define RAMSIZE    *((unsigned int *)BUS_REG_RAM_SIZE)
 #define RAMTOP     (RAMBASE + RAMSIZE)
-#define FRAMESIZE 4096
+#define RAM_FRAMESIZE  4096
+#endif
+
+#ifdef TARGET_UARM
+    // uARM New/Old Areas address
+#define NEW_AREA_SYSCALL   SYSBK_NEWAREA 
+#define OLD_AREA_SYSCALL   SYSBK_OLDAREA 
+#define NEW_AREA_TRAP      PGMTRAP_NEWAREA
+#define OLD_AREA_TRAP      PGMTRAP_OLDAREA
+#define NEW_AREA_TLB       TLB_NEWAREA
+#define OLD_AREA_TLB       TLB_OLDAREA
+#define NEW_AREA_INTERRUPT INT_NEWAREA
+#define OLD_AREA_INTERRUPT INT_OLDAREA
+    // uARM's beginning address of RAM and size of a RAM page
+#define RAMTOP RAM_TOP
+#define RAM_FRAMESIZE FRAME_SIZE
+#endif

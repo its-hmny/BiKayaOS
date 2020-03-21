@@ -5,9 +5,9 @@
 
 #define TOD_LO     *((unsigned int *)BUS_REG_TOD_LO)
 #define TIME_SCALE *((unsigned int *)BUS_REG_TIME_SCALE)
-#define RAMBASE    *((unsigned int *)BUS_REG_RAM_BASE)
-#define RAMSIZE    *((unsigned int *)BUS_REG_RAM_SIZE)
-#define RAMTOP     (RAMBASE + RAMSIZE)
+//#define RAMBASE    *((unsigned int *)BUS_REG_RAM_BASE)
+//#define RAMSIZE    *((unsigned int *)BUS_REG_RAM_SIZE)
+//#define RAMTOP     (RAMBASE + RAMSIZE)
 
 #define ST_READY         1
 #define ST_BUSY          3
@@ -27,7 +27,8 @@ volatile int test3_baton[STEPS + 1] = {0};
 typedef unsigned int devreg;
 
 static unsigned int get_microseconds() {
-    return TOD_LO / TIME_SCALE;
+    //return TOD_LO / TIME_SCALE;
+    return(0);
 }
 
 static void delay_ms(unsigned int ms) {
@@ -154,7 +155,7 @@ void tmpHander() {
 }
 
 // BiKayaOS entry point
-void main(void) {
+int main(void) {
     termprint("Welcome to phase 1.5 of BiKayaOS \n");
     
     // Populate the New Areas in the ROM reserved frame
@@ -180,9 +181,9 @@ void main(void) {
         }
 
         // Set the status registrer with the requested option
-        setStatusReg(&writeProcess[i]->p_s.status, &writer_opt);
+        setStatusReg(&writeProcess[i]->p_s, &writer_opt);
         // Set Stack Pointer to a free memory location
-        setStackP(&writeProcess[i]->p_s, (memaddr)(RAMTOP-(FRAMESIZE*(i+1))));
+        setStackP(&writeProcess[i]->p_s, (memaddr)(RAMTOP-(RAM_FRAMESIZE*(i+1))));
         // Give the process an arbitrary priority
         writeProcess[i]->priority = i+1;
         // Sets the Program Counter to the entry point of the function

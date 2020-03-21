@@ -18,7 +18,7 @@ HIDDEN LIST_HEAD(pcbFree);
     
     return: void
 */
-void wipe_Pcb(void *memaddr, unsigned int size) {
+HIDDEN void wipe_Pcb(void *memaddr, unsigned int size) {
     unsigned char* tmp_p = memaddr;
     
     while(size--)
