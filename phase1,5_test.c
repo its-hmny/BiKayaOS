@@ -150,6 +150,7 @@ process_option writer_opt = { ENABLE_INTERRUPT, KERNEL_MD_ON, 0, ALL_INTRRPT_ENA
 //TODO REMOVE dovrebbero essere tutti del tipo void handler(void)
 void tmpHander() {
     termprint("I catched an exception, I'm the handler btw\n");
+    PANIC();
 }
 
 // BiKayaOS entry point
@@ -173,7 +174,7 @@ void main(void) {
     for (int i = 0; i < N_WRITE_PROC; i++) {
         writeProcess[i] = allocPcb();
         
-        if (writeProcess == NULL) {
+        if (writeProcess[i] == NULL) {
             termprint("Unexpected NULL in allocPCB()\n");
             PANIC();
         }

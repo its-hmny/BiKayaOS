@@ -16,16 +16,6 @@ typedef struct state {
     unsigned int hi; 
     unsigned int lo; This two registrer insted are used for intermediate values in mutiplication and division
 } state_t;
-
-#define reg_at  gpr[0]
-#define reg_v0  gpr[1]
-#define reg_v1  gpr[2]
-.................. and so on
-#define reg_sp  gpr[26]
-#define reg_fp  gpr[27]
-#define reg_ra  gpr[28]
-#define reg_HI  gpr[29]
-#define reg_LO  gpr[30]
 */
 
 void initNewArea(memaddr handler, memaddr RRF_addr) {
@@ -43,7 +33,7 @@ void initNewArea(memaddr handler, memaddr RRF_addr) {
     for (int i = 0; i <= GPR_LENGTH; i++)
         newArea->gpr[i] = 0;
 
-    setPC(newArea, (memaddr)handler);
+    setPC(newArea, handler);
     setStackP(newArea, (memaddr)RAMTOP);
 }
 
