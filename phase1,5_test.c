@@ -182,9 +182,9 @@ void main(void) {
         // Set the status registrer with the requested option
         setStatusReg(&writeProcess[i]->p_s.status, &writer_opt);
         // Set Stack Pointer to a free memory location
-        setStackP(&writeProcess[i]->p_s, (memaddr)(RAMTOP-(FRAMESIZE*i)));
+        setStackP(&writeProcess[i]->p_s, (memaddr)(RAMTOP-(FRAMESIZE*(i+1))));
         // Give the process an arbitrary priority
-        writeProcess[i]->priority = i;
+        writeProcess[i]->priority = i+1;
         // Sets the Program Counter to the entry point of the function
         setPC(&writeProcess[i]->p_s, writerFunc[i]);
 
