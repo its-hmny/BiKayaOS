@@ -53,10 +53,13 @@
 #define TIMER_DISABLED  0
 #define TIMER_SHIFT     27
 
-    // Status, program counter and stack poiter register in uMPS
+    // Status, program counter, stack poiter, and cause register in uMPS
 #define STATUS_REG(state) state->status
 #define PC_REG(state)     state->pc_epc
 #define SP_REG(state)     state->reg_sp
+#define CAUSE_REG(state)  state->cause
+#define a0(state)         state->gpr[3];
+#define a1(state)         state->gpr[4];
 #endif
 
 #ifdef TARGET_UARM
@@ -73,10 +76,13 @@
 // Status registrer bits for enabling/disabling timer in the given process
 #define TIMER_ENABLED  1
 #define TIMER_DISABLED 0
-    // Status, program counter and stack poiter register in uARM
+    // Status, program counter, stack poiter and cause register in uARM
 #define STATUS_REG(state) state->cpsr
 #define PC_REG(state)     state->pc
 #define SP_REG(state)     state->sp
+#define CAUSE_REG(state)  state->CP15_Cause;
+#define a0(state)         state->a1
+#define a1(state)         state->a2
 #endif
 
 /* ==================== OLD/NEW AREAS AND RAM address =========================== */
@@ -111,3 +117,14 @@
 #define _RAMTOP RAM_TOP
 #define RAM_FRAMESIZE FRAME_SIZE
 #endif
+
+/* ======================== LucaJett's MACRO UMPS ============================== */
+
+#define CAUSE_GET_EXCCODE(x)   (((x) & CAUSE_EXCCODE_MASK) >> CAUSE_EXCCODE_BIT)
+#define SYS_CALL         8
+
+/* ======================== LucaJett's MACRO UARM============================== */
+
+#define CAUSE_GET_EXCCODE(x) ((x) & 0xFFFFFF)
+#define SYS_CALL         SYSEXCEPTION
+
