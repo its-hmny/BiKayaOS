@@ -41,7 +41,7 @@ void setStatusReg(state_t *proc_state, process_option *option) {
 #ifdef TARGET_UARM
 void setStatusReg(state_t *proc_state, process_option *option) {
     STATUS_REG(proc_state) |= option->kernelMode;
-    (option->interruptEnabled) ? (STATUS_ALL_INT_ENABLE(STATUS_REG(proc_state))) : (STATUS_ALL_INT_DISABLE(STATUS_REG(proc_state)));
+    (option->interruptEnabled) ? (STATUS_ENABLE_INT(STATUS_REG(proc_state))) : (STATUS_DISABLE_INT(STATUS_REG(proc_state)));
     (option->virtualMemory) ? (CP15_ENABLE_VM(proc_state->CP15_Control)) : (CP15_DISABLE_VM(proc_state->CP15_Control));
     (option->timerEnabled) ? (STATUS_ENABLE_TIMER(STATUS_REG(proc_state))) : (STATUS_DISABLE_TIMER(STATUS_REG(proc_state)));
 }

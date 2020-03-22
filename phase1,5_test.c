@@ -196,6 +196,6 @@ int main(void) {
     termprint("give 'em priority and set their PC.\n");
     termprint("Also added to the ready queue\n");
 
-    BREAK(1,0,0,0);
-    HALT();
+    SYSCALL(SYS3,0,0,0);
+    PANIC();
 }
