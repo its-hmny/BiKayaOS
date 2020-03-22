@@ -47,14 +47,13 @@ typedef struct semd_t {
 
 
 
+/* Auxiliary structure for option register setting in both architecture */
 typedef struct {
-    unsigned int interruptEnabled : 1;
-    unsigned int kernelMode : 1;
-    unsigned int PO_mask : 4;
-    unsigned int interrupt_mask : 8;
-    unsigned int virtualMemory : 1;
-    unsigned int PO_VirtMem : 2;
-    unsigned int timerEnabled : 1;
+    unsigned int interruptEnabled;
+    unsigned int kernelMode;
+    unsigned int interrupt_mask;
+    unsigned int virtualMemory;
+    unsigned int timerEnabled;
 } process_option;
 
 #endif

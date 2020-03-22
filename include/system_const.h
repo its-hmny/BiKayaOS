@@ -34,39 +34,45 @@
 
 
 /* ======== CONSTANTS FOR STATE_T STRUCT AND SUBSEQUENT REGISTER ============= */
-
-// Status registrer bits for enabling/disabling interrupts in the given process
-#define DISABLE_INTERRUPT 0
-#define ENABLE_INTERRUPT 1 
-#define INTERRUPT_MASK_SHIFT 8
-// ALL interrupts line enabled
-#define ALL_INTRRPT_ENABLED 255 
-
-// Status registrer bits for enabling/disabling kernel mode in the given process
-#define KERNEL_MD_ON 0
-#define USR_MD_ON 1
-#define KM_SHIFT 1
-
-#define PO_MASK_SHIFT 2
-
-#define VIRT_MEM_ON 1
-#define VIRT_MEM_OFF 0
-#define VIRT_MEM_SHIFT 24
-
-#define VIRTMEM_PO_SHIFT 25
-
-#define TIMER_ENABLED 1
-#define TIMER_DISABLED 0
-#define TIMER_SHIFT 27
-
-
 #ifdef TARGET_UMPS
+// Status registrer bits for enabling/disabling interrupts in the given process
+#define DISABLE_INTERRUPT    0
+#define ENABLE_INTERRUPT     1 
+#define INTERRUPT_MASK_SHIFT 8
+#define ALL_INTRRPT_ENABLED 255 
+// Status registrer bits for enabling/disabling kernel mode in the given process
+#define KERNEL_MD_ON    0
+#define USR_MD_ON       1
+#define KM_SHIFT        1
+// Status registrer bits for enabling/disabling virtual memory in the given process
+#define VIRT_MEM_ON      1
+#define VIRT_MEM_OFF     0
+#define VIRT_MEM_SHIFT   24
+// Status registrer bits for enabling/disabling timer in the given process
+#define TIMER_ENABLED   1
+#define TIMER_DISABLED  0
+#define TIMER_SHIFT     27
+
     // Status, program counter and stack poiter register in uMPS
 #define STATUS_REG(state) state->status
 #define PC_REG(state)     state->pc_epc
 #define SP_REG(state)     state->reg_sp
 #endif
+
 #ifdef TARGET_UARM
+#define DISABLE_INTERRUPT 0
+#define ENABLE_INTERRUPT  1  
+// Just for compatibility issue with uMPS
+#define ALL_INTRRPT_ENABLED 0
+// Status registrer bits for enabling/disabling kernel mode in the given process
+#define KERNEL_MD_ON ((unsigned int)0x1F)
+#define USR_MD_ON    ((unsigned int)0x10)
+// Status registrer bits for enabling/disabling virtual memory in the given process
+#define VIRT_MEM_ON      1
+#define VIRT_MEM_OFF     0
+// Status registrer bits for enabling/disabling timer in the given process
+#define TIMER_ENABLED  1
+#define TIMER_DISABLED 0
     // Status, program counter and stack poiter register in uARM
 #define STATUS_REG(state) state->cpsr
 #define PC_REG(state)     state->pc
@@ -87,7 +93,7 @@
     // uMPS's beginning address of RAM and size of a RAM page
 #define RAMBASE    *((unsigned int *)BUS_REG_RAM_BASE)
 #define RAMSIZE    *((unsigned int *)BUS_REG_RAM_SIZE)
-#define RAMTOP     (RAMBASE + RAMSIZE)
+#define _RAMTOP     (RAMBASE + RAMSIZE)
 #define RAM_FRAMESIZE  4096
 #endif
 
@@ -102,6 +108,6 @@
 #define NEW_AREA_INTERRUPT INT_NEWAREA
 #define OLD_AREA_INTERRUPT INT_OLDAREA
     // uARM's beginning address of RAM and size of a RAM page
-#define RAMTOP RAM_TOP
+#define _RAMTOP RAM_TOP
 #define RAM_FRAMESIZE FRAME_SIZE
 #endif

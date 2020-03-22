@@ -14,24 +14,38 @@ void initNewArea(memaddr handler, memaddr RRF_addr) {
     wipe_Memory(newArea, sizeof(state_t));
 
     // Set the state of the handler with disabled interrupt, kernel mode and so on (status register)
-    process_option execpt_handler_option = { DISABLE_INTERRUPT, KERNEL_MD_ON, 0, 0, VIRT_MEM_OFF, 0, TIMER_DISABLED };
+    process_option execpt_handler_option = { DISABLE_INTERRUPT, KERNEL_MD_ON, 0, VIRT_MEM_OFF, TIMER_DISABLED };
     setStatusReg(newArea, &execpt_handler_option);
     
     setPC(newArea, handler);
     
-    setStackP(newArea, (memaddr)RAMTOP);
+    setStackP(newArea, (memaddr)_RAMTOP);
 }
 
-// Manca la parte per uARM
+/*unsigned int interruptEnabled;
+    unsigned int kernelMode;
+    unsigned int interrupt_mask;
+    unsigned int virtualMemory;
+    unsigned int timerEnabled;*/
+
+#ifdef TARGET_UMPS
 void setStatusReg(state_t *proc_state, process_option *option) {
-    /*STATUS_REG(proc_state) |= option->interruptEnabled;
+    STATUS_REG(proc_state) |= option->interruptEnabled;
     STATUS_REG(proc_state) |= (option->kernelMode << KM_SHIFT);
-    STATUS_REG(proc_state) |= (option->PO_mask << PO_MASK_SHIFT);
     STATUS_REG(proc_state) |= (option->interrupt_mask << INTERRUPT_MASK_SHIFT);
     STATUS_REG(proc_state) |= (option->virtualMemory << VIRT_MEM_SHIFT);
-    STATUS_REG(proc_state) |= (option->PO_VirtMem << VIRTMEM_PO_SHIFT);
-    STATUS_REG(proc_state) |= (option->timerEnabled << TIMER_SHIFT);*/
+    STATUS_REG(proc_state) |= (option->timerEnabled << TIMER_SHIFT);
 }
+#endif
+
+#ifdef TARGET_UARM
+void setStatusReg(state_t *proc_state, process_option *option) {
+    STATUS_REG(proc_state) |= option->kernelMode;
+    (option->interruptEnabled) ? (STATUS_ALL_INT_ENABLE(STATUS_REG(proc_state))) : (STATUS_ALL_INT_DISABLE(STATUS_REG(proc_state)));
+    (option->virtualMemory) ? (CP15_ENABLE_VM(proc_state->CP15_Control)) : (CP15_DISABLE_VM(proc_state->CP15_Control));
+    (option->timerEnabled) ? (STATUS_ENABLE_TIMER(STATUS_REG(proc_state))) : (STATUS_DISABLE_TIMER(STATUS_REG(proc_state)));
+}
+#endif
 
 void setPC(state_t *process, memaddr function) {
     PC_REG(process) = function;

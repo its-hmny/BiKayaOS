@@ -146,7 +146,7 @@ pcb_t* writeProcess[N_WRITE_PROC];
 memaddr writerFunc[N_WRITE_PROC] = { (memaddr)test1, (memaddr)test2, (memaddr)test3 };
 
 // Questo va sistemato
-process_option writer_opt = { ENABLE_INTERRUPT, KERNEL_MD_ON, 0, ALL_INTRRPT_ENABLED, VIRT_MEM_OFF, 0, TIMER_ENABLED };
+process_option writer_opt = { ENABLE_INTERRUPT, KERNEL_MD_ON, ALL_INTRRPT_ENABLED, VIRT_MEM_OFF, TIMER_ENABLED };
 
 //TODO REMOVE dovrebbero essere tutti del tipo void handler(void)
 void tmpHander() {
@@ -183,7 +183,7 @@ int main(void) {
         // Set the status registrer with the requested option
         setStatusReg(&writeProcess[i]->p_s, &writer_opt);
         // Set Stack Pointer to a free memory location
-        setStackP(&writeProcess[i]->p_s, (memaddr)(RAMTOP-(RAM_FRAMESIZE*(i+1))));
+        setStackP(&writeProcess[i]->p_s, (memaddr)(_RAMTOP-(RAM_FRAMESIZE*(i+1))));
         // Give the process an arbitrary priority
         writeProcess[i]->priority = i+1;
         // Sets the Program Counter to the entry point of the function
@@ -195,4 +195,7 @@ int main(void) {
     termprint("Created 3 process, set status register and stack pointer,\n");
     termprint("give 'em priority and set their PC.\n");
     termprint("Also added to the ready queue\n");
+
+    BREAK(1,0,0,0);
+    HALT();
 }
