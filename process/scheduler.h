@@ -4,7 +4,7 @@
 #include "../include/types_bikaya.h"
 
 extern struct list_head ready_queue;
-extern struct pcb_t* currentProc;
+extern struct pcb_t* currentP;
 
 void scheduler();
 void insertProcReady(struct pcb_t* newProc);

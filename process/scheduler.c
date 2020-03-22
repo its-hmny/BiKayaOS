@@ -4,19 +4,20 @@
 #define PTIME 3000          //time for process (milliseconds)
 
 void scheduler_add(pcb_t* p){
-//      Add pcb in the Ready_Queue
+//      Add pcb in the Ready_Queue for the first time 
     
     insertProcQ(&ready_queue,p);    
 }
+
 void scheduler(){
 //      Select the process to execute from the queue
 
-    if(emptyProcQ(&ready_queue) && (currentProc == NULL)){
+    if( emptyProcQ(&ready_queue) && (currentP == NULL) ){
         while(1);
     }else{
         //context switch occurs
-        if(currentProc != NULL){
-            insertProcReady(currentProc);
+        if(currentP != NULL){
+            insertProcReady(currentP);
         }
 
         //currentProc = removeProcReady(&ready_queue);
@@ -25,20 +26,21 @@ void scheduler(){
     }
 }
 
-void insertProcReady(struct pcb_t* newProc){
-    restorePriority(newProc);
-    insertProcQ(&ready_queue, newProc);
+void insertPReady(struct pcb_t* p){
+//      Insert a process in Ready Queue 
+    (p->priority)++;
+    insertProcQ(&ready_queue, p);
 }
 
 void removeProcReady(struct pcb_t* p){
 /*
-    Remove p {type pcb_t*} from ready queue 
-    if p is the current running process becomes NULL
+        Remove p {type pcb_t*} from ready queue 
+        if p is the current running process becomes NULL
 */
 
     outProcQ(&ready_queue,p);
-    if(p == currentProc )
-        currentProc = NULL;
+    if(p == currentP )
+        currentP = NULL;
 }
 
 void aging(){
@@ -52,7 +54,7 @@ void aging(){
 
         //not aging the idle process
         if(p->original_priority != 1)
-            increasePriority(p);
+            (p->priority)++;
         
         
     }
