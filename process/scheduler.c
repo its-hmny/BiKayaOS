@@ -52,6 +52,9 @@ void scheduler() {
         currentProcess = removeProcQ(&ready_queue);
         currentProcess->priority = currentProcess->original_priority;
         aging();
+
+        // Loads the state and executes the chosen process
+        LDST(&currentProcess->p_s);
     }
 }
 
