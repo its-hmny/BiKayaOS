@@ -10,7 +10,7 @@ HIDDEN void wipe_Memory(void *memaddr, unsigned int size) {
 }
 
 void initNewArea(memaddr handler, memaddr RRF_addr) {
-    state_t *newArea = RRF_addr; // Set the location of the New Area to the handler
+    state_t *newArea = (state_t*) RRF_addr; // Set the location of the New Area to the handler
     wipe_Memory(newArea, sizeof(state_t));
 
     // Set the state of the handler with disabled interrupt, kernel mode and so on (status register)
@@ -40,10 +40,13 @@ void setStatusReg(state_t *proc_state, process_option *option) {
 
 #ifdef TARGET_UARM
 void setStatusReg(state_t *proc_state, process_option *option) {
-    STATUS_REG(proc_state) |= option->kernelMode;
-    (option->interruptEnabled) ? (STATUS_ENABLE_INT(STATUS_REG(proc_state))) : (STATUS_DISABLE_INT(STATUS_REG(proc_state)));
-    (option->virtualMemory) ? (CP15_ENABLE_VM(proc_state->CP15_Control)) : (CP15_DISABLE_VM(proc_state->CP15_Control));
-    (option->timerEnabled) ? (STATUS_ENABLE_TIMER(STATUS_REG(proc_state))) : (STATUS_DISABLE_TIMER(STATUS_REG(proc_state)));
+    STATUS_REG(proc_state) |= (option->kernelMode) ? (STATUS_SYS_MODE) : (STATUS_USER_MODE); 
+    STATUS_REG(proc_state) = (option->interruptEnabled) ? (STATUS_ENABLE_INT(STATUS_REG(proc_state))) : (STATUS_DISABLE_INT(STATUS_REG(proc_state)));
+    STATUS_REG(proc_state) = (option->virtualMemory) ? (CP15_ENABLE_VM(proc_state->CP15_Control)) : (CP15_DISABLE_VM(proc_state->CP15_Control));
+    STATUS_REG(proc_state) = (option->timerEnabled) ? (STATUS_ENABLE_TIMER(STATUS_REG(proc_state))) : (STATUS_DISABLE_TIMER(STATUS_REG(proc_state)));
+    
+    /*int status = STATUS_REG(proc_state);
+    status = STATUS_DISABLE_INT(status) | STATUS_ENABLE_TIMER(status) | STATUS_SYS_MODE;*/
 }
 #endif
 

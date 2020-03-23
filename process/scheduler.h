@@ -3,13 +3,10 @@
 
 #include "../include/types_bikaya.h"
 
-extern struct list_head ready_queue;
-extern struct pcb_t* currentP;
-
+void scheduler_init(void);
+void scheduler_add(pcb_t *p);
 void scheduler();
-void insertProcReady(struct pcb_t* newProc);
-void removeProcReady(struct pcb_t* rmProc);
-void aging();
-void scheduler_add(pcb_t *process);
+pcb_t* getCurrentProc(void);
+struct list_head* getReadyQ(void);
 
 #endif

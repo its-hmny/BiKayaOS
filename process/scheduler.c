@@ -1,62 +1,68 @@
 #include "../include/types_bikaya.h"
 #include "scheduler.h"
+#include "pcb.h"
 
-#define PTIME 3000          //time for process (milliseconds)
+#define HIDDEN static
 
-void scheduler_add(pcb_t* p){
-//      Add pcb in the Ready_Queue for the first time 
-    
-    insertProcQ(&ready_queue,p);    
+// Ready queue of the scheduler
+struct list_head ready_queue;
+// Current process selected to be executed
+pcb_t *currentProcess = NULL;
+
+
+// Iterates through the ready queue and ages all the process
+HIDDEN void aging(void) {
+    struct list_head *tmp = NULL;
+
+    list_for_each(tmp, &ready_queue) {
+        pcb_t *currentPCB = container_of(tmp, pcb_t, p_next);
+        (currentPCB->priority)++;
+    }
 }
 
-void scheduler(){
-//      Select the process to execute from the queue
 
-    if( emptyProcQ(&ready_queue) && (currentP == NULL) ){
+// Prepares the ready queue and sets the scheduer to be exeuted
+void scheduler_init(void) {
+    mkEmptyProcQ(&ready_queue);
+}
+
+
+// Adds a new process to the scheduler
+void scheduler_add(pcb_t *p) {
+    if (p != NULL) {
+        p->original_priority = p->priority;
+        insertProcQ(&ready_queue, p);
+    }
+}
+
+
+// Choose the next process to be executed
+void scheduler() {
+
+    // If no process is ready, wait till one is
+    if (emptyProcQ(&ready_queue)) 
         while(1);
-    }else{
-        //context switch occurs
-        if(currentP != NULL){
-            insertProcReady(currentP);
-        }
-
-        //currentProc = removeProcReady(&ready_queue);
+    
+    else {
+        // If a process executed before puts it back in the queue
+        if (currentProcess != NULL)
+            scheduler_add(currentProcess);
+        
+        // Extracts a new process, restores its priority and ages all the excluded
+        currentProcess = removeProcQ(&ready_queue);
+        currentProcess->priority = currentProcess->original_priority;
         aging();
-
     }
 }
 
-void insertPReady(struct pcb_t* p){
-//      Insert a process in Ready Queue 
-    (p->priority)++;
-    insertProcQ(&ready_queue, p);
+
+// Returns the current executing process
+pcb_t* getCurrentProc(void) {
+    return(currentProcess);
 }
 
-void removeProcReady(struct pcb_t* p){
-/*
-        Remove p {type pcb_t*} from ready queue 
-        if p is the current running process becomes NULL
-*/
 
-    outProcQ(&ready_queue,p);
-    if(p == currentP )
-        currentP = NULL;
+// Return a ready queue pointer
+struct list_head* getReadyQ(void) {
+    return(&ready_queue);
 }
-
-void aging(){
-//      Increase the priority of processes on ready queue
-
-    struct list_head* list;
-    struct pcb_t* p;
-
-    if(emptyProcQ(&ready_queue) > 0 ){
-        p = container_of(list, struct pcb_t,p_next);
-
-        //not aging the idle process
-        if(p->original_priority != 1)
-            (p->priority)++;
-        
-        
-    }
-}
-

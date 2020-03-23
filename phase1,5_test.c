@@ -1,7 +1,10 @@
 #include "./include/system_const.h"
 #include "./generics/utils.h"
-#include "include/listx.h"
+
+#include "./process/scheduler.h"
 #include "./process/pcb.h"
+
+#include "./exception_handler/syscall_breakpoint.h"
 
 #define TOD_LO     *((unsigned int *)BUS_REG_TOD_LO)
 #define TIME_SCALE *((unsigned int *)BUS_REG_TIME_SCALE)
@@ -162,13 +165,13 @@ int main(void) {
     initNewArea((memaddr)tmpHander, (memaddr)NEW_AREA_INTERRUPT);
     initNewArea((memaddr)tmpHander, (memaddr)NEW_AREA_TLB);
     initNewArea((memaddr)tmpHander, (memaddr)NEW_AREA_TRAP);
-    initNewArea((memaddr)tmpHander, (memaddr)NEW_AREA_SYSCALL);
+    initNewArea((memaddr)syscall_breakpoint_Handler, (memaddr)NEW_AREA_SYSCALL);
 
     termprint("Initialized all the new areas for exception handling\n");
 
     // Initializes the PCB and the ready queue
     initPcbs();
-    mkEmptyProcQ(&ready_queue);
+    scheduler_init();
     termprint("PCB and ready queue initialized!\n");
 
     // Alloc 3 PCB and set's their states
@@ -189,13 +192,13 @@ int main(void) {
         // Sets the Program Counter to the entry point of the function
         setPC(&writeProcess[i]->p_s, writerFunc[i]);
 
-        insertProcQ(&ready_queue, writeProcess[i]);
+        scheduler_add(writeProcess[i]);
     }
 
     termprint("Created 3 process, set status register and stack pointer,\n");
     termprint("give 'em priority and set their PC.\n");
     termprint("Also added to the ready queue\n");
 
-    SYSCALL(SYS3,0,0,0);
-    PANIC();
+    scheduler();
+    HALT();
 }

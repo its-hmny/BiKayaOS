@@ -2,6 +2,7 @@
 #include "uMPS/libumps.h"
 #include "uMPS/arch.h"
 #include "uMPS/types.h"
+#include "uMPS/umps/cp0.h"
 #endif
 #ifdef TARGET_UARM
 #include "uARM/uarm/libuarm.h"
@@ -32,6 +33,9 @@
 
 #define CR 0x0a   // Carriage return as returned by the terminal
 
+#ifndef NULL
+#define NULL ((void *) 0)
+#endif
 
 /* ======== CONSTANTS FOR STATE_T STRUCT AND SUBSEQUENT REGISTER ============= */
 #ifdef TARGET_UMPS
@@ -58,8 +62,7 @@
 #define PC_REG(state)     state->pc_epc
 #define SP_REG(state)     state->reg_sp
 #define CAUSE_REG(state)  state->cause
-#define a0(state)         state->gpr[3];
-#define a1(state)         state->gpr[4];
+#define GET_A0_REG(state) state->gpr[3]
 #endif
 
 #ifdef TARGET_UARM
@@ -68,8 +71,8 @@
 // Just for compatibility issue with uMPS
 #define ALL_INTRRPT_ENABLED 0
 // Status registrer bits for enabling/disabling kernel mode in the given process
-#define KERNEL_MD_ON ((unsigned int)0x1F)
-#define USR_MD_ON    ((unsigned int)0x10)
+#define KERNEL_MD_ON 1
+#define USR_MD_ON    0
 // Status registrer bits for enabling/disabling virtual memory in the given process
 #define VIRT_MEM_ON      1
 #define VIRT_MEM_OFF     0
@@ -81,8 +84,7 @@
 #define PC_REG(state)     state->pc
 #define SP_REG(state)     state->sp
 #define CAUSE_REG(state)  state->CP15_Cause;
-#define a0(state)         state->a1
-#define a1(state)         state->a2
+#define GET_A0_REG(state) state->a1
 #endif
 
 /* ==================== OLD/NEW AREAS AND RAM address =========================== */
@@ -118,13 +120,12 @@
 #define RAM_FRAMESIZE FRAME_SIZE
 #endif
 
-/* ======================== LucaJett's MACRO UMPS ============================== */
-
-#define CAUSE_GET_EXCCODE(x)   (((x) & CAUSE_EXCCODE_MASK) >> CAUSE_EXCCODE_BIT)
-#define SYS_CALL         8
-
-/* ======================== LucaJett's MACRO UARM============================== */
-
+/* ======================== Exceptions Macros ============================== */
+#ifdef TARGET_UMPS
+#define CAUSE_GET_EXCCODE(x) (((x) & CAUSE_EXCCODE_MASK) >> CAUSE_EXCCODE_BIT)
+#define SYSCALL_CODE 8
+#endif
+#ifdef TARGET_UARM
 #define CAUSE_GET_EXCCODE(x) ((x) & 0xFFFFFF)
-#define SYS_CALL         SYSEXCEPTION
-
+#define SYSCALL_CODE SYSEXCEPTION
+#endif
