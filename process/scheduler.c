@@ -1,8 +1,12 @@
 #include "../include/types_bikaya.h"
+#include "../include/system_const.h"
 #include "scheduler.h"
 #include "pcb.h"
-
 #define HIDDEN static
+
+#define TIME 3000
+#define TIME_SLICE (TIME * TIME_SCALE)
+
 
 // Ready queue of the scheduler
 struct list_head ready_queue;
@@ -48,6 +52,7 @@ void scheduler() {
         if (currentProcess != NULL)
             scheduler_add(currentProcess);
         
+        
         // Extracts a new process, restores its priority and ages all the excluded
         currentProcess = removeProcQ(&ready_queue);
         currentProcess->priority = currentProcess->original_priority;
@@ -55,6 +60,7 @@ void scheduler() {
 
         // Loads the state and executes the chosen process
         LDST(&currentProcess->p_s);
+        setTIMER(TIME_SLICE);
     }
 }
 
