@@ -35,6 +35,8 @@
 
 #ifndef NULL
 #define NULL ((void *) 0)
+
+#define OFFSET_INT 8
 #endif
 
 /* ======== CONSTANTS FOR STATE_T STRUCT AND SUBSEQUENT REGISTER ============= */
@@ -103,6 +105,9 @@
 #define RAMSIZE    *((unsigned int *)BUS_REG_RAM_SIZE)
 #define _RAMTOP     (RAMBASE + RAMSIZE)
 #define RAM_FRAMESIZE  4096
+//Time areas 
+#define INTERVAL_TIMER 0x10000020
+#define TIME_SCALE     0x10000024
 #endif
 
 #ifdef TARGET_UARM
@@ -118,16 +123,17 @@
     // uARM's beginning address of RAM and size of a RAM page
 #define _RAMTOP RAM_TOP
 #define RAM_FRAMESIZE FRAME_SIZE
+// Time areas
+#define INTERAVAL_TIMER 0x000002E4
+#define TIME_SCALE *((unsigned int *)BUS_REG_TIME_SCALE)
 #endif
 
 /* ======================== Exceptions Macros ============================== */
 #ifdef TARGET_UMPS
-#define CAUSE_GET_EXCCODE(x)    (((x) & CAUSE_EXCCODE_MASK) >> CAUSE_EXCCODE_BIT)
-#define SYSCALL_CODE            8
-#define BREAKPOINT_CODE         9
+#define CAUSE_GET_EXCCODE(x) (((x) & CAUSE_EXCCODE_MASK) >> CAUSE_EXCCODE_BIT)
+#define SYSCALL_CODE 8
 #endif
 #ifdef TARGET_UARM
-#define CAUSE_GET_EXCCODE(x)    ((x) & 0xFFFFFF)
-#define SYSCALL_CODE            SYSEXCEPTION
-#define BREAKPOINT_CODE         BPEXCEPTION
+#define CAUSE_GET_EXCCODE(x) ((x) & 0xFFFFFF)
+#define SYSCALL_CODE SYSEXCEPTION
 #endif
