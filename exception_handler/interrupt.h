@@ -1,6 +1,5 @@
 #include "../include/types_bikaya.h"
 
 
-unsigned int getIPline(unsigned int cause, int line);
-void interruptHandler();
-void intervalTimer();
+unsigned int getIPline(unsigned int cause, unsigned int line);
+void interrupt_Handler(void);

@@ -5,6 +5,7 @@
 #include "./process/pcb.h"
 
 #include "./exception_handler/syscall_breakpoint.h"
+#include "./exception_handler/interrupt.h"
 
 #define TOD_LO     *((unsigned int *)BUS_REG_TOD_LO)
 #define TIME_SCALE *((unsigned int *)BUS_REG_TIME_SCALE)
@@ -30,8 +31,7 @@ volatile int test3_baton[STEPS + 1] = {0};
 typedef unsigned int devreg;
 
 static unsigned int get_microseconds() {
-    //return TOD_LO / TIME_SCALE;
-    return(0);
+    return TOD_LO / TIME_SCALE;
 }
 
 static void delay_ms(unsigned int ms) {
@@ -198,7 +198,7 @@ int main(void) {
     termprint("Created 3 process, set status register and stack pointer,\n");
     termprint("give 'em priority and set their PC.\n");
     termprint("Also added to the ready queue\n");
-
+    
     scheduler();
     HALT();
 }

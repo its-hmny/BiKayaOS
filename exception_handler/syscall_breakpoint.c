@@ -167,7 +167,7 @@ void syscall_breakpoint_Handler(void) {
         termprint_tmp("Breakpoint reached! ERROR\n");
         PANIC();
     }
-    else{
+    else {
         termprint_tmp("OMG NON SO COSA CAZZO È, ORA VADO IN PANICO");
         PANIC();
     }

@@ -59,8 +59,8 @@ void scheduler() {
         aging();
 
         // Loads the state and executes the chosen process
-        LDST(&currentProcess->p_s);
         setTIMER(TIME_SLICE);
+        LDST(&currentProcess->p_s);
     }
 }
 

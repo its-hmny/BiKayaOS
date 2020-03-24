@@ -107,7 +107,7 @@
 #define RAM_FRAMESIZE  4096
 //Time areas 
 #define INTERVAL_TIMER 0x10000020
-#define TIME_SCALE     0x10000024
+#define TIME_SCALE     *((unsigned int *)BUS_REG_TIME_SCALE)
 #endif
 
 #ifdef TARGET_UARM
@@ -132,8 +132,10 @@
 #ifdef TARGET_UMPS
 #define CAUSE_GET_EXCCODE(x) (((x) & CAUSE_EXCCODE_MASK) >> CAUSE_EXCCODE_BIT)
 #define SYSCALL_CODE 8
+#define BREAKPOINT_CODE 9
 #endif
 #ifdef TARGET_UARM
 #define CAUSE_GET_EXCCODE(x) ((x) & 0xFFFFFF)
 #define SYSCALL_CODE SYSEXCEPTION
+#define BREAKPOINT_CODE BPEXCEPTION
 #endif

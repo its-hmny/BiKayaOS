@@ -32,7 +32,7 @@ all : kernel.core.umps
 kernel.core.umps : kernel
 	umps2-elf2umps -k $<
 	
-kernel : phase1,5_test.o generics/utils.o exception_handler/syscall_breakpoint.o process/scheduler.o process/pcb.o process/asl.o crtso.o libumps.o
+kernel : phase1,5_test.o generics/utils.o exception_handler/syscall_breakpoint.o exception_handler/interrupt.o process/scheduler.o process/pcb.o process/asl.o crtso.o libumps.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 
 clean :
