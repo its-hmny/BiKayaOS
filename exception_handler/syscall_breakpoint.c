@@ -163,8 +163,12 @@ void syscall_breakpoint_Handler(void) {
         syscallDispatcher(numberOfSyscall);
     }
     // Else is a breakpoint 
-    else {
+    else if(exCode == BREAKPOINT_CODE){
         termprint_tmp("Breakpoint reached! ERROR\n");
+        PANIC();
+    }
+    else{
+        termprint_tmp("OMG NON SO COSA CAZZO È, ORA VADO IN PANICO");
         PANIC();
     }
 }

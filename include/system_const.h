@@ -122,10 +122,12 @@
 
 /* ======================== Exceptions Macros ============================== */
 #ifdef TARGET_UMPS
-#define CAUSE_GET_EXCCODE(x) (((x) & CAUSE_EXCCODE_MASK) >> CAUSE_EXCCODE_BIT)
-#define SYSCALL_CODE 8
+#define CAUSE_GET_EXCCODE(x)    (((x) & CAUSE_EXCCODE_MASK) >> CAUSE_EXCCODE_BIT)
+#define SYSCALL_CODE            8
+#define BREAKPOINT_CODE         9
 #endif
 #ifdef TARGET_UARM
-#define CAUSE_GET_EXCCODE(x) ((x) & 0xFFFFFF)
-#define SYSCALL_CODE SYSEXCEPTION
+#define CAUSE_GET_EXCCODE(x)    ((x) & 0xFFFFFF)
+#define SYSCALL_CODE            SYSEXCEPTION
+#define BREAKPOINT_CODE         BPEXCEPTION
 #endif
