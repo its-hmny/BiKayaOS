@@ -38,13 +38,13 @@ void (*subhandler[])(void) = { tmp, tmp, intervalTimer_hadler, tmp, tmp, tmp, tm
 HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
    #ifdef TARGET_UMPS
    unsigned int interruptLines = (((CAUSE_REG(oldArea)) & LINE_MASK) >> LINE_OFFSET);
-   for (unsigned int i = 0; i < 8; i++)
+   for (unsigned int i = INTER_PROCESSOR; i <= TERMINAL_DEVICE; i++)
       interruptVector[i] = interruptLines & (1 << i);
    #endif
 
    #ifdef TARGET_UARM
    unsigned int causeReg = CAUSE_REG(oldArea);
-   for (unsigned int i = 0; i < 8; i++) {
+   for (unsigned int i = INTER_PROCESSOR; i <= TERMINAL_DEVICE; i++) {
       interruptVector[i] = CAUSE_IP_GET(causeReg, i);
    }
    #endif
@@ -67,7 +67,7 @@ void interrupt_handler(void) {
    unsigned int interruptVector[8];
    getInterruptLines(interruptVector);
 
-   for (int line = 0; line < 8; line++) {
+   for (int line = INTER_PROCESSOR; line <= TERMINAL_DEVICE; line++) {
       if (interruptVector[line] == 1) {
          subhandler[line]();
       }

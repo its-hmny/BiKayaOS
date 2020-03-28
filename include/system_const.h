@@ -138,3 +138,13 @@
 #define SYSCALL_CODE SYSEXCEPTION
 #define BREAKPOINT_CODE BPEXCEPTION
 #endif
+
+/* ========================= Interrupt Lines =============================== */
+#define INTER_PROCESSOR 0
+#define PROCESSOR_LOCAL_TIMER 1
+#define BUS_INTERVAL_TIMER 2
+#define DISK_DEVICE 3
+#define TAPE_DEVICE 4
+#define NETWORK_DEVICE 5
+#define PRINTER_DEVICE 6
+#define TERMINAL_DEVICE 7
