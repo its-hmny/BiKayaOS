@@ -14,7 +14,10 @@ struct list_head ready_queue;
 pcb_t *currentProcess = NULL;
 
 
-// Iterates through the ready queue and ages all the process
+/*
+    Thia function is called by the scheduler after a process is chosen
+    for the execution and simply increment by one the priority of all the excluded
+*/
 HIDDEN void aging(void) {
     struct list_head *tmp = NULL;
 
@@ -31,7 +34,7 @@ void scheduler_init(void) {
 }
 
 
-// Adds a new process to the scheduler
+// Adds a new process to the scheduler, checks the arguments first
 void scheduler_add(pcb_t *p) {
     if (p != NULL) {
         p->original_priority = p->priority;
@@ -58,7 +61,7 @@ void scheduler() {
         currentProcess->priority = currentProcess->original_priority;
         aging();
 
-        // Loads the state and executes the chosen process
+        // Loads the state and executes the chosen process but before sets the time slice
         setTIMER(TIME_SLICE);
         LDST(&currentProcess->p_s);
     }

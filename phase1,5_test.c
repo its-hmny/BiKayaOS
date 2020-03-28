@@ -5,7 +5,7 @@
 #include "./process/pcb.h"
 
 #include "./exception_handler/syscall_breakpoint.h"
-//#include "./exception_handler/interrupt.h"
+#include "./exception_handler/interrupt.h"
 
 #define TOD_LO     *((unsigned int *)BUS_REG_TOD_LO)
 #define TIME_SCALE *((unsigned int *)BUS_REG_TIME_SCALE)
@@ -162,14 +162,14 @@ int main(void) {
     termprint("Welcome to phase 1.5 of BiKayaOS \n");
     
     // Populate the New Areas in the ROM reserved frame
-    initNewArea((memaddr)tmpHander, (memaddr)NEW_AREA_INTERRUPT);
+    initNewArea((memaddr)interrupt_handler, (memaddr)NEW_AREA_INTERRUPT);
     initNewArea((memaddr)tmpHander, (memaddr)NEW_AREA_TLB);
     initNewArea((memaddr)tmpHander, (memaddr)NEW_AREA_TRAP);
-    initNewArea((memaddr)syscall_breakpoint_Handler, (memaddr)NEW_AREA_SYSCALL);
+    initNewArea((memaddr)syscall_breakpoint_handler, (memaddr)NEW_AREA_SYSCALL);
 
     termprint("Initialized all the new areas for exception handling\n");
 
-    // Initializes the PCB and the ready queue
+    // Initializes the PCB and the ready queue (scheduler)
     initPcbs();
     scheduler_init();
     termprint("PCB and ready queue initialized!\n");

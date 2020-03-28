@@ -30,12 +30,11 @@
 #define EOS   '\0'
 
 #define DEV_PER_INT 8 // Maximum number of devices per interrupt line
-
+#define WORDSIZE 4
 #define CR 0x0a   // Carriage return as returned by the terminal
 
 #ifndef NULL
 #define NULL ((void *) 0)
-
 #define OFFSET_INT 8
 #endif
 
@@ -85,7 +84,7 @@
 #define STATUS_REG(state) state->cpsr
 #define PC_REG(state)     state->pc
 #define SP_REG(state)     state->sp
-#define CAUSE_REG(state)  state->CP15_Cause;
+#define CAUSE_REG(state)  state->CP15_Cause
 #define GET_A0_REG(state) state->a1
 #endif
 
