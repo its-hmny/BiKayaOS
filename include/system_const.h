@@ -78,7 +78,7 @@
 #define VIRT_MEM_ON      1
 #define VIRT_MEM_OFF     0
 // Status registrer bits for enabling/disabling timer in the given process
-#define TIMER_ENABLED  1
+#define TIMER_ENABLED  0
 #define TIMER_DISABLED 0
     // Status, program counter, stack poiter and cause register in uARM
 #define STATUS_REG(state) state->cpsr

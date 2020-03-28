@@ -8,5 +8,6 @@ void scheduler_add(pcb_t *p);
 void scheduler();
 pcb_t* getCurrentProc(void);
 struct list_head* getReadyQ(void);
+void setIntervalTimer(void);
 
 #endif

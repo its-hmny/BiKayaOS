@@ -22,12 +22,6 @@ void initNewArea(memaddr handler, memaddr RRF_addr) {
     setStackP(newArea, (memaddr)_RAMTOP);
 }
 
-/*unsigned int interruptEnabled;
-    unsigned int kernelMode;
-    unsigned int interrupt_mask;
-    unsigned int virtualMemory;
-    unsigned int timerEnabled;*/
-
 #ifdef TARGET_UMPS
 void setStatusReg(state_t *proc_state, process_option *option) {
     STATUS_REG(proc_state) |= option->interruptEnabled;
@@ -44,15 +38,6 @@ void setStatusReg(state_t *proc_state, process_option *option) {
     STATUS_REG(proc_state) = (option->interruptEnabled) ? (STATUS_ENABLE_INT(STATUS_REG(proc_state))) : (STATUS_DISABLE_INT(STATUS_REG(proc_state)));
     proc_state->CP15_Control = (option->virtualMemory) ? (CP15_ENABLE_VM(proc_state->CP15_Control)) : (CP15_DISABLE_VM(proc_state->CP15_Control));
     STATUS_REG(proc_state) = (option->timerEnabled) ? (STATUS_ENABLE_TIMER(STATUS_REG(proc_state))) : (STATUS_DISABLE_TIMER(STATUS_REG(proc_state)));
-    
-    /*
-	s->cpsr = STATUS_SYS_MODE;
-	s->cpsr = STATUS_DISABLE_INT(s->cpsr);
-	s->CP15_Control = CP15_DISABLE_VM(s->CP15_Control);
-    */
-
-    /*int status = STATUS_REG(proc_state);
-    status = STATUS_DISABLE_INT(status) | STATUS_ENABLE_TIMER(status) | STATUS_SYS_MODE;*/
 }
 #endif
 
@@ -62,4 +47,10 @@ void setPC(state_t *process, memaddr function) {
 
 void setStackP(state_t *process, memaddr memLocation) {
     SP_REG(process) = memLocation;
+}
+
+// Returns the exception code from the cause registrer in the old area
+unsigned int getExCode(state_t *oldArea) {
+    unsigned int causeReg = CAUSE_REG(oldArea);
+    return(CAUSE_GET_EXCCODE(causeReg));
 }

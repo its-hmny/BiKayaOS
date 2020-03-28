@@ -201,4 +201,5 @@ int main(void) {
 
     scheduler();
     HALT();
+    return (0);
 }

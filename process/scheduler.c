@@ -15,7 +15,7 @@ pcb_t *currentProcess = NULL;
 
 
 /*
-    Thia function is called by the scheduler after a process is chosen
+    This function is called by the scheduler after a process is chosen
     for the execution and simply increment by one the priority of all the excluded
 */
 HIDDEN void aging(void) {
@@ -62,7 +62,7 @@ void scheduler() {
         aging();
 
         // Loads the state and executes the chosen process but before sets the time slice
-        setTIMER(TIME_SLICE);
+        setIntervalTimer();
         LDST(&currentProcess->p_s);
     }
 }
@@ -77,4 +77,18 @@ pcb_t* getCurrentProc(void) {
 // Return a ready queue pointer
 struct list_head* getReadyQ(void) {
     return(&ready_queue);
+}
+
+
+void setIntervalTimer(void) {
+    // Timer setter on uMPS
+    #ifdef TARGET_UMPS
+    memaddr *intervalTimer = (memaddr*) INTERVAL_TIMER;
+    *intervalTimer = TIME_SLICE;
+    #endif
+    
+    // Timer setter on uARM
+    #ifdef TARGET_UARM
+    setTIMER(TIME_SLICE);
+    #endif
 }

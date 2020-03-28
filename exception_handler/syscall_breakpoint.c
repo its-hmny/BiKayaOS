@@ -1,4 +1,5 @@
 #include "../include/system_const.h"
+#include "../generics/utils.h"
 #include "../process/scheduler.h"
 #include "../process/asl.h"
 #include "../process/pcb.h"
@@ -39,14 +40,6 @@ HIDDEN void syscall3(pcb_t *root) {
 
 // A pointer to the old area, used to retrieve info about the exception
 state_t *old_area = NULL;
-
-
-// Returns the exception code from the cause registrer in the old area
-HIDDEN unsigned int getExCode(void) {
-    unsigned int causeReg = CAUSE_REG(old_area);
-    return(CAUSE_GET_EXCCODE(causeReg));
-}
-
 
 /* 
     This function takes the syscall number and call the appropriate system call,
@@ -118,7 +111,8 @@ HIDDEN void syscallDispatcher(unsigned int sysNumber) {
 void syscall_breakpoint_handler(void) {
     // Retrieve the old area, where the previous state is saved and extrapolate the exception code
     old_area = (state_t*) OLD_AREA_SYSCALL;
-    unsigned int exCode = getExCode();
+    unsigned int exCode = getExCode(old_area);
+
     // Bring back the PC to the previous instruction
     PC_REG(old_area) -= WORDSIZE;
 
