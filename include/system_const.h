@@ -139,7 +139,14 @@
 #define BREAKPOINT_CODE BPEXCEPTION
 #endif
 
-/* ========================= Interrupt Lines =============================== */
+/* ========================= Interrupt Macros =============================== */
+#ifdef TARGET_UMPS
+#define WORDSIZE 4
+#define INTERRUPT_CODE 0
+#define LINE_MASK 0xFF00
+#define LINE_OFFSET 8
+#define MAX_LINE 8
+    // Interrupts lines
 #define INTER_PROCESSOR 0
 #define PROCESSOR_LOCAL_TIMER 1
 #define BUS_INTERVAL_TIMER 2
@@ -148,3 +155,18 @@
 #define NETWORK_DEVICE 5
 #define PRINTER_DEVICE 6
 #define TERMINAL_DEVICE 7
+#endif
+#ifdef TARGET_UARM
+#define INTERRUPT_CODE INTEXCEPTION
+#define MAX_LINE 8
+
+    // Interrupt lines (0,1,5 are not used in uARM)
+#define INTER_PROCESSOR 0
+#define PROCESSOR_LOCAL_TIMER 1
+#define BUS_INTERVAL_TIMER INT_TIMER
+#define DISK_DEVICE INT_DISK
+#define TAPE_DEVICE INT_TAPE
+#define NETWORK_DEVICE INT_UNUSED
+#define PRINTER_DEVICE INT_PRINTER
+#define TERMINAL_DEVICE INT_TERMINAL
+#endif
