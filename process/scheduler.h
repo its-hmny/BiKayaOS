@@ -9,5 +9,7 @@ void scheduler();
 pcb_t* getCurrentProc(void);
 struct list_head* getReadyQ(void);
 void setIntervalTimer(void);
+void setTimerTo(unsigned int time);
+unsigned int getIntervalTimer(void);
 
 #endif

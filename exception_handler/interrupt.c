@@ -4,8 +4,12 @@
 #include "../process/pcb.h"
 #include "interrupt.h"
 
+#define TIME 3000
+#define TIME_SLICE (TIME * TIME_SCALE)
+
 // Old Area pointer, used to retrieve info about the exception
 state_t *oldArea = NULL;
+unsigned int elapsedTime = 0;
 
 /* ============= SUBHANDLER DEFINITION ============ */
 HIDDEN void tmp(void) {
@@ -19,8 +23,11 @@ HIDDEN void intervalTimer_hadler(void) {
    scheduler();
 }
 
+// Ignores it, the writer process will send the ack
 HIDDEN void terminal_handler(void) {
-   //Ignores it, the writer process will send the ack
+   // Set the timer to the remaining time of execution
+   setTimerTo(TIME_SLICE - elapsedTime);
+   
    LDST(oldArea);
 }
 
@@ -47,6 +54,7 @@ HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
 }
 
 void interrupt_handler(void) {
+   elapsedTime = getIntervalTimer();
    oldArea = (state_t*) OLD_AREA_INTERRUPT;
    
    // In uARM an interrupt can block the current instructon so it has to be broght back th PC

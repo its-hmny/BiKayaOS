@@ -92,3 +92,29 @@ void setIntervalTimer(void) {
     setTIMER(TIME_SLICE);
     #endif
 }
+
+void setTimerTo(unsigned int time) {
+    // Timer setter on uMPS
+    #ifdef TARGET_UMPS
+    memaddr *intervalTimer = (memaddr*) INTERVAL_TIMER;
+    *intervalTimer = time;
+    #endif
+    
+    // Timer setter on uARM
+    #ifdef TARGET_UARM
+    setTIMER(time);
+    #endif
+}
+
+unsigned int getIntervalTimer(void) {
+    // Get the current elapsed time since the last timer ssetting uMPS
+    #ifdef TARGET_UMPS
+    memaddr *intervalTimer = (memaddr*) INTERVAL_TIMER;
+    return (*intervalTimer);
+    #endif
+    
+    // Get the current elapsed time since the last timer ssetting uARM
+    #ifdef TARGET_UARM
+    return (getTIMER());
+    #endif
+}
