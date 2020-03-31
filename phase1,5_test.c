@@ -31,7 +31,7 @@ volatile int test3_baton[STEPS + 1] = {0};
 typedef unsigned int devreg;
 
 static unsigned int get_microseconds() {
-    //return TOD_LO / TIME_SCALE;
+    return TOD_LO / TIME_SCALE;
 }
 
 static void delay_ms(unsigned int ms) {
@@ -144,12 +144,11 @@ void test3() {
 }
 
 #define N_WRITE_PROC 3
-struct list_head ready_queue;
 pcb_t* writeProcess[N_WRITE_PROC];
 memaddr writerFunc[N_WRITE_PROC] = { (memaddr)test1, (memaddr)test2, (memaddr)test3 };
 
 // Questo va sistemato
-process_option writer_opt = { ENABLE_INTERRUPT, KERNEL_MD_ON, ALL_INTRRPT_ENABLED, VIRT_MEM_OFF, TIMER_ENABLED };
+process_option writer_opt = { ENABLE_INTERRUPT, KERNEL_MD_ON, ONLY_TIMER_ENABLED, VIRT_MEM_OFF, TIMER_ENABLED };
 
 //TODO REMOVE dovrebbero essere tutti del tipo void handler(void)
 void tmpHander() {
@@ -170,7 +169,6 @@ int main(void) {
     termprint("Initialized all the new areas for exception handling\n");
 
     // Initializes the PCB and the ready queue (scheduler)
-    initPcbs();
     scheduler_init();
     termprint("PCB and ready queue initialized!\n");
 

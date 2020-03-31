@@ -33,6 +33,10 @@
 #define WORDSIZE 4
 #define CR 0x0a   // Carriage return as returned by the terminal
 
+// Interrupt bitmask (only for uMPS ignored by uARM)
+#define ALL_INTRRPT_ENABLED 0xFF
+#define ONLY_TIMER_ENABLED 0x04
+
 #ifndef NULL
 #define NULL ((void *) 0)
 #define OFFSET_INT 8
@@ -44,7 +48,6 @@
 #define DISABLE_INTERRUPT    0
 #define ENABLE_INTERRUPT     1 
 #define INTERRUPT_MASK_SHIFT 8
-#define ALL_INTRRPT_ENABLED 255 
 // Status registrer bits for enabling/disabling kernel mode in the given process
 #define KERNEL_MD_ON    0
 #define USR_MD_ON       1
@@ -69,9 +72,7 @@
 
 #ifdef TARGET_UARM
 #define DISABLE_INTERRUPT 0
-#define ENABLE_INTERRUPT  1  
-// Just for compatibility issue with uMPS
-#define ALL_INTRRPT_ENABLED 0
+#define ENABLE_INTERRUPT  0  
 // Status registrer bits for enabling/disabling kernel mode in the given process
 #define KERNEL_MD_ON 1
 #define USR_MD_ON    0
@@ -106,7 +107,7 @@
 #define _RAMTOP     (RAMBASE + RAMSIZE)
 #define RAM_FRAMESIZE  4096
 //Time areas 
-#define INTERVAL_TIMER 0x10000020
+#define INTERVAL_TIMER BUS_REG_TIMER
 #define TIME_SCALE     *((unsigned int *)BUS_REG_TIME_SCALE)
 #endif
 

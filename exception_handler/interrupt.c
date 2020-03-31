@@ -17,6 +17,9 @@ HIDDEN void tmp(void) {
 }
 
 HIDDEN void intervalTimer_hadler(void) {
+   // Save the current old area state to the process that has executed
+   pcb_t *currentProcess = getCurrentProc();
+   STST(&currentProcess->p_s);
    // Send an Ack to the timer, sets him up to a timeslice
    setIntervalTimer();
    // The scheduler will chose a process and reset a timeslice, else it will loop
@@ -26,16 +29,16 @@ HIDDEN void intervalTimer_hadler(void) {
 // Ignores it, the writer process will send the ack
 HIDDEN void terminal_handler(void) {
    // Set the timer to the remaining time of execution
-   setTimerTo(TIME_SLICE - elapsedTime);
-   
-   LDST(oldArea);
+   unsigned int remainingTime = ((unsigned int)TIME_SLICE) - elapsedTime;
+   setTimerTo(remainingTime);
+   //LDST(oldArea); TODO SEE IF NEEDED
 }
 
 
 
 /* ========== INTERRUPT HANDLER ========== */
 // Vector of subhandler, there's one handler for each interrupt line
-void (*subhandler[])(void) = { tmp, tmp, intervalTimer_hadler, tmp, tmp, tmp, tmp, terminal_handler };
+void (*subhandler[])(void) = { tmp, tmp, intervalTimer_hadler, tmp, tmp, tmp, tmp, tmp };
 
 // Returns pending and non-pending interrupt as a vector
 HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
@@ -60,22 +63,17 @@ void interrupt_handler(void) {
    // In uARM an interrupt can block the current instructon so it has to be broght back th PC
    #ifdef TARGET_UARM
    PC_REG(oldArea) = PC_REG(oldArea) - WORDSIZE;
-   // In some cases the old area are never loaded back so the PC is back also in the ready queue
-   pcb_t *currentProcess = getCurrentProc();
-   if (currentProcess != NULL)
-      setPC(&currentProcess->p_s, oldArea->pc);
    #endif
-
-   //Trovare l'interrupt code per uARM e aggiungerlo
+   
+   // Check the exception code
    if (getExCode(oldArea) != INTERRUPT_CODE)
       PANIC();
    
-   unsigned int interruptVector[8];
+   // Retrieve a vectorized version of the pending interrupt 
+   unsigned int interruptVector[MAX_LINE];
    getInterruptLines(interruptVector);
 
-   for (int line = 0; line < MAX_LINE; line++) {
-      if (interruptVector[line] == ON) {
+   for (unsigned int line = 0; line < MAX_LINE; line++) 
+      if (interruptVector[line])
          subhandler[line]();
-      }
-   }
 }

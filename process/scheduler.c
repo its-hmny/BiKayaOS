@@ -30,6 +30,7 @@ HIDDEN void aging(void) {
 
 // Prepares the ready queue and sets the scheduer to be exeuted
 void scheduler_init(void) {
+    initPcbs();
     mkEmptyProcQ(&ready_queue);
 }
 
