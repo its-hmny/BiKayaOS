@@ -123,7 +123,7 @@ pcb_t* outBlocked(pcb_t *p) {
     semd_t *semd = getSemd(p->p_semkey);
     struct list_head *pos;
 
-    if (p == NULL && semd == NULL)
+    if (p == NULL || semd == NULL)
         return NULL;
 
     // Cicles till the PCB is found
