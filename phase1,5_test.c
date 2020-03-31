@@ -107,7 +107,6 @@ void test2() {
     int i = 0;
     termprint("Entering test2!\n");
 
-
     for (i = 0; i < STEPS; i++) {
         while (test1_baton[i] == 0)
             ;

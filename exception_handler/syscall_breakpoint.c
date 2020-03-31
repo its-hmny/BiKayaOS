@@ -16,6 +16,7 @@
     root: a PCB pointer to the process to terminate
 */
 HIDDEN void syscall3(pcb_t *root) {
+    
     if (root == NULL)
         return;
 
@@ -32,6 +33,7 @@ HIDDEN void syscall3(pcb_t *root) {
         syscall3(container_of(tmp, pcb_t, p_sib));
 
     freePcb(root);
+    setCurrentProcess(NULL);
 }
 
 
