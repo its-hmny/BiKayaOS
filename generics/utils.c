@@ -2,7 +2,7 @@
 #include "../include/system_const.h"
 #include "./utils.h"
 
-HIDDEN void wipe_Memory(void *memaddr, unsigned int size) {
+void wipe_Memory(void *memaddr, unsigned int size) {
     unsigned char* tmp_p = memaddr;
     
     while(size--)
@@ -53,4 +53,12 @@ void setStackP(state_t *process, memaddr memLocation) {
 unsigned int getExCode(state_t *oldArea) {
     unsigned int causeReg = CAUSE_REG(oldArea);
     return(CAUSE_GET_EXCCODE(causeReg));
+}
+
+void cloneState(state_t *process_state, state_t *old_area, unsigned int size) {
+     char *copy = process_state, *to_be_copied = old_area;
+     while(size--) {
+        *copy = *to_be_copied;
+        copy++, to_be_copied++;
+     }
 }

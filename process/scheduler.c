@@ -46,7 +46,7 @@ void scheduler_add(pcb_t *p) {
 
 // Choose the next process to be executed
 void scheduler() {
-
+    
     // If no process is ready, wait till one is
     if (emptyProcQ(&ready_queue)) 
         while(1);

@@ -1,29 +1,13 @@
 #include "../include/system_const.h"
 #include "../include/types_bikaya.h"
 #include "../include/listx.h"
+#include "../generics/utils.h"
 #include "pcb.h"
 
 HIDDEN pcb_t pcbTable[MAXPROC];
 HIDDEN LIST_HEAD(pcbFree);
 
 
-/*
-    This function wipes the given structure/variable memory location. It's 
-    inspired by memset function in the sandard library. Starting from the given
-    location (the void pointer) it sets every byte to O/NULL till reaching the end
-    of the given structure (the unsigned int "size").
-
-    block: the memory address from where to start
-    size: the number of bytes that the structure to be cleaned uses, recommended to use sizeof()
-    
-    return: void
-*/
-HIDDEN void wipe_Pcb(void *memaddr, unsigned int size) {
-    unsigned char* tmp_p = memaddr;
-    
-    while(size--)
-        *tmp_p++ = (unsigned char) 0;
-}
 
 /*
     This function uses the array pcbTmp_arr and for every and each PCB it adds it to
@@ -70,7 +54,7 @@ pcb_t *allocPcb(void) {
         list_del(&newPcb->p_next);
 
         //Wipes the PCB and initialize his list to empty list
-        wipe_Pcb(newPcb, sizeof(pcb_t));
+        wipe_Memory(newPcb, sizeof(pcb_t));
         INIT_LIST_HEAD(&newPcb->p_next);
         INIT_LIST_HEAD(&newPcb->p_child);
         INIT_LIST_HEAD(&newPcb->p_sib);

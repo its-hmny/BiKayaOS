@@ -19,7 +19,7 @@ HIDDEN void tmp(void) {
 HIDDEN void intervalTimer_hadler(void) {
    // Save the current old area state to the process that has executed
    pcb_t *currentProcess = getCurrentProc();
-   STST(&currentProcess->p_s);
+   cloneState(&currentProcess->p_s, oldArea, sizeof(state_t));
    // Send an Ack to the timer, sets him up to a timeslice
    setIntervalTimer();
    // The scheduler will chose a process and reset a timeslice, else it will loop
