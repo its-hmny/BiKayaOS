@@ -33,7 +33,7 @@ HIDDEN void syscall3(pcb_t *root) {
         syscall3(container_of(tmp, pcb_t, p_sib));
 
     freePcb(root);
-    setCurrentProcess(NULL);
+    setCurrentProc(NULL);
 }
 
 

@@ -197,6 +197,6 @@ int main(void) {
     termprint("Also added to the ready queue\n");
 
     scheduler();
-    HALT();
+    
     return (0);
 }

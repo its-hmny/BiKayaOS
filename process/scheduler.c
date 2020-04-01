@@ -13,10 +13,6 @@ struct list_head ready_queue;
 // Current process selected to be executed
 pcb_t *currentProcess = NULL;
 
-void setCurrentProcess(int x){
-    currentProcess = x;
-}
-
 
 /*
     This function is called by the scheduler after a process is chosen
@@ -53,7 +49,8 @@ void scheduler() {
     
     // If no process is ready, wait till one is
     if (emptyProcQ(&ready_queue))
-       while(1);
+       HALT();
+       //while(1);
     
     else {
         // If a process executed before puts it back in the queue
@@ -76,6 +73,11 @@ void scheduler() {
 // Returns the current executing process
 pcb_t* getCurrentProc(void) {
     return(currentProcess);
+}
+
+
+void setCurrentProc(pcb_t *proc) {
+    currentProcess = proc;
 }
 
 

@@ -56,9 +56,9 @@ unsigned int getExCode(state_t *oldArea) {
 }
 
 void cloneState(state_t *process_state, state_t *old_area, unsigned int size) {
-     char *copy = process_state, *to_be_copied = old_area;
-     while(size--) {
+    char *copy = (char *) process_state, *to_be_copied = (char *) old_area;
+    while(size--) {
         *copy = *to_be_copied;
         copy++, to_be_copied++;
-     }
+    }
 }
