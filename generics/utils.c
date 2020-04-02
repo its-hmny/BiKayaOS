@@ -25,6 +25,7 @@ void initNewArea(memaddr handler, memaddr RRF_addr) {
 #ifdef TARGET_UMPS
 void setStatusReg(state_t *proc_state, process_option *option) {
     STATUS_REG(proc_state) |= option->interruptEnabled;
+    STATUS_REG(proc_state) |= (1 << 2);
     STATUS_REG(proc_state) |= (option->kernelMode << KM_SHIFT);
     STATUS_REG(proc_state) |= (option->interrupt_mask << INTERRUPT_MASK_SHIFT);
     STATUS_REG(proc_state) |= (option->virtualMemory << VIRT_MEM_SHIFT);
