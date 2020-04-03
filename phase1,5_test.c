@@ -143,11 +143,21 @@ void test3() {
 }
 
 #define N_WRITE_PROC 3
+
+
+#ifdef TARGET_UMPS
+#define WRITER_PROC_OPT { ENABLE_INTERRUPT, KERNEL_MD_ON, ONLY_TIMER_ENABLED, VIRT_MEM_OFF, PLT_DISABLED }
+#endif
+#ifdef TARGET_UARM
+#define WRITER_PROC_OPT { DISABLE_INTERRUPT, KERNEL_MD_ON, VIRT_MEM_OFF, TIMER_ENABLED }
+#endif
+
+
 pcb_t* writeProcess[N_WRITE_PROC];
 memaddr writerFunc[N_WRITE_PROC] = { (memaddr)test1, (memaddr)test2, (memaddr)test3 };
 
 // Questo va sistemato
-process_option writer_opt = { ENABLE_INTERRUPT, KERNEL_MD_ON, ONLY_TIMER_ENABLED, VIRT_MEM_OFF, TIMER_ENABLED };
+process_option writer_opt = WRITER_PROC_OPT;
 
 //TODO REMOVE dovrebbero essere tutti del tipo void handler(void)
 void tmpHander() {

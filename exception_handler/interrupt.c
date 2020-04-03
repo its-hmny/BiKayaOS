@@ -4,14 +4,15 @@
 #include "../process/pcb.h"
 #include "interrupt.h"
 
-#define TIME 3000
-#define TIME_SLICE (TIME * TIME_SCALE)
+
 
 // Old Area pointer, used to retrieve info about the exception
 state_t *oldArea = NULL;
-unsigned int elapsedTime = 0;
+
+
 
 /* ============= SUBHANDLER DEFINITION ============ */
+
 HIDDEN void tmp(void) {
    PANIC();
 }
@@ -26,21 +27,17 @@ HIDDEN void intervalTimer_hadler(void) {
    scheduler();
 }
 
-// Ignores it, the writer process will send the ack
-HIDDEN void terminal_handler(void) {
-   // Set the timer to the remaining time of execution
-   unsigned int remainingTime = ((unsigned int)TIME_SLICE) - elapsedTime;
-   setTimerTo(remainingTime);
-   //LDST(oldArea); TODO SEE IF NEEDED
-}
 
 
+/* ============= INTERRUPT HANDLER ============= */
 
-/* ========== INTERRUPT HANDLER ========== */
-// Vector of subhandler, there's one handler for each interrupt line
-void (*subhandler[])(void) = { tmp, tmp, intervalTimer_hadler, tmp, tmp, tmp, tmp, tmp };
+/*
+   Returns pending and non-pending interrupt line as a vector, with cross code
+   for both architechtures
 
-// Returns pending and non-pending interrupt as a vector
+   interruptVector: the vector to populate (must be at least 8 cell long)
+   return: void
+*/
 HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
    #ifdef TARGET_UMPS
    unsigned int interruptLines = (((CAUSE_REG(oldArea)) & LINE_MASK) >> LINE_OFFSET);
@@ -56,11 +53,20 @@ HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
    #endif
 }
 
+
+/*
+   The interrupt handler manages all the 8 line (each for one device class)
+   It retrieves the cause of the interrupt from the old area and executes the subhandler
+   on the line that presents an interrupt pending
+*/
+
+// Vector of subhandler, there's one handler for each interrupt line
+void (*subhandler[])(void) = { tmp, tmp, intervalTimer_hadler, tmp, tmp, tmp, tmp, tmp };
+
 void interrupt_handler(void) {
-   elapsedTime = getIntervalTimer();
    oldArea = (state_t*) OLD_AREA_INTERRUPT;
    
-   // In uARM an interrupt can block the current instructon so it has to be broght back th PC
+   // In uARM an interrupt can block the current instructon so it has to be broght back the PC
    #ifdef TARGET_UARM
    PC_REG(oldArea) = PC_REG(oldArea) - WORDSIZE;
    #endif

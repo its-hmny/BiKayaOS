@@ -1,3 +1,6 @@
+#ifndef __UTILS_H
+#define __UTILS_H
+
 #include "../include/types_bikaya.h"
 
 void wipe_Memory(void *memaddr, unsigned int size);
@@ -7,3 +10,5 @@ void setPC(state_t *process, memaddr function);
 void setStackP(state_t *process, memaddr memLocation);
 unsigned int getExCode(state_t *oldArea);
 void cloneState(state_t *process_state, state_t *old_area, unsigned int size);
+
+#endif

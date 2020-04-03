@@ -6,6 +6,9 @@
 #include "syscall_breakpoint.h"
 
 
+// A pointer to the old area, used to retrieve info about the exception
+state_t *old_area = NULL;
+
 /* ================ SYSCALL DEFINITION ================ */
 
 /*
@@ -33,19 +36,16 @@ HIDDEN void syscall3(pcb_t *root) {
         syscall3(container_of(tmp, pcb_t, p_sib));
 
     freePcb(root);
-    setCurrentProc(NULL);
 }
 
 
 
 /* ========== SYSCALL & BREAKPOINT HANDLER ========== */
 
-// A pointer to the old area, used to retrieve info about the exception
-state_t *old_area = NULL;
-
 /* 
     This function takes the syscall number and call the appropriate system call,
-    eventually initializing the args of each syscall.
+    eventually initializing the args of each syscall. If a syscall is not recognized
+    or implemented then issue a Kernel Panic
 
     sysNumber: the syscall number retrieved from the Old Area
     return: void
@@ -63,6 +63,8 @@ HIDDEN void syscallDispatcher(unsigned int sysNumber) {
         case 3:
             // Kill the current process wich has called the syscall
             syscall3(getCurrentProc());
+            // The current proc has been killed (dangling reference)
+            setCurrentProc(NULL);
             // Calls the scheduer to execute a new process
             scheduler();
             break; 
@@ -109,6 +111,8 @@ HIDDEN void syscallDispatcher(unsigned int sysNumber) {
     This is the handler of the syscall/breakpoint new area.
     It checks for the cause register exception code and eventually calls
     the subhandlers (one for syscall, one for breakpoiints).
+
+    return: void
 */
 void syscall_breakpoint_handler(void) {
     // Retrieve the old area, where the previous state is saved and extrapolate the exception code
