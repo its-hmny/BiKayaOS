@@ -1,6 +1,6 @@
 # Project include, source and library dirs for umips-related files
-set(UMPS_INC ${PROJECT_SOURCE_DIR}/umps)
-set(UMPS_SRC ${PROJECT_SOURCE_DIR}/umps)
+set(UMPS_INC ${PROJECT_SOURCE_DIR}/include/uMPS)
+set(UMPS_SRC ${PROJECT_SOURCE_DIR}/include/uMPS/umps)
 
 # Flags to be passed to gcc
 set(
@@ -8,7 +8,7 @@ set(
 	-ffreestanding -ansi -mips1 -mabi=32 -mno-gpopt -G 0 # -mabicalls -fPIC
 	-mfp32 -Wall -O0
 )
-set(LINK_SCRIPT ${UMPS_SRC}/umpscore.ldscript)
+set(LINK_SCRIPT ${UMPS_INC}/umpscore.ldscript)
 # Flags to be passed to ld
 set(LDFLAGS_UMPS "-nostdlib -Wl,-G,0,-nostdlib,-T,${LINK_SCRIPT}")
 
@@ -19,10 +19,10 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LDFLAGS_UMPS}")
 include_directories(${UMPS_INC})
 include_directories(${UMPS_INC}/umps)
 
-add_library(crtso ${UMPS_SRC}/crtso.S)
-add_library(libumps ${UMPS_SRC}/libumps.S)
+add_library(crtso ${UMPS_INC}/crtso.S)
+add_library(libumps ${UMPS_INC}/libumps.S)
 
-add_executable(kernel ${SRC}/hello.c)
+add_executable(kernel ${SRC}/phase1,5_test.c)
 target_link_libraries(kernel crtso libumps termprint)
 
 # Run the `umps2-elf2umps -k kernel' command after building `kernel'
