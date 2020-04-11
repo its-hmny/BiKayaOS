@@ -4,32 +4,41 @@
 This project is written by [Enea Guidi](https://github.com/its-hmny), [Marco Tomasone](https://github.com/MarcoTomasone), [Luca Genova](https://github.com/Lucajett99) and [Simone Boldrini](https://github.com/minosse99). The goal of the project is to write a kernel which can run on both uMPS and uARM architechture, the project is divided in 3 main phases:
 
 ## **Compilation**
-In order to use effectively this project you both need the [uARM](http://mellotanica.github.io/uARM/) and [uMPS](https://github.com/tjonjic/umps) simulator and all their dependencies (cross compilers, linkers, etc). You can find all the information needed at the links above. To build the project just go to the project main directory and type:
+In order to use effectively this project you both need the [uARM](http://mellotanica.github.io/uARM/) and [uMPS](https://github.com/tjonjic/umps) simulator and all their dependencies (cross compilers, linkers, etc). You can find all the information needed at the links above. We have currently two methods to build the project:
 
+### Makefile
+Simply go to the project directory and type:
 ```console
 usr@computer:~/BiKayaOS$ make uarm
 usr@computer:~/BiKayaOS$ make umps
 ```
-to build respectively the uARM version or the uMPS version, if everything has been set correctly the compilation should go fine. After that remember to set the kernel.core.uarm and the kernel.stab.uarm  (respectively kernel.*.umps) as Core and Symbol Table file in the respective simulators, then boot up the machines
+to build respectively the uARM version or the uMPS version, if everything has been set correctly the compilation should go fine.
 
-## **Phase 1**
+### CMake
+Enter in the build-uarm/build-umps directory and type:
+```console
+// For uMPS
+usr@computer:~/BiKayaOS$ cmake -D CMAKE_TOOLCHAIN_FILE=../toolchains/umps.cmake ..
+usr@computer:~/BiKayaOS$ make all 
+```
+and the same process for uARM:
+```console
+usr@computer:~/BiKayaOS$ cmake -D CMAKE_TOOLCHAIN_FILE=../toolchains/uarm.cmake ..
+usr@computer:~/BiKayaOS$ make all 
+```
 
-### Goal
-The goal of this phase is to implement the basic data structure of the level above (the kernel itself), given the **pcb_t** (Process Control Block) and the **semd_t** (Semaphor's descriptor) data type we had to implement algorithms for these data type.
+**NOTE:** for uMPS CMake compiling you must install/configure a [crosstool-ng](https://crosstool-ng.github.io/) toolchain else the compilation will fail, after installing the packet to build the toolchain simply type:
+```console
+usr@computer:~$ mkdir ~/toolchain && cd ~/toolchain
+usr@computer:~$ ct-ng mipsel-inknown-linux-gnu
+// This will take a while
+usr@computer:~$ ct-ng build
+usr@computer:~$ mv ~/xtools ~/toolchain
+```
 
-Specifically we had to manage:
-1) The allocation and deallocation of the PCB
-2) The PCB priority queue
-3) The PCB tree 
-4) The allocation and deallocation of Semaphor
-5) The insert and remove of blocked PCBs on a given semaphor
+In both cases the compiler will eventually signal error/warning. Please note that to recompile a project you have to use "make clean" before make all.
 
-### Implementation
-To do the thing mentioned above we used the **listx.h** file taken from the Linux kernel and used the macros and functions of it to achieve what requested. The priority queue is in fact a double-linked list with a dummy in wich the PCBs (through the **p_next** field) are inserted maintaining the sorting by priority property of a priority queue. We utilized another another list_head struct (**p_child** and **p_sib**) to manage the tree/gerarchical aspect of the PCBs, specifially in a given PCB the **p_child** field is the dummy of the PCB's child list while the **p_sib** field is used to link in the child list PCBs with the same father.
-
-For the semaphor descriptor we adopted a proess very similar to the above descripted: we used the list_head **s_procQ** as dummy for the list of PCBs blocked on that given semaphor and we used the **s_next** field to link between them the active semaphors in the ASL (Active Semaphors List). The semd are distinguished between them through their **s_key** field that makes them and their blocked PCBs unique. The final result of this is very similar to a simple HashTable.
-
-Further information are provided at the beggining of each function (requested argument, return type, explanation of the algorithms, etc.).
+After that remember to set the kernel.core.uarm and the kernel.stab.uarm  (respectively kernel.*.umps) as Core and Symbol Table file in the respective simulators, then boot up the machines
 
 ## **License**
 This software is distributed under the GNU General Public License version 3, for further info please read the LICENSE file.

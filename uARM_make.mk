@@ -32,7 +32,7 @@ all : kernel.core.uarm
 kernel.core.uarm : kernel
 	elf2uarm -k $<
 
-kernel : phase1,5_test.o generics/utils.o exception_handler/syscall_breakpoint.o exception_handler/interrupt.o process/scheduler.o process/pcb.o process/asl.o crtso.o libuarm.o libdiv.o
+kernel : phase1.5_test.o generics/utils.o exception_handler/syscall_breakpoint.o exception_handler/interrupt.o process/scheduler.o process/pcb.o process/asl.o crtso.o libuarm.o libdiv.o
 	$(LD) -o $@ $^ $(LDFLAGS)
 
 clean:
