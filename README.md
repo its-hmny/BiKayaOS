@@ -15,16 +15,15 @@ usr@computer:~/BiKayaOS$ make umps
 to build respectively the uARM version or the uMPS version, if everything has been set correctly the compilation should go fine.
 
 ### CMake
-Enter in the build-uarm/build-umps directory and type:
+Enter in the build-umps directory and type:
 ```console
-// For uMPS
-usr@computer:~/BiKayaOS$ cmake -D CMAKE_TOOLCHAIN_FILE=../toolchains/umps.cmake ..
-usr@computer:~/BiKayaOS$ make all 
+usr@computer:~/BiKayaOS/build-umps$ cmake -D CMAKE_TOOLCHAIN_FILE=../toolchains/umps.cmake ..
+usr@computer:~/BiKayaOS/build-umps$ make all 
 ```
 and the same process for uARM:
 ```console
-usr@computer:~/BiKayaOS$ cmake -D CMAKE_TOOLCHAIN_FILE=../toolchains/uarm.cmake ..
-usr@computer:~/BiKayaOS$ make all 
+usr@computer:~/BiKayaOS/build-uarm$ cmake -D CMAKE_TOOLCHAIN_FILE=../toolchains/uarm.cmake ..
+usr@computer:~/BiKayaOS/build-uarm$ make all 
 ```
 
 **NOTE:** for uMPS CMake compiling you must install/configure a [crosstool-ng](https://crosstool-ng.github.io/) toolchain else the compilation will fail, after installing the packet to build the toolchain simply type:
