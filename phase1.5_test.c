@@ -153,10 +153,10 @@ void test3() {
 pcb_t* writeProcess[N_WRITE_PROC];
 memaddr writerFunc[N_WRITE_PROC] = { (memaddr)test1, (memaddr)test2, (memaddr)test3 };
 
-// Questo va sistemato
+// Sets the priviledge of the writer processes
 process_option writer_opt = WRITER_PROC_OPT;
 
-//TODO REMOVE dovrebbero essere tutti del tipo void handler(void)
+// Temporary handler for unexpected exception
 void tmpHander() {
     termprint("I catched an exception, I'm the handler btw\n");
     PANIC();
