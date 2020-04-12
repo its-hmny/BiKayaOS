@@ -68,7 +68,7 @@ void interrupt_handler(void) {
    
    // In uARM an interrupt can block the current instructon so it has to be broght back the PC
    #ifdef TARGET_UARM
-   PC_REG(oldArea) = PC_REG(oldArea) - WORDSIZE;
+   PC_REG(oldArea) -=  WORDSIZE;
    #endif
    
    // Check the exception code

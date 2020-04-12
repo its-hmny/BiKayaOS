@@ -120,7 +120,7 @@ void syscall_breakpoint_handler(void) {
     unsigned int exCode = getExCode(old_area);
 
     // Bring back the PC to the previous instruction
-    PC_REG(old_area) -= WORDSIZE;
+    PC_REG(old_area) += WORDSIZE;
 
     // Checsks if the code is for a syscall and not a breakpoint
     if (exCode == SYSCALL_CODE) {  
