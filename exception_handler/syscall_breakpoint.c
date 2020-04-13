@@ -119,8 +119,10 @@ void syscall_breakpoint_handler(void) {
     old_area = (state_t*) OLD_AREA_SYSCALL;
     unsigned int exCode = getExCode(old_area);
 
-    // Bring back the PC to the previous instruction
+    // Sets the PC to the next instruction in uMPS
+    #ifdef TARGET_UMPS
     PC_REG(old_area) += WORDSIZE;
+    #endif
 
     // Checsks if the code is for a syscall and not a breakpoint
     if (exCode == SYSCALL_CODE) {  
