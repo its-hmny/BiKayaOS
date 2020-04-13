@@ -15,7 +15,7 @@ usr@computer:~/BiKayaOS$ make umps
 to build respectively the uARM version or the uMPS version, if everything has been set correctly the compilation should go fine.
 
 ### CMake
-Enter in the build-umps directory and type:
+Create and enter in the build-umps directory and type:
 ```console
 usr@computer:~/BiKayaOS/build-umps$ cmake -D CMAKE_TOOLCHAIN_FILE=../toolchains/umps.cmake ..
 usr@computer:~/BiKayaOS/build-umps$ make all 
@@ -26,15 +26,16 @@ usr@computer:~/BiKayaOS/build-uarm$ cmake -D CMAKE_TOOLCHAIN_FILE=../toolchains/
 usr@computer:~/BiKayaOS/build-uarm$ make all 
 ```
 
-**NOTE:** for uMPS CMake compiling you must install/configure a [crosstool-ng](https://crosstool-ng.github.io/) toolchain else the compilation will fail, after installing the packet to build the toolchain simply type:
+**NOTE:** In our case, for uMPS CMake compiling we had to install/configure a [crosstool-ng](https://crosstool-ng.github.io/) toolchain, after installing the packet to build the toolchain simply type:
 ```console
 usr@computer:~$ mkdir ~/toolchain && cd ~/toolchain
-usr@computer:~$ ct-ng mipsel-inknown-linux-gnu
+usr@computer:~$ ct-ng mipsel-unknown-linux-gnu
 // This will take a while
 usr@computer:~$ ct-ng build
 usr@computer:~$ mv ~/xtools ~/toolchain
 ```
-
+This can happen for both uARM and uMPS.
+In this case you have to change the ~/BiKayaOS/toolchains/*.cmake at line 7-9 with the path of the toolchains you have created.
 In both cases the compiler will eventually signal error/warning. Please note that to recompile a project you have to use "make clean" before make all.
 
 After that remember to set the kernel.core.uarm and the kernel.stab.uarm  (respectively kernel.*.umps) as Core and Symbol Table file in the respective simulators, then boot up the machines
