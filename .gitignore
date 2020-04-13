@@ -35,9 +35,6 @@
 *.i*86
 *.x86_64
 *.hex
-kernel
-kernel.core.*
-kernel.stab.*
 
 # Debug files
 *.dSYM/
@@ -53,3 +50,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+#Build directorys
+build_u*/*
