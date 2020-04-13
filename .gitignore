@@ -55,5 +55,3 @@ Mkfile.old
 dkms.conf
 
 # Build directory
-build-uarm/*
-build-umps/*
