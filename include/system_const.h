@@ -29,6 +29,8 @@
 #define OFF 	0
 #define EOS   '\0'
 
+#define DEFAULT_PRIORITY 1
+
 #define DEV_PER_INT 8 // Maximum number of devices per interrupt line
 #define MAX_LINE 8
 #define WORDSIZE 4
@@ -217,4 +219,15 @@
 #define CAUSE_REG(state)  state->CP15_Cause
 #define GET_A0_REG(state) state->a1
 
+
 #endif
+
+/* ========================= MACROS FOR SYSCALLS =============================== */
+#define GETCPUTIME       1
+#define CREATEPROCESS    2
+#define TERMINATEPROCESS 3
+#define VERHOGEN         4
+#define PASSEREN         5
+#define WAITIO           6
+#define SPECPASSUP       7
+#define GETPID           8

@@ -49,6 +49,16 @@ typedef struct semd_t {
 
 
 
+// Devices stop semaphor
+typedef struct semdev {
+    semd_t disk[DEV_PER_INT];
+    semd_t tape[DEV_PER_INT];
+    semd_t network[DEV_PER_INT];
+    semd_t printer[DEV_PER_INT];
+    semd_t terminalR[DEV_PER_INT];
+    semd_t terminalT[DEV_PER_INT];
+} semdev;
+
 // Auxiliary structure for option register setting in both architecture
 // Used to setting better the option of a given process
 #ifdef TARGET_UMPS
