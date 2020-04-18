@@ -1,13 +1,26 @@
 #include "../include/types_bikaya.h"
 #include "../include/system_const.h"
+#include "../generics/utils.h"
 #include "scheduler.h"
+#include "asl.h"
 #include "pcb.h"
+
+
+#ifdef TARGET_UMPS
+#define IDLE_OPTION { ENABLE_INTERRUPT, KERNEL_MD_ON, ALL_INTRRPT_ENABLED, VIRT_MEM_OFF, PLT_DISABLED }
+#endif
+#ifdef TARGET_UARM
+#define IDLE_OPTION { ENABLE_INTERRUPT, KERNEL_MD_ON, VIRT_MEM_OFF, TIMER_ENABLED }    
+#endif
 
 
 // Ready queue of the scheduler
 struct list_head ready_queue;
 // Current process selected to be executed
-pcb_t *currentProcess = NULL;
+pcb_t *currentProcess;
+// The idle state let the processor active
+state_t idleState;
+
 
 
 /*
@@ -26,6 +39,12 @@ HIDDEN void aging(void) {
 }
 
 
+HIDDEN void idle(void) {
+    while(1)
+        ;
+}
+
+
 /*
     Prepares the ready queue and sets the scheduer to be exeuted
 
@@ -33,7 +52,15 @@ HIDDEN void aging(void) {
 */
 void scheduler_init(void) {
     initPcbs();
+    initASL();
+    currentProcess = NULL;
     mkEmptyProcQ(&ready_queue);
+
+    // Sets the idle state option
+    process_option idle_opt = IDLE_OPTION;
+    setStatusReg(&idleState, &idle_opt);
+    setStackP(&idleState, (memaddr)_RAMTOP);
+    setPC(&idleState, (memaddr)idle);
 }
 
 
@@ -58,10 +85,13 @@ void scheduler_add(pcb_t *p) {
     of the excluded and set the currentProc timeslice
 */
 void scheduler(void) {
-    
-    // If no process is ready, shut off the system (will be idle in future)
-    if (emptyProcQ(&ready_queue))
-       HALT();
+    // If there isn't process in ready_queue nor ASL then there's no process at all (shuts off)
+    if (emptyProcQ(&ready_queue) && emptyASL())
+        HALT();
+
+    // If no process is ready then idle the process till one is (idle has all interrupt enabled)
+    else if (emptyProcQ(&ready_queue))
+       LDST(&idleState);
     
     else {
         // If a process executed before puts it back in the queue

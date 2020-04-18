@@ -5,6 +5,7 @@
 
 /* ASL handling functions */
 semd_t* getSemd(int *key);
+unsigned int emptyASL();
 void initASL(void);
 
 int insertBlocked(int *key,pcb_t* p);

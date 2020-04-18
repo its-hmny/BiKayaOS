@@ -42,6 +42,11 @@ semd_t* getSemd(int *key) {
     return(NULL);
 }
 
+// Little auxiliary function that returns true if the ASL is empty, else false
+unsigned int emptyASL() {
+    return(list_empty(&semdActive_list));
+}
+
 /*
     Initializes the semaphore list by inserting all the semd in the 
     semd free list. 

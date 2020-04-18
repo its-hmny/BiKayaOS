@@ -688,6 +688,49 @@ void p7leaf() {
     PANIC();
 }
 
-int main() {
+#include "exception_handler/interrupt.h"
+#include "exception_handler/syscall_breakpoint.h"
+#include "exception_handler/trap.h"
+#include "exception_handler/tlb.h"
+#include "include/system_const.h"
+#include "process/scheduler.h"
+#include "process/pcb.h"
+#include "generics/utils.h"
+
+#ifdef TARGET_UMPS
+#define INIT_OPTION { ENABLE_INTERRUPT, KERNEL_MD_ON, ALL_INTRRPT_ENABLED, VIRT_MEM_OFF, PLT_DISABLED }
+#endif
+#ifdef TARGET_UARM
+#define INIT_OPTION { ENABLE_INTERRUPT, KERNEL_MD_ON, VIRT_MEM_OFF, TIMER_ENABLED }    
+#endif
+
+// BiKayaOS entry point
+int main(void) {
+    //print("Welcome to phase 1.5 of BiKayaOS \n");
+    
+    // Kernel setup
+    initNewArea((memaddr)interrupt_handler, (memaddr)NEW_AREA_INTERRUPT);
+    initNewArea((memaddr)tlb_handler, (memaddr)NEW_AREA_TLB);
+    initNewArea((memaddr)trap_handler, (memaddr)NEW_AREA_TRAP);
+    initNewArea((memaddr)syscall_breakpoint_handler, (memaddr)NEW_AREA_SYSCALL);
+    scheduler_init();
+
+    // Init process allocation and execution priiviledge setup
+    pcb_t* initProcess = allocPcb();
+    process_option opt = INIT_OPTION;
+
+    if (initProcess == NULL)
+        PANIC();
+
+    setStatusReg(&initProcess->p_s, &opt);
+    setStackP(&initProcess->p_s, (memaddr)(_RAMTOP - RAM_FRAMESIZE));
+    setPC(&initProcess->p_s, (memaddr)test);
+    
+    initProcess->priority = 1;
+    scheduler_add(initProcess);
+    //print("Init option have been set correctly\n");
+
+    scheduler();
+
     return (0);
 }

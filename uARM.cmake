@@ -22,7 +22,7 @@ add_library(libdiv ${UARM_INC}/libdiv.s)
 add_library(crtso ${UARM_INC}/crtso.s)
 
 add_executable(
-	kernel ${SRC}/phase2_test.c ${EXC}interrupt.c ${EXC}/syscall_breakpoint.c
+	kernel ${SRC}/phase2_test.c ${EXC}interrupt.c ${EXC}/syscall_breakpoint.c ${EXC}/trap.c ${EXC}/tlb.c
 	${GNR}/utils.c ${PRC}/scheduler.c ${PRC}/pcb.c ${PRC}/asl.c
 )
 
