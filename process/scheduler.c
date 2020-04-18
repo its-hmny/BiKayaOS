@@ -75,6 +75,12 @@ void scheduler_add(pcb_t *p) {
         p->original_priority = p->priority;
         insertProcQ(&ready_queue, p);
     }
+
+     
+/*  The scheduler is round robin so when a new process is added if
+    the priority is big enough it could be executed immediately 
+*/    
+    scheduler();
 }
 
 
