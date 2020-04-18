@@ -11,6 +11,8 @@
 
 #include "listx.h"
 
+#define DEV_PER_INT 8
+
 typedef unsigned int memaddr;
 
 // Process Control Block (PCB) data structure 
