@@ -32,6 +32,7 @@ elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL arm)
 	add_definitions(-DTARGET_UARM)
 	include(uARM.cmake)
 
+
 else()
 	message(FATAL_ERROR "You need to specify a toolchain file with either -D
 	CMAKE_TOOLCHAIN_FILE=toolchains/uMPS.cmake or -D

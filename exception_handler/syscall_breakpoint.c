@@ -18,24 +18,28 @@ state_t *old_area = NULL;
 
     root: a PCB pointer to the process to terminate
 */
-HIDDEN void syscall3(pcb_t *root) {
+HIDDEN int syscall3(void * pid) {
+    pcb_t* proc = NULL; 
     
-    if (root == NULL)
-        return;
+    if (pid == NULL){// We are in the current process
+        proc = getCurrentProc();
+    else{
+        proc = (pcb_t *)pid;}
+        // Removes the root from father's child list
+        outChild(proc);
+        // Removes it from the semaphor's queue, if present
+        outBlocked(proc);
+        // Removes it from the ready queue, if present
+        outProcQ(getReadyQ(), proc);
 
-    // Removes the root from father's child list
-    outChild(root);
-    // Removes it from the semaphor's queue, if present
-    outBlocked(root);
-    // Removes it from the ready queue, if present
-    outProcQ(getReadyQ(), root);
+        struct list_head *tmp = NULL;
 
-    struct list_head *tmp = NULL;
+        list_for_each(tmp, &proc->p_child)
+            syscall3(container_of(tmp, pcb_t, p_sib));
 
-    list_for_each(tmp, &root->p_child)
-        syscall3(container_of(tmp, pcb_t, p_sib));
+        freePcb(proc);
 
-    freePcb(root);
+
 }
 
 
@@ -62,7 +66,7 @@ HIDDEN void syscallDispatcher(unsigned int sysNumber) {
 
         case 3:
             // Kill the current process wich has called the syscall
-            syscall3(getCurrentProc());
+            syscall3((void *)GET_A1_REG(old_area));
             // The current proc has been killed (dangling reference)
             setCurrentProc(NULL);
             // Calls the scheduer to execute a new process
