@@ -5,7 +5,7 @@ state_t *old_Area = NULL;
 
 void tlb_handler(void) {
     old_Area = OLD_AREA_TLB;
-    old_Area->pc_epc += WORDSIZE;
+//  old_Area->pc_epc += WORDSIZE;
     pcb_t* currentProcess = getCurrentProc();
  //   handler tmp = currentProcess->custom_hndlr;
     int code = (currentProcess->custom_hndlr).has_custom_handler[2];
@@ -15,7 +15,7 @@ void tlb_handler(void) {
         
     }
 
-    copystate(old_Area,(currentProcess->custom_hndlr).syscall_old);
+    clonestate(old_Area,(currentProcess->custom_hndlr).syscall_old,sizeof(old_Area));
     LDST((currentProcess->custom_hndlr).tlb_new);
     //PANIC();
 }
