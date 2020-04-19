@@ -15,6 +15,7 @@
 
 typedef unsigned int memaddr;
 
+
 // Process Control Block (PCB) data structure 
 typedef struct pcb_t {
     // Process queue fields 
@@ -34,6 +35,8 @@ typedef struct pcb_t {
 
     // Key of the semaphore on which the process is eventually blocked
     int *p_semkey;
+    handler custom_hndlr;
+ 
 } pcb_t;
 
 
@@ -60,6 +63,21 @@ typedef struct semdev {
     semd_t terminalR[DEV_PER_INT];
     semd_t terminalT[DEV_PER_INT];
 } semdev;
+
+typedef struct{
+    //Exception Handling Managment
+    
+    state_t* syscall_new;
+    state_t* syscall_old;
+    state_t* trap_new;
+    state_t* trap_old;
+    state_t* tlb_old;
+    state_t* tlb_new;
+    
+    int has_custom_handler[3];
+     
+    
+}handler;
 
 // Auxiliary structure for option register setting in both architecture
 // Used to setting better the option of a given process
