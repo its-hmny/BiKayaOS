@@ -35,6 +35,7 @@
 #define MAX_LINE 8
 #define WORDSIZE 4
 #define CR 0x0a   // Carriage return as returned by the terminal
+#define TOD_LO     *((unsigned int *)BUS_REG_TOD_LO)
 
 #define TIME 3000
 #define TIME_SLICE (TIME * TIME_SCALE)

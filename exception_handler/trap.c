@@ -4,6 +4,6 @@
 state_t *oldarea = NULL;
 
 void trap_handler(void) {
-    oldarea = OLD_AREA_TRAP;
+    oldarea = (state_t*) OLD_AREA_TRAP;
     PANIC();
 }

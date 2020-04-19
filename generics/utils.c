@@ -109,3 +109,21 @@ void cloneState(state_t *process_state, state_t *old_area, unsigned int size) {
         copy++, to_be_copied++;
     }
 }
+
+void init_time(time_t *process_time) {
+    // The time struct is already set
+    if (process_time->activation_time) 
+        return;
+
+    // Set it up for the first time
+    process_time->kernelmode_time = 0;
+    process_time->usermode_time = 0;
+    process_time->activation_time = TOD_LO / TIME_SCALE;
+    process_time->last_update_time  = process_time->activation_time;
+}
+
+void update_time(unsigned int *time_counter, unsigned int last_update, unsigned int current_time) {
+     //Serve calcolare in caso di overflow di TODLO
+    unsigned int elapsed_clocks = (current_time > last_update) ? current_time - last_update : 0;
+    *time_counter += (elapsed_clocks / TIME_SCALE);
+}

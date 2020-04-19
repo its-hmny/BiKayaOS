@@ -15,6 +15,28 @@
 
 typedef unsigned int memaddr;
 
+// Custom exception handling for PCB (defined with specpassup syscall)
+typedef struct handler { 
+    state_t* syscall_new;
+    state_t* syscall_old;
+    state_t* trap_new;
+    state_t* trap_old;
+    state_t* tlb_old;
+    state_t* tlb_new;
+    unsigned int has_custom_handler[3];
+} handler;
+
+
+
+// Struct for process time accounting
+typedef struct time_t {
+    unsigned int usermode_time;
+    unsigned int kernelmode_time;
+    unsigned int activation_time;
+    unsigned int last_update_time;
+} time_t;
+
+
 
 // Process Control Block (PCB) data structure 
 typedef struct pcb_t {
@@ -27,6 +49,8 @@ typedef struct pcb_t {
 
     // Processor state, etc
     state_t p_s;
+    // Process time analitics
+    time_t p_time;
 
     // Process priority (aged by the scheduling process)
     int priority;
@@ -35,6 +59,8 @@ typedef struct pcb_t {
 
     // Key of the semaphore on which the process is eventually blocked
     int *p_semkey;
+
+    // Set of possible custom exception handler for the process
     handler custom_hndlr;
  
 } pcb_t;
@@ -64,20 +90,7 @@ typedef struct semdev {
     semd_t terminalT[DEV_PER_INT];
 } semdev;
 
-typedef struct{
-    //Exception Handling Managment
-    
-    state_t* syscall_new;
-    state_t* syscall_old;
-    state_t* trap_new;
-    state_t* trap_old;
-    state_t* tlb_old;
-    state_t* tlb_new;
-    
-    int has_custom_handler[3];
-     
-    
-}handler;
+
 
 // Auxiliary structure for option register setting in both architecture
 // Used to setting better the option of a given process

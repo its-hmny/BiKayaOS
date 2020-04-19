@@ -111,7 +111,7 @@ HIDDEN void syscall8(void** pid, void** ppid){
     sysNumber: the syscall number retrieved from the Old Area
     return: void
 */
-HIDDEN void syscallDispatcher(unsigned int sysNumber) {
+void syscallDispatcher(unsigned int sysNumber) {
     switch (sysNumber) {
         case 1:
             PANIC();

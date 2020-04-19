@@ -111,6 +111,7 @@ void scheduler(void) {
         aging();
 
         // Loads the state and executes the chosen process but before sets the time slice
+        init_time(&currentProcess->p_time);
         setIntervalTimer();
         LDST(&currentProcess->p_s);
     }
