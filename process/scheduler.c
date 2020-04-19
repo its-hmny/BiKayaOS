@@ -133,11 +133,6 @@ void setCurrentProc(pcb_t *proc) {
     currentProcess = proc;
 }
 
-// Sets the parent of current process (usually used to set it to NULL)
-void setParentProc(pcb_t *proc) {
-    currentProcess->p_parent = proc;
-}
-
 
 /*
     Sets the Interval Timer in both architechture to the defined TIMESLICE

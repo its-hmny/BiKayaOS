@@ -1,4 +1,5 @@
 #include "../include/system_const.h"
+#include "../include/types_bikaya.h"
 #include "../generics/utils.h"
 #include "../process/scheduler.h"
 #include "../process/asl.h"
@@ -12,69 +13,89 @@ state_t *old_area = NULL;
 /* ================ SYSCALL DEFINITION ================ */
 
 /*
-    This syscall terminates the process given as input, removing recursively
+    This syscall create a new process, allocating the PCB, saving the given
+    state inside it and setting up the new process in the parent's child list.
+    The function takes care also of adding the process to the scheduler, 
+    and then calling it (round-robin scheduler).
+
+    statep: the state of the newborn process
+    priority: the newborn priority
+    cpid: the newborn pid that is as well a pointer to the PCB itself
+    return: 0 on success, -1 on failure
+*/
+HIDDEN void syscall2(state_t* statep, int priority, void** cpid) {
+    pcb_t *new_proc = allocPcb();
+    pcb_t *parent = getCurrentProc();
+
+    // Error during allocation, error code returned
+    if (new_proc == NULL || statep == NULL || cpid != NULL || parent == NULL)
+        SYS_RETURN_VAL(old_area) = FAILURE;
+
+    // Set the given state to the new process
+    cloneState(&new_proc->p_s, statep, sizeof(state_t));
+
+    // Set priority and insert the PCB in the father's child node
+    new_proc->priority = priority;
+    insertChild(parent, new_proc);
+
+    // Insert the new process in the ready queue and sets the pid
+    scheduler_add(new_proc);
+    *cpid = new_proc;
+    
+    SYS_RETURN_VAL(old_area) = SUCCESS;
+}
+
+
+/*
+    This syscall terminates the process given as input (pid), removing recursively
     from the ASL, the ready queue and the father's child list.
+    If pid is NULL then the current process/caller is killed.
     This is done for all the descendants of the given PCB (Sons, Grandsons, etc).
 
-    root: a PCB pointer to the process to terminate
+    pid: a pointer to the process to terminate
+    return: 0 on success, -1 on failure
 */
-
-HIDDEN int syscall2(state_t *statep, int priority, void ** cpid){
-    pcb_t *new_proc = allocPcb();
-
-    if(new_proc != NULL){   // new process allocated successfully 
-        // Set new_proc state 
-        cloneState(&new_proc->p_s,statep,sizeof(statep));
-
-        // Set priority and original priority 
-        new_proc->priority=priority;
-
-        // Set new_proc as a child of the current process 
-        insertChild(getCurrentProc(), new_proc);
-
-        // Insert the new process into the scheduler
-        scheduler_add(new_proc);
-
-        if (cpid)   //cpid contain the id of new the process
-            *((pcb_t **)cpid) = new_proc;
-
-        return 0;
-    }
-    else
-        return -1; 
-}
-
-HIDDEN int syscall3(void * pid) {
-    pcb_t* proc = NULL; 
+HIDDEN void syscall3(void* pid) {
+    pcb_t* proc = pid ? pid : getCurrentProc(); 
+    unsigned int sys_status = 0;
     
     if (pid == NULL)// We are in the current process
-        proc = getCurrentProc();
-    else
-        proc = (pcb_t *)pid; 
+        SYS_RETURN_VAL(old_area) = FAILURE;
 
-        // Removes the root from father's child list
-        outChild(proc);
-        // Removes it from the semaphor's queue, if present
-        outBlocked(proc);
-        // Removes it from the ready queue, if present
-        outProcQ(getReadyQ(), proc);
+    // Removes the root from father's child list
+    outChild(proc);
+    // Removes it from the semd or ready_queue one of them must be true, else error
+    sys_status |= (proc == outBlocked(proc));
+    sys_status |= (proc == outProcQ(getReadyQ(), proc));
 
-        struct list_head *tmp = NULL;
+    struct list_head *tmp = NULL;
 
-        list_for_each(tmp, &proc->p_child)
-            syscall3(container_of(tmp, pcb_t, p_sib));
+    list_for_each(tmp, &proc->p_child) {
+        // Recursive call on the childs
+        syscall3(container_of(tmp, pcb_t, p_sib));
+        // Check the return code of the recursive call
+        if (SYS_RETURN_VAL(old_area) == FAILURE)
+            return;
+    }
 
-        freePcb(proc);
+    freePcb(proc);
 
-
+    SYS_RETURN_VAL(old_area) = sys_status ? SUCCESS : FAILURE;
 }
 
 
-HIDDEN void syscall8(void ** pid, void ** ppid){
-    if(pid != 0)
-      setCurrentProc(*pid);
-    if(ppid != 0)
-      setParentProc(*ppid);
+/*
+    This syscall assign the current process pid and his parent pid
+    to the given parameter (after checking that both are not NULL)
+
+    pid: the mem location where to save the pid
+    ppid: the mem location where to save the curr. proc. parent pid
+    retunr: void;
+*/
+HIDDEN void syscall8(void** pid, void** ppid){
+    pcb_t *current = getCurrentProc();
+    *pid = pid ? current : NULL;
+    *ppid = ppid ? current->p_parent : NULL;
 }
 
 
@@ -96,12 +117,12 @@ HIDDEN void syscallDispatcher(unsigned int sysNumber) {
             break;
 
         case 2:
-            syscall2(GET_A1_REG(old_area),GET_A2_REG(old_area),GET_A3(old_area)); //non ne sono sicuro (cast)
+            syscall2((state_t*)SYS_ARG_1(old_area), (int)SYS_ARG_2(old_area), (void**)SYS_ARG_3(old_area));
             break;
 
         case 3:
             // Kill the current process wich has called the syscall
-            syscall3((void *)GET_A1_REG(old_area));
+            syscall3((void*)SYS_ARG_1(old_area));
             // The current proc has been killed (dangling reference)
             setCurrentProc(NULL);
             // Calls the scheduer to execute a new process
@@ -126,19 +147,7 @@ HIDDEN void syscallDispatcher(unsigned int sysNumber) {
 
         case 8:
             //assigns the ID of the current process to *pid  and the identifier of the parent process to *ppid
-            syscall8((void **)GET_A1_REG(old_area), (void **)GET_A2_REG(old_area));
-            PANIC();
-            break;
-
-        case 9:
-            PANIC();
-            break;
-
-        case 10:
-            PANIC();
-            break; 
-
-        case 11:
+            syscall8((void**)SYS_ARG_1(old_area), (void**)SYS_ARG_2(old_area));
             PANIC();
             break;
 
@@ -167,7 +176,7 @@ void syscall_breakpoint_handler(void) {
 
     // Checsks if the code is for a syscall and not a breakpoint
     if (exCode == SYSCALL_CODE) {  
-        unsigned int numberOfSyscall = GET_A0_REG(old_area);
+        unsigned int numberOfSyscall = SYSCALL_NO(old_area);
         syscallDispatcher(numberOfSyscall);
     }
 

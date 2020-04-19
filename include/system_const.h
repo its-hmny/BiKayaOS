@@ -207,10 +207,11 @@
 #define PC_REG(state)     state->pc_epc
 #define SP_REG(state)     state->reg_sp
 #define CAUSE_REG(state)  state->cause
-#define GET_A0_REG(state) state->gpr[3]
-#define GET_A1_REG(state) state->gpr[4]
-#define GET_A2_REG(state) state->gpr[5]
-#define GET_A3_REG(state) state->gpr[6]
+#define SYSCALL_NO(state) state->gpr[3]
+#define SYS_ARG_1(state) state->gpr[4]
+#define SYS_ARG_2(state) state->gpr[5]
+#define SYS_ARG_3(state) state->gpr[6]
+#define SYS_RETURN_VAL(state) state->gpr[1]
 
 #endif
 
@@ -220,10 +221,11 @@
 #define PC_REG(state)     state->pc
 #define SP_REG(state)     state->sp
 #define CAUSE_REG(state)  state->CP15_Cause
-#define GET_A0_REG(state) state->a1
-#define Get_A1_REG(state) state->a2
-#define Get_A2_REG(state) state->a3
-#define Get_A3_REG(state) state->a4
+#define SYSCALL_NO(state) state->a1
+#define SYS_ARG_1(state) state->a2
+#define SYS_ARG_2(state) state->a3
+#define SYS_ARG_3(state) state->a4
+#define SYS_RETURN_VAL(state) state->a1
 
 #endif
 
@@ -236,3 +238,6 @@
 #define WAITIO           6
 #define SPECPASSUP       7
 #define GETPID           8
+
+#define FAILURE -1
+#define SUCCESS 0
