@@ -59,7 +59,8 @@ HIDDEN void syscall3(void* pid) {
     pcb_t* proc = pid ? pid : getCurrentProc(); 
     unsigned int sys_status = 0;
     
-    if (pid == NULL)// We are in the current process
+    // The function has no process to kill
+    if (proc == NULL)
         SYS_RETURN_VAL(old_area) = FAILURE;
 
     // Removes the root from father's child list
