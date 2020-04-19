@@ -1,14 +1,15 @@
 #include "./tlb.h"
 #include "../include/system_const.h"
 #include "./syscall_breakpoint.h"
+#include "../include/types_bikaya.h"
+#include "../process/scheduler.h"
+#include "../generics/utils.h"
 
-state_t *old_Area = NULL;
-
-#define TLB_CUSTOM 2
+HIDDEN state_t *old_area = NULL;
 
 void tlb_handler(void) {
-    old_Area = (state_t*) OLD_AREA_TLB;
-    PC_REG(old_Area) += WORDSIZE;
+    old_area = (state_t*) OLD_AREA_TLB;
+    PC_REG(old_area) += WORDSIZE;
     
     pcb_t* caller = getCurrentProc();
     
@@ -16,6 +17,6 @@ void tlb_handler(void) {
     if (! has_handler) 
         syscallDispatcher(TERMINATEPROCESS);
 
-    cloneState(caller->custom_hndlr.syscall_old, old_Area, sizeof(state_t));
+    cloneState(caller->custom_hndlr.tlb_old, old_area, sizeof(state_t));
     LDST(caller->custom_hndlr.tlb_new);
 }

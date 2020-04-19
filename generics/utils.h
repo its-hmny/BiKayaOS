@@ -10,6 +10,7 @@ void setPC(state_t *process, memaddr function);
 void setStackP(state_t *process, memaddr memLocation);
 unsigned int getExCode(state_t *oldArea);
 void cloneState(state_t *process_state, state_t *old_area, unsigned int size);
+void init_time(time_t *process_time);
 void update_time(unsigned int *time_counter, unsigned int last_update, unsigned int current_time);
 
 #endif

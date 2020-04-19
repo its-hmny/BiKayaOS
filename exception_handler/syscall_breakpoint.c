@@ -8,7 +8,7 @@
 
 
 // A pointer to the old area, used to retrieve info about the exception
-state_t *old_area = NULL;
+HIDDEN state_t *old_area = NULL;
 
 /* ================ SYSCALL DEFINITION ================ */
 

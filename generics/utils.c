@@ -123,7 +123,7 @@ void init_time(time_t *process_time) {
 }
 
 void update_time(unsigned int *time_counter, unsigned int last_update, unsigned int current_time) {
-     //Serve calcolare in caso di overflow di TODLO
+    // Serve calcolare in caso di overflow di TODLO
     unsigned int elapsed_clocks = (current_time > last_update) ? current_time - last_update : 0;
     *time_counter += (elapsed_clocks / TIME_SCALE);
 }

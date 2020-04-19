@@ -242,3 +242,9 @@
 
 #define FAILURE -1
 #define SUCCESS 0
+
+/* ============= MACROS FOR CUSTOM TLB, TRAP & SYSCALL HANDLER ============== */
+// Boolean vector for custom handler presence
+#define SYS_COSTUM 0
+#define TRAP_CUSTOM 1
+#define TLB_CUSTOM 2
