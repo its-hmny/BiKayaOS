@@ -18,13 +18,40 @@ state_t *old_area = NULL;
 
     root: a PCB pointer to the process to terminate
 */
+
+HIDDEN int syscall2(state_t *statep, int priority, void ** cpid){
+    pcb_t *new_proc = allocPcb();
+
+    if(new_proc != NULL){   // new process allocated successfully 
+        // Set new_proc state 
+        cloneState(&new_proc->p_s,statep,sizeof(statep));
+
+        // Set priority and original priority 
+        new_proc->priority=priority;
+
+        // Set new_proc as a child of the current process 
+        insertChild(getCurrentProc(), new_proc);
+
+        // Insert the new process into the scheduler
+        scheduler_add(new_proc);
+
+        if (cpid)   //cpid contain the id of new the process
+            *((pcb_t **)cpid) = new_proc;
+
+        return 0;
+    }
+    else
+        return -1; 
+}
+
 HIDDEN int syscall3(void * pid) {
     pcb_t* proc = NULL; 
     
-    if (pid == NULL){// We are in the current process
+    if (pid == NULL)// We are in the current process
         proc = getCurrentProc();
-    else{
-        proc = (pcb_t *)pid;}
+    else
+        proc = (pcb_t *)pid; 
+
         // Removes the root from father's child list
         outChild(proc);
         // Removes it from the semaphor's queue, if present
@@ -40,6 +67,14 @@ HIDDEN int syscall3(void * pid) {
         freePcb(proc);
 
 
+}
+
+
+HIDDEN void syscall8(void ** pid, void ** ppid){
+    if(pid != 0)
+      setCurrentProc(*pid);
+    if(ppid != 0)
+      setParentProc(*ppid);
 }
 
 
@@ -61,7 +96,7 @@ HIDDEN void syscallDispatcher(unsigned int sysNumber) {
             break;
 
         case 2:
-            PANIC();
+            syscall2(GET_A1_REG(old_area),GET_A2_REG(old_area),GET_A3(old_area)); //non ne sono sicuro (cast)
             break;
 
         case 3:
@@ -90,6 +125,8 @@ HIDDEN void syscallDispatcher(unsigned int sysNumber) {
             break;
 
         case 8:
+            //assigns the ID of the current process to *pid  and the identifier of the parent process to *ppid
+            syscall8((void **)GET_A1_REG(old_area), (void **)GET_A2_REG(old_area));
             PANIC();
             break;
 

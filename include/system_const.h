@@ -209,6 +209,8 @@
 #define CAUSE_REG(state)  state->cause
 #define GET_A0_REG(state) state->gpr[3]
 #define GET_A1_REG(state) state->gpr[4]
+#define GET_A2_REG(state) state->gpr[5]
+#define GET_A3_REG(state) state->gpr[6]
 
 #endif
 
@@ -220,7 +222,8 @@
 #define CAUSE_REG(state)  state->CP15_Cause
 #define GET_A0_REG(state) state->a1
 #define Get_A1_REG(state) state->a2
-
+#define Get_A2_REG(state) state->a3
+#define Get_A3_REG(state) state->a4
 
 #endif
 
