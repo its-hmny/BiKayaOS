@@ -12,6 +12,16 @@ HIDDEN state_t *old_area = NULL;
 
 /* ================ SYSCALL DEFINITION ================ */
 
+HIDDEN void syscall1(unsigned int *user, unsigned int *kernel, unsigned int *wallclock) {
+    // Update all the data before returning
+    update_time(KER_MD_TIME, TOD_LO);
+    // Get the time_t struct
+    time_t *data = &getCurrentProc()->p_time;
+
+    *user = data->usermode_time;
+    *kernel = data->kernelmode_time;
+    *wallclock = data->activation_time;
+}
 /*
     This syscall create a new process, allocating the PCB, saving the given
     state inside it and setting up the new process in the parent's child list.
@@ -114,7 +124,7 @@ HIDDEN void syscall8(void** pid, void** ppid){
 void syscallDispatcher(unsigned int sysNumber) {
     switch (sysNumber) {
         case 1:
-            PANIC();
+            syscall1((unsigned int*)SYS_ARG_1(old_area), (unsigned int*)SYS_ARG_2(old_area), (unsigned int*)SYS_ARG_3(old_area));
             break;
 
         case 2:
@@ -166,6 +176,8 @@ void syscallDispatcher(unsigned int sysNumber) {
     return: void
 */
 void syscall_breakpoint_handler(void) {
+    // At first update the user_time of execution
+    update_time(USR_MD_TIME, TOD_LO);
     // Retrieve the old area, where the previous state is saved and extrapolate the exception code
     old_area = (state_t*) OLD_AREA_SYSCALL;
     unsigned int exCode = getExCode(old_area);
@@ -188,4 +200,7 @@ void syscall_breakpoint_handler(void) {
     // Unrecognized code for this handler
     else         
         PANIC();
+    
+    // At last update the kernel mode execution time
+    update_time(KER_MD_TIME, TOD_LO);
 }

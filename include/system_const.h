@@ -39,6 +39,8 @@
 
 #define TIME 3000
 #define TIME_SLICE (TIME * TIME_SCALE)
+#define USR_MD_TIME 0
+#define KER_MD_TIME 1
 
 #ifndef NULL
 #define NULL ((void *) 0)
