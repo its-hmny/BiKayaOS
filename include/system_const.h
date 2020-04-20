@@ -187,6 +187,7 @@
 #define PRINTER_DEVICE 6
 #define TERMINAL_DEVICE 7
 
+#define INTER_DEVICES_BASE 0x1000003C
 #endif
 
 #ifdef TARGET_UARM
@@ -201,7 +202,10 @@
 #define PRINTER_DEVICE INT_PRINTER
 #define TERMINAL_DEVICE INT_TERMINAL
 
+#define INTER_DEVICES_BASE 0x10006FE0
 #endif
+
+#define INTER_DEVICES(line) (INTER_DEVICES_BASE + (line - 3) * WS)
 
 /* ========================= MACROS FOR REGISTER ACCESS =============================== */
 #ifdef TARGET_UMPS
