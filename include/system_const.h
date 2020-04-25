@@ -33,6 +33,7 @@
 
 #define DEV_PER_INT 8 // Maximum number of devices per interrupt line
 #define MAX_LINE 8
+#define UNIQUE_DEV_LINE 3
 #define WORDSIZE 4
 #define CR 0x0a   // Carriage return as returned by the terminal
 #define TOD_LO     *((unsigned int *)BUS_REG_TOD_LO)

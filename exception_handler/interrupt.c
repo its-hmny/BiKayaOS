@@ -10,9 +10,7 @@
 state_t *oldArea = NULL;
 
 
-HIDDEN unsigned int get_device_pending(int line, int device) {
-    return *((unsigned int *)INTER_DEVICES(line)) << (1 << device);
-}
+
 /* ============= SUBHANDLER DEFINITION ============ */
 
 HIDDEN void tmp(void) {
@@ -30,15 +28,28 @@ HIDDEN void intervalTimer_hadler(void) {
 }
 
 HIDDEN void terminal_handler(void) {
-   //For all subdevices check if there is an interrupt pending
-   for (unsigned int i = 0; i <= 7; i++)
-      if(get_device_pending(7,i)) {
-         termreg_t *subTerm = (termreg_t*)DEV_REG_ADDR(7,i);
+   // Get the interrupt pending in terminal device
+   unsigned int pending = *((memaddr*) CDEV_BITMAP_ADDR(IL_TERMINAL));
+   
+   for (unsigned int subdev = 0; subdev < DEV_PER_INT; subdev++) {
+      // If a deviice has a pending interrupt, get a reference to it
+      if ((pending & (1 << subdev)) == ON) {
+         termreg_t *tmp_term = (termreg_t*)DEV_REG_ADDR(IL_TERMINAL, subdev);
          
-         
+         if (TRANSM_STATUS(tmp_term) == TERM_SUCCESS) {
+            pcb_t *unblocked = NULL; // Serve sbloccare il processo bloccato attraverso la Verhogen (TODO)
+            SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = TRANSM_STATUS(tmp_term);
+            tmp_term->transm_command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
+         }
+
+         else if (RECV_STATUS(tmp_term) == TERM_SUCCESS) { // Serve controllare anche dal manuale se questo è l'unico "esito" che dobbiamo gestire 
+            pcb_t *unblocked = NULL; // Serve sbloccare il processo bloccato attraverso la Verhogen (TODO)
+            SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = RECV_STATUS(tmp_term);
+            tmp_term->recv_command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
+         }
       }
-
-
+   }
+   
 }
 
 /* ============= INTERRUPT HANDLER ============= */
