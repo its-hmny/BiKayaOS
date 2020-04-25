@@ -94,6 +94,33 @@ HIDDEN void syscall3(void* pid) {
     SYS_RETURN_VAL(old_area) = sys_status ? SUCCESS : FAILURE;
 }
 
+/* Operazione di rilascio su un semaforo. Il valore del semaforo è memorizzato nella variabile di
+tipo intero passata per indirizzo. L’indirizzo della variabile agisce da identificatore per il
+semaforo. */
+
+HIDDEN void syscall4(int *semaddr){
+    *semaddr++;
+
+    if(*semaddr <= 0){
+        pcb_t *tmp;
+        tmp = removeBlocked(semaddr); //l'indirizzo di semaddr agisce da identificatore per il semaforo
+        if(tmp)
+            scheduler_add(tmp);
+    }
+}
+
+/* Operazione di richiesta di un semaforo. Il valore del semaforo è memorizzato nella variabile di
+tipo intero passata per indirizzo. L’indirizzo della variabile agisce da identificatore per il
+semaforo. */
+
+HIDDEN void syscall5(int *semaddr){
+    *semaddr--;
+
+    if(*semaddr < 0)
+        insertBlocked(semaddr,getCurrentProc());
+}
+    
+
 
 /*
     This syscall assign the current process pid and his parent pid
@@ -141,11 +168,11 @@ void syscallDispatcher(unsigned int sysNumber) {
             break; 
 
         case 4:
-            PANIC();
+            syscall4((int)SYS_ARG_1);
             break;
 
         case 5:
-            PANIC();
+            syscall5((int)SYS_ARG_1);
             break;
 
         case 6:
