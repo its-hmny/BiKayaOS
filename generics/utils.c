@@ -127,49 +127,26 @@ void init_time(time_t *process_time) {
     // Set it up for the first time
     process_time->kernelmode_time = 0;
     process_time->usermode_time = 0;
-    process_time->activation_time = TOD_LO / TIME_SCALE;
-    process_time->last_update_time  = process_time->activation_time;
+    process_time->activation_time = TOD_LO;
+    process_time->last_update_time  = TOD_LO;
 }
 
 
 /*
-    This function takes two integer as "instant" and then calculate the time difference
-    between them, divides it to the scale (converting from clock cycle to second) and then
-    add the elapsed time to the given time_counter. Also it sets the last_update field to current time
-
-    time_counter: the counter that has to be updated
-    last_update: the instant in which the last update occurred
-    current_time: the instant of time at the moment of the call
+    
 */
-void update_time(unsigned int option, unsigned int current_time) {
+void update_time(unsigned int option, unsigned int current_clock) {
     // Retrieve the current process, and check his validity 
     pcb_t *tmp = getCurrentProc();
     if (tmp == NULL)
-        PANIC();
+        return;
     
-    // Retrieve the needed fields in the time_t structure
-    unsigned int *time_counter = option ? &tmp->p_time.kernelmode_time : &tmp->p_time.usermode_time;
-    unsigned int *last_update = &tmp->p_time.last_update_time;
+    // Retrieve the needed fields in the time_t structure (the counter to update and the last time the struct was updated)
+    unsigned int *counterToUpdate = option ? &tmp->p_time.kernelmode_time : &tmp->p_time.usermode_time;
+    unsigned int *last_update_clock = &tmp->p_time.last_update_time;
     
-    // Get the elapsed time also in case of TOD_LO overflow for kernel/user time
-    unsigned int elapsed_clocks = (current_time > *last_update) ? current_time - *last_update : 0;
-    *time_counter += (elapsed_clocks / TIME_SCALE);
-    *last_update = current_time;
-
-    // Update then the time since activation
-    activation_time_updt(tmp, current_time);
-}
-
-void activation_time_updt(pcb_t *proc, unsigned int current) {
-    // Retrieve the current process, and check his validity
-    if (proc == NULL)
-        PANIC();
-    
-    // Get the time_t struct and a copy of the last_update_time data
-    time_t *proc_time = &proc->p_time;
-    unsigned int last_update = proc_time->last_update_time;
-    // Calculate the interval between the last update and this one
-    proc_time->activation_time = (current > last_update) ? current - last_update : 0;
-    // Sets the new instant of the update
-    proc_time->last_update_time = current;
+    // Get the elapsed clock aand add it t the selcted counter
+    *counterToUpdate += current_clock - *last_update_clock;
+    // Update the "last_update" field with the new value
+    *last_update_clock = current_clock;
 }

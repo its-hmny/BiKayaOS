@@ -2,5 +2,5 @@
 #define __INTERRUPT_H
 
 void interrupt_handler(void);
-void terminal_handler(void);
+
 #endif

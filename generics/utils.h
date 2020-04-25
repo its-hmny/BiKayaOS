@@ -12,6 +12,5 @@ unsigned int getExCode(state_t *oldArea);
 void cloneState(state_t *process_state, state_t *old_area, unsigned int size);
 void init_time(time_t *process_time);
 void update_time(unsigned int option, unsigned int current_time);
-void activation_time_updt(pcb_t *proc, unsigned int current);
 
 #endif

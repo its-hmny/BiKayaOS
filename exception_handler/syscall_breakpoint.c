@@ -12,6 +12,16 @@ HIDDEN state_t *old_area = NULL;
 
 /* ================ SYSCALL DEFINITION ================ */
 
+/*
+    This syscall return the current process (also the caller process) time
+    statistics such as usermode and kernel mode clock cycle elapsed as
+    well as the activation time of the process
+
+    user: the usermode time elapsed (in clocks)
+    kernel: the kernelmode time elapsed (in clocks)
+    wallclock: the time of the first activation (in clock)
+    return: void
+*/
 HIDDEN void syscall1(unsigned int *user, unsigned int *kernel, unsigned int *wallclock) {
     // Update all the data before returning
     update_time(KER_MD_TIME, TOD_LO);
@@ -20,8 +30,10 @@ HIDDEN void syscall1(unsigned int *user, unsigned int *kernel, unsigned int *wal
 
     *user = data->usermode_time;
     *kernel = data->kernelmode_time;
-    *wallclock = data->activation_time;
+    *wallclock = TOD_LO - data->activation_time;
 }
+
+
 /*
     This syscall create a new process, allocating the PCB, saving the given
     state inside it and setting up the new process in the parent's child list.
@@ -53,6 +65,10 @@ HIDDEN void syscall2(state_t* statep, int priority, void** cpid) {
     *cpid = new_proc;
     
     SYS_RETURN_VAL(old_area) = SUCCESS;
+
+    // The scheduler is Round Robin, so it saves the new state and calls for another process to execute
+    cloneState(&parent->p_s, old_area, sizeof(state_t));
+    scheduler();
 }
 
 
@@ -92,35 +108,48 @@ HIDDEN void syscall3(void* pid) {
     freePcb(proc);
 
     SYS_RETURN_VAL(old_area) = sys_status ? SUCCESS : FAILURE;
-}
 
-/* Operazione di rilascio su un semaforo. Il valore del semaforo è memorizzato nella variabile di
-tipo intero passata per indirizzo. L’indirizzo della variabile agisce da identificatore per il
-semaforo. */
-
-HIDDEN void syscall4(int *semaddr){
-    *semaddr++;
-
-    if(*semaddr <= 0){
-        pcb_t *tmp;
-        tmp = removeBlocked(semaddr); //l'indirizzo di semaddr agisce da identificatore per il semaforo
-        if(tmp)
-            scheduler_add(tmp);
+    // If I killed the current process
+    if (pid == NULL) {
+        // Fix the dangling reference in the scheduler and chose another process
+        setCurrentProc(NULL);
+        scheduler();
     }
 }
 
-/* Operazione di richiesta di un semaforo. Il valore del semaforo è memorizzato nella variabile di
-tipo intero passata per indirizzo. L’indirizzo della variabile agisce da identificatore per il
-semaforo. */
 
-HIDDEN void syscall5(int *semaddr){
-    *semaddr--;
+HIDDEN void syscall4(int *semaddr){
+    *semaddr += 1;
+    if (*semaddr <= 0) {
+        pcb_t *unblocked_proc = removeBlocked(semaddr);
+        if (unblocked_proc)
+            scheduler_add(unblocked_proc);
+        else // Sem results not empty but in fact is 
+            PANIC();
+    }
+}
 
-    if(*semaddr < 0)
-        insertBlocked(semaddr,getCurrentProc());
+
+HIDDEN void syscall5(int *semaddr) {
+    *semaddr -= 1;
+    if (*semaddr < 0) {
+        // Get the current process PCB (with checks)
+        pcb_t *tmp = getCurrentProc();
+        (tmp == NULL) ? PANIC() : 0;
+
+        // Saves the updated state adn time stats
+        cloneState(&tmp->p_s, old_area, sizeof(state_t));
+        update_time(KER_MD_TIME, TOD_LO);
+
+        // Insert the PCB in the semaphor blocked queue
+        insertBlocked(semaddr, tmp);
+
+        // Set the scheduler properly
+        setCurrentProc(NULL);
+        scheduler();
+    }   
 }
     
-
 
 /*
     This syscall assign the current process pid and his parent pid
@@ -150,43 +179,38 @@ HIDDEN void syscall8(void** pid, void** ppid){
 */
 void syscallDispatcher(unsigned int sysNumber) {
     switch (sysNumber) {
-        case 1:
+        case GETCPUTIME:
             syscall1((unsigned int*)SYS_ARG_1(old_area), (unsigned int*)SYS_ARG_2(old_area), (unsigned int*)SYS_ARG_3(old_area));
             break;
 
-        case 2:
+        case CREATEPROCESS:
             syscall2((state_t*)SYS_ARG_1(old_area), (int)SYS_ARG_2(old_area), (void**)SYS_ARG_3(old_area));
             break;
 
-        case 3:
+        case TERMINATEPROCESS:
             // Kill the current process wich has called the syscall
             syscall3((void*)SYS_ARG_1(old_area));
-            // The current proc has been killed (dangling reference)
-            setCurrentProc(NULL);
-            // Calls the scheduer to execute a new process
-            scheduler();
             break; 
 
-        case 4:
-            syscall4((int)SYS_ARG_1);
+        case VERHOGEN:
+            syscall4((int*)SYS_ARG_1(old_area));
             break;
 
-        case 5:
-            syscall5((int)SYS_ARG_1);
+        case PASSEREN:
+            syscall5((int*)SYS_ARG_1(old_area));
             break;
 
-        case 6:
+        case WAITIO:
             PANIC();
             break;
 
-        case 7:
+        case SPECPASSUP:
             PANIC();
             break;
 
-        case 8:
+        case GETPID:
             //assigns the ID of the current process to *pid  and the identifier of the parent process to *ppid
             syscall8((void**)SYS_ARG_1(old_area), (void**)SYS_ARG_2(old_area));
-            PANIC();
             break;
 
         default:
@@ -230,4 +254,5 @@ void syscall_breakpoint_handler(void) {
     
     // At last update the kernel mode execution time
     update_time(KER_MD_TIME, TOD_LO);
+    LDST(old_area);
 }

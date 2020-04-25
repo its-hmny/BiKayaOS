@@ -12,10 +12,13 @@ void trap_handler(void) {
     PC_REG(oldarea) += WORDSIZE;
     
     pcb_t* caller = getCurrentProc();
-    
     unsigned int has_handler = caller->custom_hndlr.has_custom_handler[TRAP_CUSTOM];
-    if (! has_handler) 
+    
+    // In case a process doesn't have a custom handler, it's killed
+    if (! has_handler) {
+        SYS_ARG_1(oldarea) = 0; 
         syscallDispatcher(TERMINATEPROCESS);
+    }
 
     cloneState(caller->custom_hndlr.trap_old, oldarea, sizeof(state_t));
     LDST(caller->custom_hndlr.trap_new);

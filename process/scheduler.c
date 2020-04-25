@@ -72,6 +72,8 @@ void scheduler_init(void) {
 */
 void scheduler_add(pcb_t *p) {
     if (p != NULL) {
+        // Initialize the time_t struct if it's added for the first time
+        init_time(&p->p_time);
         p->original_priority = p->priority;
         insertProcQ(&ready_queue, p);
     }
@@ -101,17 +103,20 @@ void scheduler(void) {
     
     else {
         // If a process executed before puts it back in the queue
-        if (currentProcess != NULL)
+        if (currentProcess != NULL) {
+            update_time(USR_MD_TIME, TOD_LO);
             scheduler_add(currentProcess);
-        
+        }
         
         // Extracts a new process, restores its priority and ages all the excluded
         currentProcess = removeProcQ(&ready_queue);
         currentProcess->priority = currentProcess->original_priority;
         aging();
 
+        //Set the new "time breakpoint"
+        currentProcess->p_time.last_update_time = TOD_LO;
+
         // Loads the state and executes the chosen process but before sets the time slice
-        init_time(&currentProcess->p_time);
         setIntervalTimer();
         LDST(&currentProcess->p_s);
     }

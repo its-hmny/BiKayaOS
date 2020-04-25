@@ -10,9 +10,9 @@
 state_t *oldArea = NULL;
 
 
-HIDDEN bool get_device_pending(int line, int device) {
+HIDDEN unsigned int get_device_pending(int line, int device) {
     return *((unsigned int *)INTER_DEVICES(line)) << (1 << device);
-
+}
 /* ============= SUBHANDLER DEFINITION ============ */
 
 HIDDEN void tmp(void) {
@@ -29,9 +29,9 @@ HIDDEN void intervalTimer_hadler(void) {
    scheduler();
 }
 
-HIDDEN void terminal_handler(void){
+HIDDEN void terminal_handler(void) {
    //For all subdevices check if there is an interrupt pending
-   for (i = 0; i <= 7; i++)
+   for (unsigned int i = 0; i <= 7; i++)
       if(get_device_pending(7,i)) {
          termreg_t *subTerm = (termreg_t*)DEV_REG_ADDR(7,i);
          
