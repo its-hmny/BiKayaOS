@@ -22,7 +22,7 @@ HIDDEN state_t *old_area = NULL;
     wallclock: the time of the first activation (in clock)
     return: void
 */
-HIDDEN void syscall1(unsigned int *user, unsigned int *kernel, unsigned int *wallclock) {
+HIDDEN void getCPU_time(unsigned int *user, unsigned int *kernel, unsigned int *wallclock) {
     // Update all the data before returning
     update_time(KER_MD_TIME, TOD_LO);
     // Get the time_t struct
@@ -45,7 +45,7 @@ HIDDEN void syscall1(unsigned int *user, unsigned int *kernel, unsigned int *wal
     cpid: the newborn pid that is as well a pointer to the PCB itself
     return: 0 on success, -1 on failure
 */
-HIDDEN void syscall2(state_t* statep, int priority, void** cpid) {
+HIDDEN void create_process(state_t* statep, int priority, void** cpid) {
     pcb_t *new_proc = allocPcb();
     pcb_t *parent = getCurrentProc();
 
@@ -81,7 +81,7 @@ HIDDEN void syscall2(state_t* statep, int priority, void** cpid) {
     pid: a pointer to the process to terminate
     return: 0 on success, -1 on failure
 */
-HIDDEN void syscall3(void* pid) {
+void terminate_process(void* pid) {
     pcb_t* proc = pid ? pid : getCurrentProc(); 
     unsigned int sys_status = 0;
     
@@ -118,19 +118,40 @@ HIDDEN void syscall3(void* pid) {
 }
 
 
-HIDDEN void syscall4(int *semaddr){
+/*
+    This syscall releases the semaphore wich is identified with the semaddr arg.
+    if other processes are waiting on the same semaphore then before leaving it
+    awakes the first in the sem's queue. If a semaphore results with processes 
+    blocked on him but removeBlocked returns NULL then kernel panic is issued
+
+    semaddr: the memory location/ value of the semaphore that has to be released
+    return: the unblocked process (for internal use only)
+*/
+pcb_t* verhogen(int *semaddr) {
     *semaddr += 1;
     if (*semaddr <= 0) {
         pcb_t *unblocked_proc = removeBlocked(semaddr);
-        if (unblocked_proc)
+        if (unblocked_proc) {
             scheduler_add(unblocked_proc);
+            return(unblocked_proc);
+        }
+
         else // Sem results not empty but in fact is 
             PANIC();
     }
 }
 
 
-HIDDEN void syscall5(int *semaddr) {
+/*
+    This syscall request a semaphore wich is identified with the semaddr arg.
+    If the sem is already reserved then the state is saved and the process is blocked
+    and another process choosed by the scheduler start executing.
+    Else the process continue it's execution free
+
+    semaddr: the memory location/ value of the semaphore that has to be requested
+    return: void
+*/
+HIDDEN void passeren(int *semaddr) {
     *semaddr -= 1;
     if (*semaddr < 0) {
         // Get the current process PCB (with checks)
@@ -149,7 +170,57 @@ HIDDEN void syscall5(int *semaddr) {
         scheduler();
     }   
 }
-    
+
+
+HIDDEN void wait_IO() {}
+
+
+/*
+    This syscall give to the caller the ability to set a custom handler for exception 
+    as Breakpoint, Syscall (with No. > 8), TLB and Trap. Each custom handler can be set once
+    if the process tries to reset an handler then is killed.
+
+    type: an int that represents which custom handler the process want to set
+    old: a memory location in which the state as to be saved before executing the custom handler
+    new: the memory location in which the custom handler can be found and loaded
+    return: 0 on success and -1 on failure 
+*/    
+HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
+    pcb_t *caller = getCurrentProc();
+    caller ? 0 : PANIC();
+
+    // The custom handler could be only setted once for each exception
+    if (! caller->custom_hndlr.has_custom_handler[type]) {
+        caller->custom_hndlr.has_custom_handler[type] = ON;
+
+        switch (type) {
+            case SYS_BP_COSTUM:
+                caller->custom_hndlr.syscall_bp_new = new;
+                caller->custom_hndlr.syscall_bp_old = old;
+                SYS_RETURN_VAL(SUCCESS);
+                break; 
+
+            case TLB_CUSTOM:
+                caller->custom_hndlr.tlb_new = new;
+                caller->custom_hndlr.tlb_old = old;
+                SYS_RETURN_VAL(SUCCESS);
+                break;
+
+            case TRAP_CUSTOM:
+                caller->custom_hndlr.trap_new = new;
+                caller->custom_hndlr.trap_old = old;
+                SYS_RETURN_VAL(SUCCESS);
+                break;
+            
+            default:
+                SYS_RETURN_VAL(FAILURE);
+        }
+    }
+
+    // If a process try to "reset" a custom handler is killed
+    else terminate_process(caller);
+}
+
 
 /*
     This syscall assign the current process pid and his parent pid
@@ -159,7 +230,7 @@ HIDDEN void syscall5(int *semaddr) {
     ppid: the mem location where to save the curr. proc. parent pid
     retunr: void;
 */
-HIDDEN void syscall8(void** pid, void** ppid){
+HIDDEN void get_PID_PPID(void** pid, void** ppid){
     pcb_t *current = getCurrentProc();
     *pid = pid ? current : NULL;
     *ppid = ppid ? current->p_parent : NULL;
@@ -180,37 +251,35 @@ HIDDEN void syscall8(void** pid, void** ppid){
 void syscallDispatcher(unsigned int sysNumber) {
     switch (sysNumber) {
         case GETCPUTIME:
-            syscall1((unsigned int*)SYS_ARG_1(old_area), (unsigned int*)SYS_ARG_2(old_area), (unsigned int*)SYS_ARG_3(old_area));
+            getCPU_time((unsigned int*)SYS_ARG_1(old_area), (unsigned int*)SYS_ARG_2(old_area), (unsigned int*)SYS_ARG_3(old_area));
             break;
 
         case CREATEPROCESS:
-            syscall2((state_t*)SYS_ARG_1(old_area), (int)SYS_ARG_2(old_area), (void**)SYS_ARG_3(old_area));
+            create_process((state_t*)SYS_ARG_1(old_area), (int)SYS_ARG_2(old_area), (void**)SYS_ARG_3(old_area));
             break;
 
         case TERMINATEPROCESS:
-            // Kill the current process wich has called the syscall
-            syscall3((void*)SYS_ARG_1(old_area));
+            terminate_process((void*)SYS_ARG_1(old_area));
             break; 
 
         case VERHOGEN:
-            syscall4((int*)SYS_ARG_1(old_area));
+            verhogen((int*)SYS_ARG_1(old_area));
             break;
 
         case PASSEREN:
-            syscall5((int*)SYS_ARG_1(old_area));
+            passeren((int*)SYS_ARG_1(old_area));
             break;
 
         case WAITIO:
-            PANIC();
+            wait_IO();
             break;
 
         case SPECPASSUP:
-            PANIC();
+            spec_passup((int)SYS_ARG_1(old_area), (state_t*)SYS_ARG_2(old_area), (state_t*)SYS_ARG_3(old_area));
             break;
 
         case GETPID:
-            //assigns the ID of the current process to *pid  and the identifier of the parent process to *ppid
-            syscall8((void**)SYS_ARG_1(old_area), (void**)SYS_ARG_2(old_area));
+            get_PID_PPID((void**)SYS_ARG_1(old_area), (void**)SYS_ARG_2(old_area));
             break;
 
         default:

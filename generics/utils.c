@@ -5,6 +5,8 @@
 
 
 
+semdev device_semlist;
+
 /*
     Wipe all the memory location from the starting addres until a specified
     wiping size is reached (moreless like _memset)

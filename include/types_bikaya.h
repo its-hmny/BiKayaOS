@@ -16,13 +16,20 @@
 typedef unsigned int memaddr;
 
 // Custom exception handling for PCB (defined with specpassup syscall)
-typedef struct handler { 
-    state_t* syscall_new;
-    state_t* syscall_old;
+typedef struct handler {
+    // Syscall (No > 8) custom handler and old area 
+    state_t* syscall_bp_new;
+    state_t* syscall_bp_old;
+    
+    // TLB custom handler and old area
+    state_t* tlb_new;
+    state_t* tlb_old;
+    
+    // Trap custom handler and old area
     state_t* trap_new;
     state_t* trap_old;
-    state_t* tlb_old;
-    state_t* tlb_new;
+
+    // Boolean vector for keep record of wich custom handler has been activated
     unsigned int has_custom_handler[3];
 } handler;
 
