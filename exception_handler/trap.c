@@ -16,7 +16,7 @@ void trap_handler(void) {
     
     // In case a process doesn't have a custom handler, it's killed
     if (! has_handler) 
-        syscall3(caller);
+        terminate_process(caller);
 
     else {
         // Save the current state of the caller process and loads the custom handler

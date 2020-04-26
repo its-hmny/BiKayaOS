@@ -99,7 +99,7 @@ void terminate_process(void* pid) {
 
     list_for_each(tmp, &proc->p_child) {
         // Recursive call on the childs
-        syscall3(container_of(tmp, pcb_t, p_sib));
+        terminate_process(container_of(tmp, pcb_t, p_sib));
         // Check the return code of the recursive call
         if (SYS_RETURN_VAL(old_area) == FAILURE)
             return;
@@ -131,6 +131,7 @@ pcb_t* verhogen(int *semaddr) {
     *semaddr += 1;
     if (*semaddr <= 0) {
         pcb_t *unblocked_proc = removeBlocked(semaddr);
+        
         if (unblocked_proc) {
             scheduler_add(unblocked_proc);
             return(unblocked_proc);
@@ -139,6 +140,8 @@ pcb_t* verhogen(int *semaddr) {
         else // Sem results not empty but in fact is 
             PANIC();
     }
+
+    else return(NULL);
 }
 
 
@@ -197,23 +200,24 @@ HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
             case SYS_BP_COSTUM:
                 caller->custom_hndlr.syscall_bp_new = new;
                 caller->custom_hndlr.syscall_bp_old = old;
-                SYS_RETURN_VAL(SUCCESS);
+                SYS_RETURN_VAL(old_area) = SUCCESS;
                 break; 
 
             case TLB_CUSTOM:
                 caller->custom_hndlr.tlb_new = new;
                 caller->custom_hndlr.tlb_old = old;
-                SYS_RETURN_VAL(SUCCESS);
+                SYS_RETURN_VAL(old_area) = SUCCESS;
                 break;
 
             case TRAP_CUSTOM:
                 caller->custom_hndlr.trap_new = new;
                 caller->custom_hndlr.trap_old = old;
-                SYS_RETURN_VAL(SUCCESS);
+                SYS_RETURN_VAL(old_area) = SUCCESS;
                 break;
             
+            // Option not recognised
             default:
-                SYS_RETURN_VAL(FAILURE);
+                SYS_RETURN_VAL(old_area) = FAILURE;
         }
     }
 

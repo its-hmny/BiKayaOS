@@ -5,7 +5,7 @@
 
 
 
-semdev device_semlist;
+//semdev device_semlist;
 
 /*
     Wipe all the memory location from the starting addres until a specified

@@ -15,7 +15,7 @@ void tlb_handler(void) {
     
     // In case a process doesn't have a custom handler, it's killed
     if (! has_handler) 
-        syscall3(caller);
+        terminate_process(caller);
 
     else {
         // Saves the state of the current process and loads the custom handler
