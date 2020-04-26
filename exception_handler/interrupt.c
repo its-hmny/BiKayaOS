@@ -22,9 +22,29 @@ HIDDEN void intervalTimer_hadler(void) {
    setIntervalTimer();
 }
 
+//Handler for Disks, Tapes, Networks and Printers devices 
+HIDDEN void general_handler(device) {
+   // Get the interrupt pending in terminal device
+   unsigned int pending = *((memaddr*) CDEV_BITMAP_ADDR(device));
+   
+   for (unsigned int subdev = 0; subdev < DEV_PER_INT; subdev++) {
+      // If a deviice has a pending interrupt, get a reference to it
+      if ((pending & (1 << subdev)) == ON) {
+         dtpreg_t *tmp_dtp = (dtpreg_t*)DEV_REG_ADDR(device, subdev);
+         
+         if (tmp_dtp->status == DTP_RDY) {
+            pcb_t *unblocked = NULL; // Serve sbloccare il processo bloccato attraverso la Verhogen (TODO)
+            SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = TRANSM_STATUS(tmp_dtp);
+            tmp_dtp->command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
+         }
+
+         }
+      }
+   }
+
 HIDDEN void terminal_handler(void) {
    // Get the interrupt pending in terminal device
-   unsigned int pending = *((memaddr*) CDEV_BITMAP_ADDR(IL_TERMINAL));
+   unsigned int pending = *((memaddr*) CDEV_BITMAP_ADDR(line));
    
    for (unsigned int subdev = 0; subdev < DEV_PER_INT; subdev++) {
       // If a deviice has a pending interrupt, get a reference to it
@@ -79,7 +99,7 @@ HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
 */
 
 // Vector of subhandler, there's one handler for each interrupt line
-void (*subhandler[])(void) = { tmp, tmp, intervalTimer_hadler, tmp, tmp, tmp, tmp, terminal_handler};
+void (*subhandler[])(void) = { tmp, tmp, intervalTimer_hadler, general_handler, general_handler, general_handler, general_handler, terminal_handler};
 
 void interrupt_handler(void) {
    oldArea = (state_t*) OLD_AREA_INTERRUPT;
