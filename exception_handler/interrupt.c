@@ -18,13 +18,8 @@ HIDDEN void tmp(void) {
 }
 
 HIDDEN void intervalTimer_hadler(void) {
-   // Save the current old area state to the process that has executed
-   pcb_t *currentProcess = getCurrentProc();
-   cloneState(&currentProcess->p_s, oldArea, sizeof(state_t));
    // Send an Ack to the timer, sets him up to a timeslice
    setIntervalTimer();
-   // The scheduler will chose a process and reset a timeslice, else it will loop
-   scheduler();
 }
 
 HIDDEN void terminal_handler(void) {
@@ -105,4 +100,10 @@ void interrupt_handler(void) {
    for (unsigned int line = 0; line < MAX_LINE; line++) 
       if (interruptVector[line])
          subhandler[line]();
+
+   // Save the current old area state to the process that has executed
+   pcb_t *currentProcess = getCurrentProc();
+   cloneState(&currentProcess->p_s, oldArea, sizeof(state_t));
+   // The scheduler will chose a process and reset a timeslice, else it will loop
+   scheduler();
 }
