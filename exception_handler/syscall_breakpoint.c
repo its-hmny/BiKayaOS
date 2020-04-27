@@ -217,7 +217,16 @@ HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
             
             // Option not recognised
             default:
-                SYS_RETURN_VAL(old_area) = FAILURE;
+                pcb_t *caller = getCurrentProc();
+                unsigned int has_handler = caller->custom_hndlr.has_custom_handler[SYS_BP_COSTUM];
+        
+                if (! has_handler) 
+                    terminate_process(caller);
+                
+                PC_REG(old_area) += WORDSIZE;
+                
+                cloneState(old_area,caller->custom_hndlr.syscall_bp_old,  sizeof(state_t));
+                LDST(caller->custom_hndlr.syscall_bp_new);
         }
     }
 
