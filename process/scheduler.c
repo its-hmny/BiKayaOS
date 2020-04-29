@@ -98,7 +98,7 @@ void scheduler(void) {
         HALT();
 
     // If no process is ready then idle the process till one is (idle has all interrupt enabled)
-    else if (emptyProcQ(&ready_queue))
+    else if (emptyProcQ(&ready_queue) && currentProcess == NULL)
        LDST(&idleState);
     
     else {
