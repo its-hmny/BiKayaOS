@@ -199,7 +199,8 @@ HIDDEN void wait_IO(unsigned int command, unsigned int *dev_register, int subdev
     int *matrix_cell = &(IO_blocked[device_class + subdevice][device_no]);
     pcb_t *caller = getCurrentProc();
     caller ? 0 : PANIC();
-    insertBlocked(matrix_cell, caller); 
+    insertBlocked(matrix_cell, caller);
+    passeren(matrix_cell);
 }
 
 

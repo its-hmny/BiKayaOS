@@ -53,13 +53,13 @@ HIDDEN void terminal_handler(unsigned int line) {
          termreg_t *tmp_term = (termreg_t*)DEV_REG_ADDR(IL_TERMINAL, subdev);
          
          if (TRANSM_STATUS(tmp_term) == TERM_SUCCESS) {
-            pcb_t *unblocked = verhogen(&IO_blocked[line][subdev]);
+            pcb_t *unblocked = verhogen(&IO_blocked[line-3][subdev]);
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = TRANSM_STATUS(tmp_term);
             tmp_term->transm_command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
          }
 
          else if (RECV_STATUS(tmp_term) == TERM_SUCCESS) { // Serve controllare anche dal manuale se questo è l'unico "esito" che dobbiamo gestire 
-            pcb_t *unblocked = verhogen(&IO_blocked[line + 1][subdev]);
+            pcb_t *unblocked = verhogen(&IO_blocked[line+1-3][subdev]);
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = RECV_STATUS(tmp_term);
             tmp_term->recv_command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
          }
@@ -124,7 +124,7 @@ void interrupt_handler(void) {
 
    // Save the current old area state to the process that has executed
    pcb_t *currentProcess = getCurrentProc();
-   cloneState(&currentProcess->p_s, oldArea, sizeof(state_t));
+   currentProcess ? cloneState(&currentProcess->p_s, oldArea, sizeof(state_t)) : 0;
    // The scheduler will chose a process and reset a timeslice, else it will loop
    scheduler();
 }
