@@ -5,8 +5,6 @@
 
 
 
-//semdev device_semlist;
-
 /*
     Wipe all the memory location from the starting addres until a specified
     wiping size is reached (moreless like _memset)
@@ -151,4 +149,12 @@ void update_time(unsigned int option, unsigned int current_clock) {
     *counterToUpdate += current_clock - *last_update_clock;
     // Update the "last_update" field with the new value
     *last_update_clock = current_clock;
+}
+
+
+/*
+
+*/
+void loadCustomHandler(unsigned int exc_code) {
+    
 }

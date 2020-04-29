@@ -175,7 +175,32 @@ HIDDEN void passeren(int *semaddr) {
 }
 
 
-HIDDEN void wait_IO() {}
+/*
+
+*/
+#define DEV_SIZE_W 4
+HIDDEN void wait_IO(unsigned int command, unsigned int *dev_register, int subdevice) {
+    // Retrieve the first address of the multiple_line_device
+    unsigned int *dev_start = (unsigned int*)DEV_REG_ADDR(IL_DISK, 0);
+    
+    // Checks arguments and calculate the offset in words
+    (dev_register > dev_start) ? 0 : PANIC();
+    unsigned int offset = (dev_register - dev_start) / WORDSIZE;
+
+    // From the word offset then is easy to obtain device class and subdevice
+    unsigned int device_class = offset / DEV_SIZE_W;
+    unsigned int device_no = offset % DEV_SIZE_W;
+    
+    // Issue the command
+    *dev_register = command;
+
+    // Block the process onto the queue
+    //int *matrix_cell = (device_class < MULTIPLE_DEV_LINE) && (device_no < DEV_PER_INT) ?  &(IO_blocked[device_class + subdevice][device_no]) : PANIC();
+    int *matrix_cell = &(IO_blocked[device_class + subdevice][device_no]);
+    pcb_t *caller = getCurrentProc();
+    caller ? 0 : PANIC();
+    insertBlocked(matrix_cell, caller); 
+}
 
 
 /*
@@ -275,7 +300,7 @@ void syscallDispatcher(unsigned int sysNumber) {
             break;
 
         case WAITIO:
-            wait_IO();
+            wait_IO((unsigned int)SYS_ARG_1(old_area), (unsigned int*)SYS_ARG_2(old_area), (int)SYS_ARG_3(old_area));
             break;
 
         case SPECPASSUP:
@@ -287,16 +312,7 @@ void syscallDispatcher(unsigned int sysNumber) {
             break;
 
         default:
-            pcb_t *caller = getCurrentProc();
-                unsigned int has_handler = caller->custom_hndlr.has_custom_handler[SYS_BP_COSTUM];
-        
-                if (! has_handler) 
-                    terminate_process(caller);
-                
-                PC_REG(old_area) += WORDSIZE;
-                
-                cloneState(old_area,caller->custom_hndlr.syscall_bp_old,  sizeof(state_t));
-                LDST(caller->custom_hndlr.syscall_bp_new);
+            PANIC();
     }
 }
 

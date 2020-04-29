@@ -11,7 +11,6 @@
 
 #include "listx.h"
 
-#define DEV_PER_INT 8
 
 typedef unsigned int memaddr;
 
@@ -84,18 +83,6 @@ typedef struct semd_t {
     // Queue of PCBs blocked on the semaphore
     struct list_head s_procQ;
 } semd_t;
-
-
-
-// Devices stop semaphor
-typedef struct semdev {
-    semd_t disk[DEV_PER_INT];
-    semd_t tape[DEV_PER_INT];
-    semd_t network[DEV_PER_INT];
-    semd_t printer[DEV_PER_INT];
-    semd_t terminalR[DEV_PER_INT];
-    semd_t terminalT[DEV_PER_INT];
-} semdev;
 
 
 

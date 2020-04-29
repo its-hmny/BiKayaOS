@@ -7,6 +7,7 @@ void interrupt_handler(void);
 
 #define TERM_STATUS_MASK 0xFF
 #define DTP_STATUS MASK 
+#define DEV_STATUS_REG(dp) ((dp->status))
 #define TRANSM_STATUS(tp) ((tp->transm_status) & TERM_STATUS_MASK)
 #define RECV_STATUS(tp) ((tp->recv_status) & TERM_STATUS_MASK)
 #define CMD_ACK 1

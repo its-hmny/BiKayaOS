@@ -54,3 +54,6 @@ dkms.conf
 #Build directorys
 build_u*/*
 CMake/
+
+#VS Code shit
+.vscode
