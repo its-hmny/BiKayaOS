@@ -34,7 +34,7 @@ HIDDEN void general_handler(unsigned int line) {
          dtpreg_t *tmp_dev = (dtpreg_t*)DEV_REG_ADDR(line, subdev);
          
          if (tmp_dev->status == DTP_RDY) {
-            pcb_t *unblocked = verhogen(&IO_blocked[line][subdev]); 
+            pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line)][subdev]); 
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = DEV_STATUS_REG(tmp_dev);
             tmp_dev->command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
          }
@@ -53,13 +53,13 @@ HIDDEN void terminal_handler(unsigned int line) {
          termreg_t *tmp_term = (termreg_t*)DEV_REG_ADDR(IL_TERMINAL, subdev);
          
          if (TRANSM_STATUS(tmp_term) == TERM_SUCCESS) {
-            pcb_t *unblocked = verhogen(&IO_blocked[line-3][subdev]);
+            pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line)][subdev]);
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = TRANSM_STATUS(tmp_term);
             tmp_term->transm_command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
          }
 
          else if (RECV_STATUS(tmp_term) == TERM_SUCCESS) { // Serve controllare anche dal manuale se questo è l'unico "esito" che dobbiamo gestire 
-            pcb_t *unblocked = verhogen(&IO_blocked[line+1-3][subdev]);
+            pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line) + 1][subdev]);
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = RECV_STATUS(tmp_term);
             tmp_term->recv_command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
          }
@@ -100,7 +100,7 @@ HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
 */
 
 // Vector of subhandler, there's one handler for each interrupt line
-void (*subhandler[])(unsigned int) = { tmp, tmp, intervalTimer_hadler, general_handler, general_handler, general_handler, general_handler, terminal_handler};
+void (*subhandler[])(unsigned int) = { tmp, tmp, intervalTimer_hadler, general_handler, general_handler, general_handler, general_handler, terminal_handler };
 
 void interrupt_handler(void) {
    oldArea = (state_t*) OLD_AREA_INTERRUPT;
