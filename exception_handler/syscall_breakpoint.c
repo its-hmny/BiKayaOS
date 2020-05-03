@@ -196,7 +196,9 @@ HIDDEN void wait_IO(unsigned int command, unsigned int *dev_register, int subdev
     unsigned int device_no = offset % (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_IL);
 
     // Issue the command
-    *dev_register = command;
+    //*dev_register = command;
+    termreg_t *tmp = dev_register;
+    tmp->transm_command = command; 
 
     // Block the process onto the queue
     int *matrix_cell = &IO_blocked[device_class + subdevice][device_no];

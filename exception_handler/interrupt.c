@@ -55,13 +55,15 @@ HIDDEN void terminal_handler(unsigned int line) {
          if (TRANSM_STATUS(tmp_term) == TERM_SUCCESS) {
             pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line)][subdev]);
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = TRANSM_STATUS(tmp_term);
-            tmp_term->transm_command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
+            
+            tmp_term->transm_command = CMD_ACK;
          }
 
          else if (RECV_STATUS(tmp_term) == TERM_SUCCESS) { // Serve controllare anche dal manuale se questo è l'unico "esito" che dobbiamo gestire 
             pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line) + 1][subdev]);
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = RECV_STATUS(tmp_term);
-            tmp_term->recv_command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
+            
+            tmp_term->recv_command = CMD_ACK;
          }
       }
    }
