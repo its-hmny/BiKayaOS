@@ -178,25 +178,28 @@ HIDDEN void passeren(int *semaddr) {
 /*
 
 */
-#define DEV_SIZE_W 4
+#define DEV_REGISTER_SIZE 4
+#define REGISTER_PER_DEV 4
+#define DEV_PER_IL 8
+
 HIDDEN void wait_IO(unsigned int command, unsigned int *dev_register, int subdevice) {
     // Retrieve the first address of the multiple_line_device
-    unsigned int *dev_start = (unsigned int*)DEV_REG_ADDR(IL_DISK, 0);
-    
+    memaddr dev_start = (memaddr)DEV_REG_ADDR(IL_DISK, 0);
+    memaddr current_memaddr = (memaddr)dev_register;
+
     // Checks arguments and calculate the offset in words
-    (dev_register > dev_start) ? 0 : PANIC();
-    unsigned int offset = (dev_register - dev_start) / WORDSIZE;
+    (current_memaddr > dev_start) ? 0 : PANIC();
+    unsigned int offset = current_memaddr - dev_start;
 
     // From the word offset then is easy to obtain device class and subdevice
-    unsigned int device_class = offset / DEV_SIZE_W;
-    unsigned int device_no = offset % DEV_SIZE_W;
-    
+    unsigned int device_class = offset / (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_IL);
+    unsigned int device_no = offset % (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_IL);
+
     // Issue the command
     *dev_register = command;
 
     // Block the process onto the queue
-    //int *matrix_cell = (device_class < MULTIPLE_DEV_LINE) && (device_no < DEV_PER_INT) ?  &(IO_blocked[device_class + subdevice][device_no]) : PANIC();
-    int *matrix_cell = &(IO_blocked[device_class + subdevice][device_no]);
+    int *matrix_cell = &IO_blocked[device_class + subdevice][device_no];
     pcb_t *caller = getCurrentProc();
     caller ? 0 : PANIC();
     passeren(matrix_cell);
