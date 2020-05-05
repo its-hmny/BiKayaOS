@@ -77,12 +77,6 @@ void scheduler_add(pcb_t *p) {
         p->original_priority = p->priority;
         insertProcQ(&ready_queue, p);
     }
-
-     
-/*  The scheduler is round robin so when a new process is added, if
-    the priority is high enough, it could be executed immediately 
-*/    
-    scheduler();
 }
 
 
@@ -94,11 +88,11 @@ void scheduler_add(pcb_t *p) {
 */
 void scheduler(void) {
     // If there isn't process in ready_queue nor ASL then there's no process at all (shuts off)
-    if (emptyProcQ(&ready_queue) && emptyASL() && currentProcess == NULL)
-        HALT();
+    //if (emptyProcQ(&ready_queue) && emptyASL() && currentProcess == NULL)
+        //HALT();
 
     // If no process is ready then idle the process till one is (idle has all interrupt enabled)
-    else if (emptyProcQ(&ready_queue) && currentProcess == NULL)
+     if (emptyProcQ(&ready_queue) && currentProcess == NULL)
        LDST(&idleState);
     
     else {

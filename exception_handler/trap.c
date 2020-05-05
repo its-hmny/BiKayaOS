@@ -8,8 +8,9 @@
 HIDDEN state_t *old_area = NULL;
 
 void trap_handler(void) {
+    old_area = (state_t*) OLD_AREA_TRAP;
+    
     // NOT SURE ABOUT THAT
-    //oldarea = (state_t*) OLD_AREA_TRAP;
     //PC_REG(oldarea) += WORDSIZE;
 
     loadCustomHandler(TRAP_CUSTOM, old_area);

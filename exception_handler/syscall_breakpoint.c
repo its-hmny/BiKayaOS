@@ -50,7 +50,7 @@ HIDDEN void create_process(state_t* statep, int priority, void** cpid) {
     pcb_t *parent = getCurrentProc();
 
     // Error during allocation, error code returned
-    if (new_proc == NULL || statep == NULL || cpid != NULL || parent == NULL)
+    if (new_proc == NULL || statep == NULL || parent == NULL)
         SYS_RETURN_VAL(old_area) = FAILURE;
 
     // Set the given state to the new process
@@ -62,7 +62,7 @@ HIDDEN void create_process(state_t* statep, int priority, void** cpid) {
 
     // Insert the new process in the ready queue and sets the pid
     scheduler_add(new_proc);
-    *cpid = new_proc;
+    (cpid != NULL) ? (*cpid = new_proc) : NULL;
     
     SYS_RETURN_VAL(old_area) = SUCCESS;
 
@@ -195,10 +195,14 @@ HIDDEN void wait_IO(unsigned int command, unsigned int *dev_register, int subdev
     unsigned int device_class = offset / (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_IL);
     unsigned int device_no = offset % (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_IL);
 
-    // Issue the command
+    // Issue the command after it has determined the right register
+    devreg_t *device_p = dev_register;
+    (device_class < EXT_IL_INDEX(IL_TERMINAL)) ? device_p->dtp.command = command : NULL;
+    (subdevice) ? (device_p->term.recv_command = command) : (device_p->term.transm_command = command);
+    
     //*dev_register = command;
-    termreg_t *tmp = dev_register;
-    tmp->transm_command = command; 
+    // termreg_t *tmp = dev_register;
+    // tmp->transm_command = command; 
 
     // Block the process onto the queue
     int *matrix_cell = &IO_blocked[device_class + subdevice][device_no];
