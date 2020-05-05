@@ -1,3 +1,4 @@
+#include "../exception_handler/syscall_breakpoint.h"
 #include "../include/types_bikaya.h"
 #include "../include/system_const.h"
 #include "../process/scheduler.h"
@@ -155,6 +156,22 @@ void update_time(unsigned int option, unsigned int current_clock) {
 /*
 
 */
-void loadCustomHandler(unsigned int exc_code) {
+void loadCustomHandler(unsigned int exc_code, state_t* old_area) {
+    // Retrieve and check the caler_proc
+    pcb_t *caller_proc  = getCurrentProc();
+    (caller_proc) ? 0 : PANIC();
+
+    unsigned int has_handler = caller_proc->custom_handler.has_custom[exc_code];
     
+    // In case a process doesn't have a custom handler, it's killed
+    if (! has_handler) 
+        terminate_process(caller_proc);
+
+    else {
+        state_t *custom_old_area = caller_proc->custom_handler.handler_matrix[exc_code][CSTM_OLD_AREA];
+        state_t *custom_new_area = caller_proc->custom_handler.handler_matrix[exc_code][CSTM_NEW_AREA];
+        // Save the current state of the caller process and loads the custom handler
+        cloneState(custom_old_area, old_area, sizeof(state_t));
+        LDST(custom_new_area);
+    }
 }

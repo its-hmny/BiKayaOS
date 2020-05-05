@@ -220,35 +220,17 @@ HIDDEN void wait_IO(unsigned int command, unsigned int *dev_register, int subdev
 */    
 HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
     pcb_t *caller = getCurrentProc();
-    caller ? 0 : PANIC();
+    // Retrieve the caller process handler structure
+    handler_t *p_hndlr = caller ? &caller->custom_handler : (SYS_RETURN_VAL(old_area) = SUCCESS);
 
+    // Arguments control
+    (type < CSTM_HNDLRS && old && new) ? NULL : (SYS_RETURN_VAL(old_area) = SUCCESS);
+    
     // The custom handler could be only setted once for each exception
-    if (! caller->custom_hndlr.has_custom_handler[type]) {
-        caller->custom_hndlr.has_custom_handler[type] = ON;
-
-        switch (type) {
-            case SYS_BP_COSTUM:
-                caller->custom_hndlr.syscall_bp_new = new;
-                caller->custom_hndlr.syscall_bp_old = old;
-                SYS_RETURN_VAL(old_area) = SUCCESS;
-                break; 
-
-            case TLB_CUSTOM:
-                caller->custom_hndlr.tlb_new = new;
-                caller->custom_hndlr.tlb_old = old;
-                SYS_RETURN_VAL(old_area) = SUCCESS;
-                break;
-
-            case TRAP_CUSTOM:
-                caller->custom_hndlr.trap_new = new;
-                caller->custom_hndlr.trap_old = old;
-                SYS_RETURN_VAL(old_area) = SUCCESS;
-                break;
-            
-            // Option not recognised
-            default:
-                SYS_RETURN_VAL(old_area) = FAILURE;
-        }
+    if (! p_hndlr->has_custom[type]) {
+        p_hndlr->has_custom[type] = ON;
+        p_hndlr->handler_matrix[type][CSTM_NEW_AREA] = new;
+        p_hndlr->handler_matrix[type][CSTM_OLD_AREA] = old;
     }
 
     // If a process try to "reset" a custom handler is killed
@@ -317,7 +299,7 @@ void syscallDispatcher(unsigned int sysNumber) {
             break;
 
         default:
-            PANIC();
+            loadCustomHandler(SYS_BP_COSTUM, old_area);
     }
 }
 
@@ -348,7 +330,7 @@ void syscall_breakpoint_handler(void) {
 
     // Else is a breakpoint 
     else if(exCode == BREAKPOINT_CODE)
-        PANIC();
+        loadCustomHandler(SYS_BP_COSTUM, old_area);
 
     // Unrecognized code for this handler
     else         

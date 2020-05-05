@@ -1,36 +1,19 @@
 #ifndef _TYPES_BIKAYA_H
 #define _TYPES_BIKAYA_H
 
-#ifdef TARGET_UMPS
-#include "uMPS/umps/types.h"
-#endif
-#ifdef TARGET_UARM
-#define UARM_MACHINE_COMPILING
-#include "uARM/uarm/uARMtypes.h"
-#endif
-
+#include "system_const.h"
 #include "listx.h"
 
 
 typedef unsigned int memaddr;
 
 // Custom exception handling for PCB (defined with specpassup syscall)
-typedef struct handler {
-    // Syscall (No > 8) custom handler and old area 
-    state_t* syscall_bp_new;
-    state_t* syscall_bp_old;
-    
-    // TLB custom handler and old area
-    state_t* tlb_new;
-    state_t* tlb_old;
-    
-    // Trap custom handler and old area
-    state_t* trap_new;
-    state_t* trap_old;
-
+typedef struct handler_t {
+    // Matrix of custom handlers
+    state_t* handler_matrix [CSTM_HNDLRS] [HANDLER_AREAS];
     // Boolean vector for keep record of wich custom handler has been activated
-    unsigned int has_custom_handler[3];
-} handler;
+    unsigned int has_custom[3];
+} handler_t;
 
 
 
@@ -67,7 +50,7 @@ typedef struct pcb_t {
     int *p_semkey;
 
     // Set of possible custom exception handler for the process
-    handler custom_hndlr;
+    handler_t custom_handler;
  
 } pcb_t;
 

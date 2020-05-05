@@ -239,6 +239,7 @@
 #endif
 
 /* ========================= MACROS FOR SYSCALLS =============================== */
+// Syscall's number and name
 #define GETCPUTIME       1
 #define CREATEPROCESS    2
 #define TERMINATEPROCESS 3
@@ -247,12 +248,18 @@
 #define WAITIO           6
 #define SPECPASSUP       7
 #define GETPID           8
-
+// Status code after syscall execution
 #define FAILURE -1
 #define SUCCESS 0
 
 /* ============= MACROS FOR CUSTOM TLB, TRAP & SYSCALL HANDLER ============== */
-// Boolean vector for custom handler presence
+// Code for specific exception access
 #define SYS_BP_COSTUM      0
-#define TLB_CUSTOM      1
-#define TRAP_CUSTOM     2
+#define TLB_CUSTOM         1
+#define TRAP_CUSTOM        2
+// Vector dimension in handler_t struct
+#define CSTM_HNDLRS        3
+#define HANDLER_AREAS      2
+// Vector dimension in handler_t stuct
+#define CSTM_OLD_AREA      0
+#define CSTM_NEW_AREA      1
