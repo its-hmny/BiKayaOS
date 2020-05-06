@@ -88,8 +88,8 @@ void scheduler_add(pcb_t *p) {
 */
 void scheduler(void) {
     // If there isn't process in ready_queue nor ASL then there's no process at all (shuts off)
-    //if (emptyProcQ(&ready_queue) && emptyASL() && currentProcess == NULL)
-        //HALT();
+    if (emptyProcQ(&ready_queue) && emptyASL() && currentProcess == NULL)
+        HALT();
 
     // If no process is ready then idle the process till one is (idle has all interrupt enabled)
      if (emptyProcQ(&ready_queue) && currentProcess == NULL)

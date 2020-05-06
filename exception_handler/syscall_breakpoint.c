@@ -252,8 +252,8 @@ HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
 */
 HIDDEN void get_PID_PPID(void** pid, void** ppid){
     pcb_t *current = getCurrentProc();
-    *pid = pid ? current : NULL;
-    *ppid = ppid ? current->p_parent : NULL;
+    pid ? (*pid = current) : NULL;
+    ppid ? (*ppid = current->p_parent) : NULL;
 }
 
 

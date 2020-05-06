@@ -55,14 +55,12 @@ HIDDEN void terminal_handler(unsigned int line) {
          if (TRANSM_STATUS(tmp_term) == TERM_SUCCESS) {
             pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line)][subdev]);
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = tmp_term->transm_status;
-            
             tmp_term->transm_command = CMD_ACK;
          }
 
          else if (RECV_STATUS(tmp_term) == TERM_SUCCESS) {
             pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line) + 1][subdev]);
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = tmp_term->recv_status;
-            
             tmp_term->recv_command = CMD_ACK;
          }
       }
