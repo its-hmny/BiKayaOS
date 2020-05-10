@@ -15,7 +15,7 @@ HIDDEN LIST_HEAD(semdActive_list); // Active semaphore list
     semd: the semaphore that as to be removed if empty
     return: void
 */
-HIDDEN void rmvEmptySemd(struct semd_t* semd){
+HIDDEN void rmvEmptySemd(struct semd_t* semd) {
     if (list_empty(&semd->s_procQ)) { 
         list_del(&semd->s_next); 
         list_add_tail(&semd->s_next, &semdFree_list);
@@ -68,7 +68,7 @@ void initASL(void) {
     return: 1 on success, 0 on fail
 */
 int insertBlocked(int *key, pcb_t* p) {
-     semd_t *tmp = getSemd(key); //Find the semd through his own key
+    semd_t *tmp = getSemd(key); //Find the semd through his own key
     
     if (tmp == NULL) {
         if (! list_empty(&semdFree_list)) {

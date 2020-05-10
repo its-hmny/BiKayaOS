@@ -19,8 +19,6 @@
  *      Modified by Miro Mannino on May 8, 2010
  *      Modified by Mattia Maldini, Renzo Davoli 2020
  */
-
-
 #ifdef TARGET_UMPS
 
 /* Values for CP0 Cause.ExcCode */
@@ -60,21 +58,6 @@
 #ifdef TARGET_UARM
 #include "uarm/uARMconst.h"
 #endif
-
-
-/* nucleus (phase2)-handled SYSCALL values */
-#define GETCPUTIME       1
-#define CREATEPROCESS    2
-#define TERMINATEPROCESS 3
-#define VERHOGEN         4
-#define PASSEREN         5
-#define WAITIO           6
-#define SPECPASSUP       7
-#define GETPID           8
-
-#define DEFAULT_PRIORITY 1
-#define TRUE             1
-#define FALSE            0
 
 #ifdef TARGET_UMPS
 #include "umps/libumps.h"
@@ -137,7 +120,7 @@ typedef unsigned int pid_t;
 #define TERMCHARMASK 0xFF00
 
 #define MINLOOPTIME 1000
-#define LOOPNUM     1000
+#define LOOPNUM     10000
 
 #define BADADDR 0xFFFFFFFF /* could be 0x00000000 as well */
 
@@ -377,12 +360,9 @@ void p2() {
     now1 = getTODLO();                                                       /* time of day   */
     SYSCALL(GETCPUTIME, (int)&user_t1, (int)&kernel_t1, (int)&wallclock_t1); /* CPU time used */
 
-    int localsem = 0;
     /* delay for some time */
-    for (i = 1; i < LOOPNUM; i++) {
-        SYSCALL(VERHOGEN, (int)&localsem, 0, 0);
-        SYSCALL(PASSEREN, (int)&localsem, 0, 0);
-    }
+    for (i = 1; i < LOOPNUM; i++)
+        ;
 
     SYSCALL(GETCPUTIME, (int)&user_t2, (int)&kernel_t2, (int)&wallclock_t2); /* CPU time used */
     now2 = getTODLO();                                                       /* time of day  */
@@ -405,7 +385,7 @@ void p2() {
     p1p2synch = 1; /* p1 will check this */
 
     SYSCALL(VERHOGEN, (int)&endp2, 0, 0); /* V(endp2)     */
-    //print("Print shit\n");
+    //print("HELO\n");
     SYSCALL(TERMINATEPROCESS, 0, 0, 0); /* terminate p2 */
 
     /* just did a SYS2, so should not get to this point */

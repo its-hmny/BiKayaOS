@@ -93,6 +93,7 @@ void terminate_process(void* pid) {
     outChild(proc);
     // Removes it from the semd or ready_queue one of them must be true, else error
     sys_status |= (proc == outBlocked(proc));
+    sys_status ? verhogen(proc->p_semkey) : NULL;
     sys_status |= (proc == outProcQ(getReadyQ(), proc));
 
     struct list_head *tmp = NULL;
@@ -137,8 +138,8 @@ pcb_t* verhogen(int *semaddr) {
             return(unblocked_proc);
         }
 
-        else // Sem results not empty but in fact is 
-            PANIC();
+        // Sem results not empty but in fact is
+        else PANIC();
     }
 
     else return(NULL);
@@ -166,7 +167,7 @@ HIDDEN void passeren(int *semaddr) {
         update_time(KER_MD_TIME, TOD_LO);
 
         // Insert the PCB in the semaphor blocked queue
-        insertBlocked(semaddr, tmp);
+        (insertBlocked(semaddr, tmp)) ? PANIC() : NULL;
 
         // Set the scheduler properly
         setCurrentProc(NULL);
