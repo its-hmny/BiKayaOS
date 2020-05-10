@@ -17,7 +17,7 @@ HIDDEN LIST_HEAD(pcbFree);
     return: void
 */
 void initPcbs(void) {
-    for (unsigned int i = 0; i < MAXPROC; i++)
+    for (u_int i = 0; i < MAXPROC; i++)
         list_add_tail(&(pcbTable[i].p_next), &pcbFree);
 }
 

@@ -6,6 +6,7 @@
 
 
 typedef unsigned int memaddr;
+typedef unsigned int u_int;
 
 // Custom exception handling for PCB (defined with specpassup syscall)
 typedef struct handler_t {

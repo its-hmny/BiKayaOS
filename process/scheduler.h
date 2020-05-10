@@ -10,7 +10,7 @@ pcb_t* getCurrentProc(void);
 void setCurrentProc(pcb_t *proc);
 struct list_head* getReadyQ(void);
 void setIntervalTimer(void);
-void setTimerTo(unsigned int time);
-unsigned int getIntervalTimer(void);
+void setTimerTo(u_int time);
+u_int getIntervalTimer(void);
 
 #endif

@@ -39,6 +39,10 @@
 #define CR 0x0a   // Carriage return as returned by the terminal
 #define TOD_LO     *((unsigned int *)BUS_REG_TOD_LO)
 
+#define DEV_REGISTER_SIZE 4
+#define REGISTER_PER_DEV 4
+#define DEV_PER_IL 8
+
 #define TIME 3000
 #define TIME_SLICE (TIME * TIME_SCALE)
 #define USR_MD_TIME 0

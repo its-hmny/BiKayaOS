@@ -13,7 +13,7 @@
     memaddr: the starting memory address
     size: the size in bytes of the area that has to be wiped
 */
-void wipe_Memory(void *memaddr, unsigned int size) {
+void wipe_Memory(void *memaddr, u_int size) {
     unsigned char* tmp_p = memaddr;
     
     while(size--)
@@ -88,8 +88,8 @@ void setStackP(state_t *process, memaddr memLocation) {
 
 
 // Returns the exception code from the cause registrer in the old area
-unsigned int getExCode(state_t *oldArea) {
-    unsigned int causeReg = CAUSE_REG(oldArea);
+u_int getExCode(state_t *oldArea) {
+    u_int causeReg = CAUSE_REG(oldArea);
     return(CAUSE_GET_EXCCODE(causeReg));
 }
 
@@ -104,7 +104,7 @@ unsigned int getExCode(state_t *oldArea) {
           (also used to prevent random memory writing)
     return: void
 */
-void cloneState(state_t *process_state, state_t *old_area, unsigned int size) {
+void cloneState(state_t *process_state, state_t *old_area, u_int size) {
     char *copy = (char *) process_state, *to_be_copied = (char *) old_area;
     while(size--) {
         *copy = *to_be_copied;
@@ -134,17 +134,23 @@ void init_time(time_t *process_time) {
 
 
 /*
-    
+   This function is used to keep track of execution time in a given process, 
+   from the option argument it chooses wich time_t field update, calculating
+   the clock difference between the last_update_time and the current_clock arg.
+
+   option: the field to update, 1 for kernel_mode_time 0 for user_mode_time
+   curent_clock: the clock at wich the call was made
+   return: void 
 */
-void update_time(unsigned int option, unsigned int current_clock) {
+void update_time(u_int option, u_int current_clock) {
     // Retrieve the current process, and check his validity 
     pcb_t *tmp = getCurrentProc();
     if (tmp == NULL)
         return;
     
     // Retrieve the needed fields in the time_t structure (the counter to update and the last time the struct was updated)
-    unsigned int *counterToUpdate = option ? &tmp->p_time.kernelmode_time : &tmp->p_time.usermode_time;
-    unsigned int *last_update_clock = &tmp->p_time.last_update_time;
+    u_int *counterToUpdate = option ? &tmp->p_time.kernelmode_time : &tmp->p_time.usermode_time;
+    u_int *last_update_clock = &tmp->p_time.last_update_time;
     
     // Get the elapsed clock aand add it t the selcted counter
     *counterToUpdate += current_clock - *last_update_clock;
@@ -154,14 +160,20 @@ void update_time(unsigned int option, unsigned int current_clock) {
 
 
 /*
+    This function checks for the presence of a custom handler for trap, tlb, breakpoint 
+    and syscall no. > 8. If the presence is acknowledged then it proceed to the handler's loading.
+    Else if a custom handler isn't set then the caller process is killed.
 
+    exc_code: the custom exception code, 0 for SYS/BP, 1 for TLB, 2 for TRAP
+    old_area: the old_area to save before loading the handler
+    return: void
 */
-void loadCustomHandler(unsigned int exc_code, state_t* old_area) {
+void loadCustomHandler(u_int exc_code, state_t* old_area) {
     // Retrieve and check the caler_proc
     pcb_t *caller_proc  = getCurrentProc();
     (caller_proc) ? 0 : PANIC();
 
-    unsigned int has_handler = caller_proc->custom_handler.has_custom[exc_code];
+    u_int has_handler = caller_proc->custom_handler.has_custom[exc_code];
     
     // In case a process doesn't have a custom handler, it's killed
     if (! has_handler) 

@@ -53,7 +53,7 @@ unsigned int emptyASL() {
 */
 void initASL(void) {
 
-    for(unsigned int i = 0; i < MAXPROC ; i++) {
+    for(u_int i = 0; i < MAXPROC ; i++) {
         INIT_LIST_HEAD(&semdTmp_arr[i].s_procQ); //Initialize s_procQ to empty list
         list_add_tail(&semdTmp_arr[i].s_next, &semdFree_list);
     } 
@@ -112,6 +112,8 @@ pcb_t* removeBlocked(int *key) {
 
     //Checks that the semd s_procQ hasn't become empty and eventually deallocates it
     rmvEmptySemd(semd);
+
+    proc->p_semkey = NULL;    
 
     return(proc);   
 }

@@ -22,7 +22,7 @@ HIDDEN state_t *old_area = NULL;
     wallclock: the time of the first activation (in clock)
     return: void
 */
-HIDDEN void getCPU_time(unsigned int *user, unsigned int *kernel, unsigned int *wallclock) {
+HIDDEN void getCPU_time(u_int *user, u_int *kernel, u_int *wallclock) {
     // Update all the data before returning
     update_time(KER_MD_TIME, TOD_LO);
     // Get the time_t struct
@@ -83,7 +83,7 @@ HIDDEN void create_process(state_t* statep, int priority, void** cpid) {
 */
 void terminate_process(void* pid) {
     pcb_t* proc = pid ? pid : getCurrentProc(); 
-    unsigned int sys_status = 0;
+    u_int sys_status = 0;
     
     // The function has no process to kill
     if (proc == NULL)
@@ -124,6 +124,7 @@ void terminate_process(void* pid) {
     if other processes are waiting on the same semaphore then before leaving it
     awakes the first in the sem's queue. If a semaphore results with processes 
     blocked on him but removeBlocked returns NULL then kernel panic is issued
+    NOTE: the scheduler is RR but must be called manually!
 
     semaddr: the memory location/ value of the semaphore that has to be released
     return: the unblocked process (for internal use only)
@@ -160,7 +161,7 @@ HIDDEN void passeren(int *semaddr) {
     if (*semaddr < 0) {
         // Get the current process PCB (with checks)
         pcb_t *tmp = getCurrentProc();
-        (tmp == NULL) ? PANIC() : 0;
+        (tmp == NULL) ? PANIC() : NULL;
 
         // Saves the updated state adn time stats
         cloneState(&tmp->p_s, old_area, sizeof(state_t));
@@ -177,33 +178,34 @@ HIDDEN void passeren(int *semaddr) {
 
 
 /*
+    This syscall retrieves the correct device structure from the dev_register memory location,
+    after it has determinated device_class and subdevice then the command argument is issued in 
+    the correct register in case the caller wants to issue a command to a terminal then must
+    provide a subdevice argument. After the command is issued the caller process is blocked on
+    a specific device semaphore, waiting to be waken up after the operation is completed.
 
+    command: the command to be issued
+    dev_register: the register in wich the command must be issued
+    subdevice: arg for termina subdevice discrimination, 1 for recv, 0 for transm
+    return: void 
 */
-#define DEV_REGISTER_SIZE 4
-#define REGISTER_PER_DEV 4
-#define DEV_PER_IL 8
-
-HIDDEN void wait_IO(unsigned int command, unsigned int *dev_register, int subdevice) {
+HIDDEN void wait_IO(u_int command, memaddr *dev_register, int subdevice) {
     // Retrieve the first address of the multiple_line_device
     memaddr dev_start = (memaddr)DEV_REG_ADDR(IL_DISK, 0);
     memaddr current_memaddr = (memaddr)dev_register;
 
     // Checks arguments and calculate the offset in words
     (current_memaddr > dev_start) ? 0 : PANIC();
-    unsigned int offset = current_memaddr - dev_start;
+    u_int offset = current_memaddr - dev_start;
 
     // From the word offset then is easy to obtain device class and subdevice
-    unsigned int device_class = offset / (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_IL);
-    unsigned int device_no = offset % (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_IL);
+    u_int device_class = offset / (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_IL);
+    u_int device_no = offset % (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_IL);
 
     // Issue the command after it has determined the right register
     devreg_t *device_p = dev_register;
-    (device_class < EXT_IL_INDEX(IL_TERMINAL)) ? device_p->dtp.command = command : NULL;
-    (subdevice) ? (device_p->term.recv_command = command) : (device_p->term.transm_command = command);
-    
-    //*dev_register = command;
-    // termreg_t *tmp = dev_register;
-    // tmp->transm_command = command; 
+    (device_class < EXT_IL_INDEX(IL_TERMINAL)) ? device_p->dtp.command = command :
+        (subdevice) ? (device_p->term.recv_command = command) : (device_p->term.transm_command = command);
 
     // Block the process onto the queue
     int *matrix_cell = &IO_blocked[device_class + subdevice][device_no];
@@ -269,10 +271,10 @@ HIDDEN void get_PID_PPID(void** pid, void** ppid){
     sysNumber: the syscall number retrieved from the Old Area
     return: void
 */
-void syscallDispatcher(unsigned int sysNumber) {
+void syscallDispatcher(u_int sysNumber) {
     switch (sysNumber) {
         case GETCPUTIME:
-            getCPU_time((unsigned int*)SYS_ARG_1(old_area), (unsigned int*)SYS_ARG_2(old_area), (unsigned int*)SYS_ARG_3(old_area));
+            getCPU_time((u_int*)SYS_ARG_1(old_area), (u_int*)SYS_ARG_2(old_area), (u_int*)SYS_ARG_3(old_area));
             break;
 
         case CREATEPROCESS:
@@ -292,7 +294,7 @@ void syscallDispatcher(unsigned int sysNumber) {
             break;
 
         case WAITIO:
-            wait_IO((unsigned int)SYS_ARG_1(old_area), (unsigned int*)SYS_ARG_2(old_area), (int)SYS_ARG_3(old_area));
+            wait_IO((u_int)SYS_ARG_1(old_area), (u_int*)SYS_ARG_2(old_area), (int)SYS_ARG_3(old_area));
             break;
 
         case SPECPASSUP:
@@ -320,7 +322,7 @@ void syscall_breakpoint_handler(void) {
     update_time(USR_MD_TIME, TOD_LO);
     // Retrieve the old area, where the previous state is saved and extrapolate the exception code
     old_area = (state_t*) OLD_AREA_SYSCALL;
-    unsigned int exCode = getExCode(old_area);
+    u_int exCode = getExCode(old_area);
 
     // Sets the PC to the next instruction in uMPS
     #ifdef TARGET_UMPS
@@ -329,7 +331,7 @@ void syscall_breakpoint_handler(void) {
 
     // Checsks if the code is for a syscall and not a breakpoint
     if (exCode == SYSCALL_CODE) {  
-        unsigned int numberOfSyscall = SYSCALL_NO(old_area);
+        u_int numberOfSyscall = SYSCALL_NO(old_area);
         syscallDispatcher(numberOfSyscall);
     }
 

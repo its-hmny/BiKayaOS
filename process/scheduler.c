@@ -158,7 +158,7 @@ void setIntervalTimer(void) {
     time: the new interval that is desired to be set
     return: void
 */
-void setTimerTo(unsigned int time) {
+void setTimerTo(u_int time) {
     // Timer setter on uMPS
     #ifdef TARGET_UMPS
     memaddr *intervalTimer = (memaddr*) INTERVAL_TIMER;
@@ -177,7 +177,7 @@ void setTimerTo(unsigned int time) {
 
     return: the current timer value
 */
-unsigned int getIntervalTimer(void) {
+u_int getIntervalTimer(void) {
     // Get the current elapsed time since the last timer ssetting uMPS
     #ifdef TARGET_UMPS
     memaddr *intervalTimer = (memaddr*) INTERVAL_TIMER;

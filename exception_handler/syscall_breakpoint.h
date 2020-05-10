@@ -6,6 +6,6 @@
 void terminate_process(void* pid);
 pcb_t* verhogen(int *semaddr);
 void syscall_breakpoint_handler(void);
-void syscallDispatcher(unsigned int sysNumber);
+void syscallDispatcher(u_int sysNumber);
 
 #endif

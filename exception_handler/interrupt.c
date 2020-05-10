@@ -24,7 +24,7 @@ HIDDEN void intervalTimer_hadler(unsigned int line) {
 }
 
 //Handler for Disks, Tapes, Networks and Printers devices 
-HIDDEN void general_handler(unsigned int line) {
+HIDDEN void generic_device_handler(unsigned int line) {
    // Get the interrupt pending in terminal device
    unsigned int pending = *((memaddr*) CDEV_BITMAP_ADDR(line));
    
@@ -93,15 +93,15 @@ HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
 }
 
 
+// Vector of subhandler, there's one handler for each interrupt line
+void (*subhandler[])(unsigned int) = { tmp, tmp, intervalTimer_hadler, generic_device_handler, generic_device_handler, generic_device_handler, generic_device_handler, terminal_handler };
+
+
 /*
    The interrupt handler manages all the 8 line (each for one device class)
    It retrieves the cause of the interrupt from the old area and executes the subhandler
    on the line that presents an interrupt pending
 */
-
-// Vector of subhandler, there's one handler for each interrupt line
-void (*subhandler[])(unsigned int) = { tmp, tmp, intervalTimer_hadler, general_handler, general_handler, general_handler, general_handler, terminal_handler };
-
 void interrupt_handler(void) {
    oldArea = (state_t*) OLD_AREA_INTERRUPT;
    
