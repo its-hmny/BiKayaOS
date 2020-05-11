@@ -86,8 +86,10 @@ void terminate_process(void* pid) {
     u_int sys_status = 0;
     
     // The function has no process to kill
-    if (proc == NULL)
+    if (proc == NULL) {
         SYS_RETURN_VAL(old_area) = FAILURE;
+        return;
+    }
 
     // Removes the root from father's child list
     outChild(proc);
