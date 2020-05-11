@@ -236,7 +236,7 @@ pcb_t *outChild(pcb_t *p) {
     list_for_each(tmp, siblingsList) {
         pcb_t *block = container_of(tmp, pcb_t, p_sib);
         
-        if (p == block) { //If there's a match returns the found/given pcb
+        if (p == block) { // If there's a match returns the found/given pcb
             list_del(tmp);
             return (block);
         }

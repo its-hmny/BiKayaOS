@@ -93,8 +93,10 @@ void terminate_process(void* pid) {
 
     // Removes the root from father's child list
     outChild(proc);
+
     // Removes it from the semd or ready_queue one of them must be true, else error
     sys_status |= (proc == outBlocked(proc));
+    // If proc in blocked onto a semd makes a V to balance the semaphore
     sys_status ? verhogen(proc->p_semkey) : NULL;
     sys_status |= (proc == outProcQ(getReadyQ(), proc));
 
@@ -142,7 +144,7 @@ pcb_t* verhogen(int *semaddr) {
         }
 
         // Sem results not empty but in fact is
-        else PANIC();
+        //else PANIC();
     }
 
     else return(NULL);
