@@ -188,3 +188,31 @@ void loadCustomHandler(u_int exc_code, state_t* old_area) {
         LDST(custom_new_area);
     }
 }
+
+
+/*
+    Comment
+*/
+void populate_PCB_tree(pcb_t *dinasty_vec[], u_int lenght) {
+    u_int first_free_space = 1;
+    
+    // For some reason the compiler doesn't set automatically to NULL all the cell
+    for (int i = first_free_space; i < lenght; i++)
+        dinasty_vec[i] = NULL;
+
+    for (u_int i = 0; (i < lenght) && (first_free_space < lenght); i++) {
+        struct list_head *tmp = NULL;
+        pcb_t *current = dinasty_vec[i];
+        
+        // No more PCB to evaluate
+        if (current == NULL)
+           return ;
+
+        // Insert the current process child as well in the vector
+        list_for_each(tmp, &current->p_child) {
+            dinasty_vec[first_free_space] = container_of(tmp, pcb_t, p_sib);
+            first_free_space++;
+        }
+        
+    }
+}

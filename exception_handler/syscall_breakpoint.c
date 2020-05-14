@@ -82,46 +82,41 @@ HIDDEN void create_process(state_t* statep, int priority, void** cpid) {
     return: 0 on success, -1 on failure
 */
 void terminate_process(void* pid) {
-    pcb_t* proc = pid ? pid : getCurrentProc(); 
-    u_int sys_status = 0;
+    pcb_t *dynasty_vector[MAXPROC];
+    dynasty_vector[0] = pid ? pid : getCurrentProc(); 
     
     // The function has no process to kill
-    if (proc == NULL) {
+    if (dynasty_vector[0] == NULL) {
         SYS_RETURN_VAL(old_area) = FAILURE;
         return;
     }
+    
+    // Get all the descendants in a vector
+    populate_PCB_tree(dynasty_vector, MAXPROC);
+    u_int j = 0;
+    for (u_int i = 0; dynasty_vector[i] != NULL; i++) { j++; }
+    j > 8 ? HALT() : NULL;
 
-    // Removes the root from father's child list
-    outChild(proc);
-
-    // Removes it from the semd or ready_queue one of them must be true, else error
-    sys_status |= (proc == outBlocked(proc));
-    // If proc in blocked onto a semd makes a V to balance the semaphore
-    sys_status ? verhogen(proc->p_semkey) : NULL;
-    sys_status |= (proc == outProcQ(getReadyQ(), proc));
-
-    struct list_head *tmp = NULL;
-
-    list_for_each(tmp, &proc->p_child) {
-        // Recursive call on the childs
-        terminate_process(container_of(tmp, pcb_t, p_sib));
-        // Check the return code of the recursive call
-        if (SYS_RETURN_VAL(old_area) == FAILURE)
-            return;
+    for (u_int i = 0; i < MAXPROC && dynasty_vector[i] != NULL; i++) {
+        pcb_t *proc = dynasty_vector[i];
+        // Removes the root from father's child list
+        outChild(proc);
+        // Removes it from the sem queue if present, and eventually calls V on the semaphore
+        (proc == outBlocked(proc)) ? verhogen(proc->p_semkey) : NULL;
+        // Removes it from the ready queue if present 
+        outProcQ(getReadyQ(), proc);
+        // Dealloc the PCB 
+        freePcb(proc);
     }
+    
+    SYS_RETURN_VAL(old_area) = SUCCESS;
 
-    freePcb(proc);
-
-    SYS_RETURN_VAL(old_area) = sys_status ? SUCCESS : FAILURE;
-
-    // If I killed the current process
+    // If I killed the current process, fix the dangling reference and chose another process
     if (pid == NULL) {
-        // Fix the dangling reference in the scheduler and chose another process
         setCurrentProc(NULL);
         scheduler();
     }
 }
-
 
 /*
     This syscall releases the semaphore wich is identified with the semaddr arg.
@@ -142,12 +137,9 @@ pcb_t* verhogen(int *semaddr) {
             scheduler_add(unblocked_proc);
             return(unblocked_proc);
         }
-
-        // Sem results not empty but in fact is
-        //else PANIC();
     }
 
-    else return(NULL);
+    return(NULL);
 }
 
 
@@ -232,10 +224,10 @@ HIDDEN void wait_IO(u_int command, memaddr *dev_register, int subdevice) {
 HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
     pcb_t *caller = getCurrentProc();
     // Retrieve the caller process handler structure
-    handler_t *p_hndlr = caller ? &caller->custom_handler : (SYS_RETURN_VAL(old_area) = SUCCESS);
+    handler_t *p_hndlr = caller ? &caller->custom_handler : (SYS_RETURN_VAL(old_area) = FAILURE);
 
     // Arguments control
-    (type < CSTM_HNDLRS && old && new) ? NULL : (SYS_RETURN_VAL(old_area) = SUCCESS);
+    (type < CSTM_HNDLRS && old && new) ? NULL : (SYS_RETURN_VAL(old_area) = FAILURE);
     
     // The custom handler could be only setted once for each exception
     if (! p_hndlr->has_custom[type]) {
@@ -245,7 +237,7 @@ HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
     }
 
     // If a process try to "reset" a custom handler is killed
-    else terminate_process(caller);
+    else terminate_process(NULL);
 }
 
 
