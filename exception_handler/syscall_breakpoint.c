@@ -93,9 +93,6 @@ void terminate_process(void* pid) {
     
     // Get all the descendants in a vector
     populate_PCB_tree(dynasty_vector, MAXPROC);
-    u_int j = 0;
-    for (u_int i = 0; dynasty_vector[i] != NULL; i++) { j++; }
-    j > 8 ? HALT() : NULL;
 
     for (u_int i = 0; i < MAXPROC && dynasty_vector[i] != NULL; i++) {
         pcb_t *proc = dynasty_vector[i];
