@@ -8,6 +8,7 @@ set(EXC ${PROJECT_SOURCE_DIR}/exception_handler/)
 set(GNR ${PROJECT_SOURCE_DIR}/generics/)
 set(INC ${PROJECT_SOURCE_DIR}/include/)
 set(PRC ${PROJECT_SOURCE_DIR}/process/)
+set(DEV ${PROJECT_SOURCE_DIR}/device/)
 
 
 # Set C standard and compilation flags

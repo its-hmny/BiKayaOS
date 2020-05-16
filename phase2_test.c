@@ -686,14 +686,18 @@ void p7leaf() {
 
 // BiKayaOS entry point
 int main(void) {
-    //print("Welcome to phase 1.5 of BiKayaOS \n");
+    print_debug_terminal("Welcome to phase 2 of BiKayaOS\n\0");
+    print_debug_terminal("Created by Enea Guidi, Luca Genova, Marco Benito Tomasone, Simone Boldrini\n\0");
     
     // Kernel setup
     initNewArea((memaddr)interrupt_handler, (memaddr)NEW_AREA_INTERRUPT);
     initNewArea((memaddr)tlb_handler, (memaddr)NEW_AREA_TLB);
     initNewArea((memaddr)trap_handler, (memaddr)NEW_AREA_TRAP);
     initNewArea((memaddr)syscall_breakpoint_handler, (memaddr)NEW_AREA_SYSCALL);
+    print_debug_terminal("Populated new area with kernel exception handlers\n\0");
+    
     scheduler_init();
+    print_debug_terminal("Initialized ASL, PCB, ready_queue and scheduler\n\0");
 
     // Init process allocation and execution priiviledge setup
     pcb_t* initProcess = allocPcb();
@@ -708,7 +712,7 @@ int main(void) {
     
     initProcess->priority = 1;
     scheduler_add(initProcess);
-    //print("Init option have been set correctly\n");
+    print_debug_terminal("Allocated init process and added to the scheduler , ready to execute\n\0");
 
     scheduler();
 

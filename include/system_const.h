@@ -11,6 +11,8 @@
 #include "uARM/uarm/uARMconst.h"
 #endif
 
+#include "../device/term_utils.h"
+
 /**************************************************************************** 
  *
  * This header file contains the global constant & macro definitions
@@ -30,6 +32,9 @@
 #define EOS   '\0'
 
 #define DEFAULT_PRIORITY 1
+
+#define DEBUG_TERMINAL 1
+#define print_debug_terminal(str) term_puts(str)
 
 #define DEV_PER_INT 8 // Maximum number of devices per interrupt line
 #define MAX_LINE 8

@@ -3,7 +3,7 @@
 
 
 // Assignation of the terminal file with the built-in macro
-static termreg_t *term0_reg = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, 0);
+static termreg_t *term0_reg = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, DEBUG_TERMINAL);
 
 
 // This function return the status of the terminal pointer given in input
