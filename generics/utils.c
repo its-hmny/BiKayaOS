@@ -216,3 +216,20 @@ void populate_PCB_tree(pcb_t *dinasty_vec[], u_int lenght) {
         
     }
 }
+/*
+#include "../process/asl.h"
+
+void tmp_x(int* semd_addr) {
+    extern int blkleaves;
+    if (&blkleaves == semd_addr && getSemd(semd_addr)) { 
+        //list_empty(&getSemd(semd_addr)->s_procQ) ?  print_debug_terminal("Empty\n\0") : print_debug_terminal("not empty\n\0"); 
+
+        struct list_head*tmp = NULL;
+        list_for_each(tmp, &(getSemd(semd_addr)->s_procQ)) {
+            print_debug_terminal("X\0");
+        }
+        print_debug_terminal("\n\0");
+    }
+
+}
+*/

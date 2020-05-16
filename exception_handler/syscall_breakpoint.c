@@ -99,13 +99,14 @@ void terminate_process(void* pid) {
         // Removes the root from father's child list
         outChild(proc);
         // Removes it from the sem queue if present, and eventually calls V on the semaphore
-        (proc == outBlocked(proc)) ? verhogen(proc->p_semkey) : NULL;
+        proc->p_semkey ? verhogen(proc->p_semkey) : NULL;
+        outBlocked(proc);
         // Removes it from the ready queue if present 
         outProcQ(getReadyQ(), proc);
         // Dealloc the PCB 
         freePcb(proc);
     }
-    
+
     SYS_RETURN_VAL(old_area) = SUCCESS;
 
     // If I killed the current process, fix the dangling reference and chose another process
@@ -127,7 +128,7 @@ void terminate_process(void* pid) {
 */
 pcb_t* verhogen(int *semaddr) {
     *semaddr += 1;
-    if (*semaddr <= 0) {
+    if (*semaddr >= 0) {
         pcb_t *unblocked_proc = removeBlocked(semaddr);
         
         if (unblocked_proc) {

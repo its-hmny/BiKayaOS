@@ -120,7 +120,7 @@ void insertProcQ(struct list_head *head, pcb_t *p) {
 }
 
 /*
-    This function returns the first element of the pcbActive_queue, so the first PCB 
+    This function returns the first element of the pcb_active_queue, so the first PCB 
     in the priority queue (after checking for errors). Note that it doesn't remove the PCB
     from the queue (for that see removeProcQ() below).
 
