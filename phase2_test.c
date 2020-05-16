@@ -668,10 +668,10 @@ void p7leaf() {
     PANIC();
 }
 
-#include "exception_handler/interrupt.h"
-#include "exception_handler/syscall_breakpoint.h"
-#include "exception_handler/trap.h"
-#include "exception_handler/tlb.h"
+#include "exception_hndlr/interrupt.h"
+#include "exception_hndlr/syscall_bp.h"
+#include "exception_hndlr/trap.h"
+#include "exception_hndlr/tlb.h"
 #include "include/system_const.h"
 #include "process/scheduler.h"
 #include "process/pcb.h"

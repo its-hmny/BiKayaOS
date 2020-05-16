@@ -1,14 +1,14 @@
 #include "../include/system_const.h"
-#include "../generics/utils.h"
 #include "../process/scheduler.h"
+#include "../generics/utils.h"
 #include "../process/pcb.h"
-#include "syscall_breakpoint.h"
+#include "syscall_bp.h"
 #include "interrupt.h"
 
 
 
 // Old Area pointer, used to retrieve info about the exception
-state_t *oldArea = NULL;
+HIDDEN state_t *old_area = NULL;
 
 
 
@@ -79,13 +79,13 @@ HIDDEN void terminal_handler(unsigned int line) {
 */
 HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
    #ifdef TARGET_UMPS
-   unsigned int interruptLines = (((CAUSE_REG(oldArea)) & LINE_MASK) >> LINE_OFFSET);
+   unsigned int interruptLines = (((CAUSE_REG(old_area)) & LINE_MASK) >> LINE_OFFSET);
    for (unsigned int i = 0; i < MAX_LINE; i++)
       interruptVector[i] = interruptLines & (1 << i);
    #endif
 
    #ifdef TARGET_UARM
-   unsigned int causeReg = CAUSE_REG(oldArea);
+   unsigned int causeReg = CAUSE_REG(old_area);
    for (unsigned int i = 0; i < MAX_LINE; i++) {
       interruptVector[i] = CAUSE_IP_GET(causeReg, i);
    }
@@ -103,15 +103,15 @@ void (*subhandler[])(unsigned int) = { tmp, tmp, intervalTimer_hadler, generic_d
    on the line that presents an interrupt pending
 */
 void interrupt_handler(void) {
-   oldArea = (state_t*) OLD_AREA_INTERRUPT;
+   old_area = (state_t*) OLD_AREA_INTERRUPT;
    
    // In uARM an interrupt can block the current instructon so it has to be broght back the PC
    #ifdef TARGET_UARM
-   PC_REG(oldArea) -=  WORDSIZE;
+   PC_REG(old_area) -=  WORDSIZE;
    #endif
    
    // Check the exception code
-   if (getExCode(oldArea) != INTERRUPT_CODE)
+   if (getExCode(old_area) != INTERRUPT_CODE)
       PANIC();
    
    // Retrieve a vectorized version of the pending interrupt 
@@ -124,7 +124,7 @@ void interrupt_handler(void) {
 
    // Save the current old area state to the process that has executed
    pcb_t *currentProcess = getCurrentProc();
-   currentProcess ? cloneState(&currentProcess->p_s, oldArea, sizeof(state_t)) : 0;
+   currentProcess ? cloneState(&currentProcess->p_s, old_area, sizeof(state_t)) : 0;
    // The scheduler will chose a process and reset a timeslice, else it will loop
    scheduler();
 }

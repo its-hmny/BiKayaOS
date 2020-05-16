@@ -20,7 +20,7 @@ add_library(crtso ${UMPS_INC}/crtso.S)
 add_library(libumps ${UMPS_INC}/libumps.S)
 
 add_executable(
-	kernel ${SRC}/phase2_test.c ${EXC}/interrupt.c ${EXC}/syscall_breakpoint.c ${EXC}/trap.c ${EXC}/tlb.c
+	kernel ${SRC}/phase2_test.c ${EXC}/interrupt.c ${EXC}/syscall_bp.c ${EXC}/trap.c ${EXC}/tlb.c
 	${GNR}/utils.c ${PRC}/scheduler.c ${PRC}/pcb.c ${PRC}/asl.c ${DEV}/term_utils.c
 )
 

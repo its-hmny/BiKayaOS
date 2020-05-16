@@ -1,10 +1,10 @@
 #include "../include/system_const.h"
 #include "../include/types_bikaya.h"
-#include "../generics/utils.h"
 #include "../process/scheduler.h"
+#include "../generics/utils.h"
 #include "../process/asl.h"
 #include "../process/pcb.h"
-#include "syscall_breakpoint.h"
+#include "syscall_bp.h"
 
 
 // A pointer to the old area, used to retrieve info about the exception
@@ -197,8 +197,8 @@ HIDDEN void wait_IO(u_int command, memaddr *dev_register, int subdevice) {
     u_int offset = current_memaddr - dev_start;
 
     // From the word offset then is easy to obtain device class and subdevice
-    u_int device_class = offset / (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_IL);
-    u_int device_no = offset % (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_IL);
+    u_int device_class = offset / (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_INT);
+    u_int device_no = offset % (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_INT);
 
     // Issue the command after it has determined the right register
     devreg_t *device_p = dev_register;

@@ -11,7 +11,7 @@
 #include "uARM/uarm/uARMconst.h"
 #endif
 
-#include "../device/term_utils.h"
+#include "../devices/term_utils.h"
 
 /**************************************************************************** 
  *
@@ -20,33 +20,32 @@
  * 
  ****************************************************************************/
 
-/*  GENERIC GLOBAL CONSTANT  */
+/*              GENERIC & GLOBAL CONSTANT               */
 #define MAXPROC 20  // Max number of overall (eg, system, daemons, user) concurrent processes 
 #define UPROCMAX 3  // Number of usermode processes (not including master proc and system daemons
+#define DEFAULT_PRIORITY 1
 
 #define	HIDDEN static
 #define	TRUE 	1
 #define	FALSE	0
-#define ON 	    1
+#define ON      1
 #define OFF 	0
 #define EOS   '\0'
+#define CR     0x0a   // Carriage return as returned by the terminal
+#define TOD_LO     *((unsigned int *)BUS_REG_TOD_LO)
 
-#define DEFAULT_PRIORITY 1
-
+// Function to follow another flow of information on terminal 1
 #define DEBUG_TERMINAL 1
 #define print_debug_terminal(str) term_puts(str)
 
-#define DEV_PER_INT 8 // Maximum number of devices per interrupt line
+// Generic info about the devices 
 #define MAX_LINE 8
 #define UNIQUE_DEV_LINE 3
 #define MULTIPLE_DEV_LINE 5
 #define WORDSIZE 4
-#define CR 0x0a   // Carriage return as returned by the terminal
-#define TOD_LO     *((unsigned int *)BUS_REG_TOD_LO)
-
+#define DEV_PER_INT 8
 #define DEV_REGISTER_SIZE 4
 #define REGISTER_PER_DEV 4
-#define DEV_PER_IL 8
 
 #define TIME 3000
 #define TIME_SLICE (TIME * TIME_SCALE)
@@ -56,6 +55,7 @@
 #ifndef NULL
 #define NULL ((void *) 0)
 #define OFFSET_INT 8
+
 #endif
 
 /* ======== CONSTANTS FOR STATE_T OPTION/PARAMETERS ============= */
@@ -215,6 +215,16 @@
 
 #define INTER_DEVICES_BASE 0x10006FE0
 #endif
+
+#define DTP_STATUS MASK 
+#define DEV_STATUS_REG(dp) ((dp->status))
+#define TERM_STATUS_MASK 0xFF
+#define TRANSM_STATUS(tp) ((tp->transm_status) & TERM_STATUS_MASK)
+#define RECV_STATUS(tp) ((tp->recv_status) & TERM_STATUS_MASK)
+
+#define CMD_ACK 1
+#define TERM_SUCCESS 5
+#define DTP_RDY 1
 
 #define INTER_DEVICES(line) (INTER_DEVICES_BASE + (line - 3) * WS)
 

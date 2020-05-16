@@ -4,11 +4,11 @@ project(BiKayaOS LANGUAGES C ASM)
 # set variables for all directories
 set(SRC ${PROJECT_SOURCE_DIR})
 set(DVC ${PROJECT_SOURCE_DIR}/device/)
-set(EXC ${PROJECT_SOURCE_DIR}/exception_handler/)
+set(EXC ${PROJECT_SOURCE_DIR}/exception_hndlr/)
 set(GNR ${PROJECT_SOURCE_DIR}/generics/)
 set(INC ${PROJECT_SOURCE_DIR}/include/)
 set(PRC ${PROJECT_SOURCE_DIR}/process/)
-set(DEV ${PROJECT_SOURCE_DIR}/device/)
+set(DEV ${PROJECT_SOURCE_DIR}/devices/)
 
 
 # Set C standard and compilation flags
