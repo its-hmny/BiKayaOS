@@ -96,13 +96,16 @@ void terminate_process(void* pid) {
 
     for (u_int i = 0; i < MAXPROC && dynasty_vector[i] != NULL; i++) {
         pcb_t *proc = dynasty_vector[i];
+
         // Removes the root from father's child list
         outChild(proc);
+        
         // Removes it from the sem queue if present, and eventually calls V on the semaphore
-        proc->p_semkey ? verhogen(proc->p_semkey) : NULL;
         outBlocked(proc);
+        
         // Removes it from the ready queue if present 
         outProcQ(getReadyQ(), proc);
+        
         // Dealloc the PCB 
         freePcb(proc);
     }
@@ -127,8 +130,7 @@ void terminate_process(void* pid) {
     return: the unblocked process (for internal use only)
 */
 pcb_t* verhogen(int *semaddr) {
-    *semaddr += 1;
-    if (*semaddr >= 0) {
+    if (*semaddr <= 0) {
         pcb_t *unblocked_proc = removeBlocked(semaddr);
         
         if (unblocked_proc) {
@@ -137,6 +139,7 @@ pcb_t* verhogen(int *semaddr) {
         }
     }
 
+    *semaddr += 1;
     return(NULL);
 }
 
@@ -151,8 +154,7 @@ pcb_t* verhogen(int *semaddr) {
     return: void
 */
 HIDDEN void passeren(int *semaddr) {
-    *semaddr -= 1;
-    if (*semaddr < 0) {
+    if (*semaddr <= 0) {
         // Get the current process PCB (with checks)
         pcb_t *tmp = getCurrentProc();
         (tmp == NULL) ? PANIC() : NULL;
@@ -167,7 +169,9 @@ HIDDEN void passeren(int *semaddr) {
         // Set the scheduler properly
         setCurrentProc(NULL);
         scheduler();
-    }   
+    }
+
+    *semaddr -= 1;
 }
 
 

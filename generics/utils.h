@@ -18,6 +18,5 @@ void init_time(time_t *process_time);
 void update_time(u_int option, u_int current_time);
 void loadCustomHandler(u_int exc_code, state_t *old_area);
 void populate_PCB_tree(pcb_t *dinasty_vec[], u_int lenght);
-//void tmp_x(int* semd_addr);
 
 #endif
