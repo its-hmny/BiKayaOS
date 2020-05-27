@@ -14,17 +14,20 @@ HIDDEN state_t *old_area = NULL;
 
 /* ============= SUBHANDLER DEFINITION ============ */
 
-HIDDEN void tmp(unsigned int line) {
+HIDDEN void unsupported_dev_handler(unsigned int line) {
+   print_debug_terminal("This should not happen, interrupt on unsupported device!\n\0");
    PANIC();
 }
+
 
 HIDDEN void intervalTimer_hadler(unsigned int line) {
    // Send an Ack to the timer, sets him up to a timeslice
    setIntervalTimer();
 }
 
+
 //Handler for Disks, Tapes, Networks and Printers devices 
-HIDDEN void generic_device_handler(unsigned int line) {
+HIDDEN void generic_dev_handler(unsigned int line) {
    // Get the interrupt pending in terminal device
    unsigned int pending = *((memaddr*) CDEV_BITMAP_ADDR(line));
    
@@ -38,10 +41,10 @@ HIDDEN void generic_device_handler(unsigned int line) {
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = DEV_STATUS_REG(tmp_dev);
             tmp_dev->command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
          }
-
-         }
       }
    }
+}
+
 
 HIDDEN void terminal_handler(unsigned int line) {
    // Get the interrupt pending in terminal device
@@ -77,24 +80,33 @@ HIDDEN void terminal_handler(unsigned int line) {
    interruptVector: the vector to populate (must be at least 8 cell long)
    return: void
 */
+#ifdef TARGET_UMPS
 HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
-   #ifdef TARGET_UMPS
    unsigned int interruptLines = (((CAUSE_REG(old_area)) & LINE_MASK) >> LINE_OFFSET);
+
    for (unsigned int i = 0; i < MAX_LINE; i++)
       interruptVector[i] = interruptLines & (1 << i);
-   #endif
+}
+#endif
 
-   #ifdef TARGET_UARM
+#ifdef TARGET_UARM
+HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
    unsigned int causeReg = CAUSE_REG(old_area);
+
    for (unsigned int i = 0; i < MAX_LINE; i++) {
       interruptVector[i] = CAUSE_IP_GET(causeReg, i);
    }
-   #endif
 }
+#endif
 
 
 // Vector of subhandler, there's one handler for each interrupt line
-void (*subhandler[])(unsigned int) = { tmp, tmp, intervalTimer_hadler, generic_device_handler, generic_device_handler, generic_device_handler, generic_device_handler, terminal_handler };
+void (*subhandler[])(unsigned int) = { 
+   // First three device handlers (single device per line). PLT and interprocess comunication not supported yet!
+   unsupported_dev_handler, unsupported_dev_handler, intervalTimer_hadler,
+   // Multiple device per line handlers 
+   generic_dev_handler, generic_dev_handler, generic_dev_handler, generic_dev_handler, terminal_handler 
+};
 
 
 /*

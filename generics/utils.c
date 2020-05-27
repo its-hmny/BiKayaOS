@@ -188,37 +188,3 @@ void loadCustomHandler(u_int exc_code, state_t* old_area) {
         LDST(custom_new_area);
     }
 }
-
-
-/*
-    This functione given an array of pcb pointer with the first [0] initialized to the root process,
-    extrapoletes all the radicated tree in dynasty_vec[0], then returnes. The program wouldn't go in
-    buffer overflow but is strictly advised to use a MAXPROC vector lenght. 
-
-    dynasty_vec: the vector in wich save the dynasty of vec[0], that has to be previously initialized
-    length: a integer representing the lenght of the above vector
-    retunr: void
-*/
-void populate_PCB_tree(pcb_t *dynasty_vec[], u_int lenght) {
-    u_int first_free_space = 1;
-    
-    // For some reason the compiler doesn't set automatically to NULL all the cell
-    for (int i = first_free_space; i < lenght; i++)
-        dynasty_vec[i] = NULL;
-
-    for (u_int i = 0; (i < lenght) && (first_free_space < lenght); i++) {
-        struct list_head *tmp = NULL;
-        pcb_t *current = dynasty_vec[i];
-        
-        // No more PCB to evaluate
-        if (current == NULL)
-           return ;
-
-        // Insert the current process child as well in the vector
-        list_for_each(tmp, &current->p_child) {
-            dynasty_vec[first_free_space] = container_of(tmp, pcb_t, p_sib);
-            first_free_space++;
-        }
-        
-    }
-}

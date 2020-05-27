@@ -22,5 +22,6 @@ int emptyChild(pcb_t *this);
 void insertChild(pcb_t *prnt, pcb_t *p);
 pcb_t *removeChild(pcb_t *p);
 pcb_t *outChild(pcb_t *p);
+void populate_PCB_tree(pcb_t *dinasty_vec[], u_int lenght);
 
 #endif
