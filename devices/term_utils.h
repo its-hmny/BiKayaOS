@@ -1,6 +1,8 @@
 #ifndef __TERMUTILS_H__
 #define __TERMUTILS_H__
 
+#include "../include/types_bikaya.h"
+
 // LIST OF THE POSSIBLE ERROR CODE RETURNED FROM tp->*_status
 #define TERM_N_INSTALLED   0
 #define ST_READY           1
@@ -21,7 +23,7 @@
 #define TERM_STATUS_MASK   0xFF    // 0.0.0.11111111 => 255. Used to mask the first 12 bit (most significant one)
 #define DATA_MASK          0xFF00  // The mask to clean the data rcv'd => 0.0.11111111.0
 
-void term_puts(const char *str);
-void term_gets(char usr_input[], unsigned int STR_LENGHT);
+void term_puts(const char *str, unsigned int subdevice);
+void term_gets(char usr_input[], unsigned int STR_LENGHT, unsigned int subdevice);
 
 #endif

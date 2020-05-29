@@ -1,9 +1,7 @@
 #include "../include/system_const.h"
+#include "../include/types_bikaya.h"
 #include "term_utils.h"
 
-
-// Assignation of the terminal file with the built-in macro
-static termreg_t *term0_reg = (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, DEBUG_TERMINAL);
 
 
 // This function return the status of the terminal pointer given in input
@@ -23,7 +21,9 @@ static unsigned int recv_status(termreg_t *tp) {
 
     return: -1 on failure or 0 on success.
 */
-HIDDEN int term_putchar(char c) {
+HIDDEN int term_putchar(char c, u_int terminal_subdevice) {
+    // Assignation of the terminal file with the built-in macro
+    termreg_t *term0_reg = (terminal_subdevice < DEV_PER_INT) ? (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, terminal_subdevice) : NULL;
     // Check that terminal is ready, there are no errors
     unsigned int stat = trans_status(term0_reg);
     if (stat != ST_READY && stat != ST_TRANSMITTED)
@@ -57,7 +57,9 @@ HIDDEN int term_putchar(char c) {
 
     return: -1 on failure, the int ASCII representation of the char on success
 */
-HIDDEN int term_getchar() {
+HIDDEN int term_getchar(u_int terminal_subdevice) {
+    // Assignation of the terminal file with the built-in macro
+    termreg_t *term0_reg = (terminal_subdevice < DEV_PER_INT) ? (termreg_t *) DEV_REG_ADDR(IL_TERMINAL, terminal_subdevice) : NULL;
     // Check that ther terminal is ready and there are no error
     unsigned int stat = recv_status(term0_reg); int char_read;
     if (stat != ST_READY && stat != ST_RECEIVED)
@@ -95,13 +97,13 @@ HIDDEN int term_getchar() {
     str: the string that has to be printed
     return: void
 */
-void term_puts(const char *str) {
+void term_puts(const char *str, u_int subdevice) {
     /*
     The guards in this cicle is given by the if, the method usually returns 0 if everything went
     fine else return -1 that is casted to true by C cso it runs the then "returns" and terminates 
     */
     while (*str)
-        if (term_putchar(*str++))
+        if (term_putchar(*str++, subdevice))
             return;
 }
 
@@ -115,16 +117,16 @@ void term_puts(const char *str) {
     STR_LENGHT: the lenght of the input vector
     return: void
 */
-void term_gets(char usr_input[], unsigned int STR_LENGHT) {
+void term_gets(char usr_input[], u_int STR_LENGHT, u_int subdevice) {
     int i, letter;
 
     // Stops at the penultimate index and then puts str terminator at the end (last index)
     for (i = 0; i < STR_LENGHT-1; i = i + 1) {
-        letter = term_getchar();
+        letter = term_getchar(subdevice);
 
         // Error handler, stops the execution and print an error message
         if (letter == -1) {
-            term_puts("ERROR: reading from terminal\n");
+            term_puts("ERROR: reading from terminal\n", subdevice);
             usr_input[0] = '\0';
             return;
         }

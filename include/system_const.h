@@ -38,7 +38,7 @@
 
 // Function to follow another flow of information on terminal 1
 #define DEBUG_TERMINAL 1
-#define print_debug_terminal(str) term_puts(str)
+#define print_debug_terminal(str) term_puts(str, DEBUG_TERMINAL)
 
 // Generic info about the devices 
 #define MAX_LINE 8
