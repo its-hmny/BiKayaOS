@@ -3,7 +3,6 @@ project(BiKayaOS LANGUAGES C ASM)
 
 # set variables for all directories
 set(SRC ${PROJECT_SOURCE_DIR})
-set(DVC ${PROJECT_SOURCE_DIR}/device/)
 set(EXC ${PROJECT_SOURCE_DIR}/exception_hndlr/)
 set(GNR ${PROJECT_SOURCE_DIR}/generics/)
 set(INC ${PROJECT_SOURCE_DIR}/include/)
@@ -17,7 +16,7 @@ set(CFLAGS_LANG -ffreestanding -Wall)
 
 # PROJECT_SOURCE_DIR e PROJECT_BINARY_DIR are CMake variables
 include_directories(${SRC})
-include_directories(${DVC})
+include_directories(${DEV})
 include_directories(${EXC})
 include_directories(${GNR})
 include_directories(${INC})
