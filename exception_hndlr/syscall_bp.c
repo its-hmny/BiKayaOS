@@ -201,7 +201,7 @@ HIDDEN void wait_IO(u_int command, memaddr *dev_register, int subdevice) {
     u_int device_no = offset % (DEV_REGISTER_SIZE * REGISTER_PER_DEV * DEV_PER_INT);
 
     // Issue the command after it has determined the right register
-    devreg_t *device_p = dev_register;
+    devreg_t *device_p = (devreg_t *)dev_register;
     (device_class < EXT_IL_INDEX(IL_TERMINAL)) ? device_p->dtp.command = command :
         (subdevice) ? (device_p->term.recv_command = command) : (device_p->term.transm_command = command);
 
@@ -225,11 +225,11 @@ HIDDEN void wait_IO(u_int command, memaddr *dev_register, int subdevice) {
 */    
 HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
     pcb_t *caller = getCurrentProc();
-    // Retrieve the caller process handler structure
-    handler_t *p_hndlr = caller ? &caller->custom_handler : (SYS_RETURN_VAL(old_area) = FAILURE);
+    // Retrieve the caller process handler structure, void* conversion only to remove compiler warning
+    handler_t *p_hndlr = caller ? &caller->custom_handler : (void*)(SYS_RETURN_VAL(old_area) = FAILURE);
 
-    // Arguments control
-    (type < CSTM_HNDLRS && old && new) ? NULL : (SYS_RETURN_VAL(old_area) = FAILURE);
+    // Arguments control, void* conversion only to remove compiler warning
+    (type < CSTM_HNDLRS && old && new) ? NULL : (void*)(SYS_RETURN_VAL(old_area) = FAILURE);
     
     // The custom handler could be only setted once for each exception
     if (! p_hndlr->has_custom[type]) {
