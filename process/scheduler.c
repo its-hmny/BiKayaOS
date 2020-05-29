@@ -1,3 +1,4 @@
+#include "../devices/interval_timer_utils.h"
 #include "../include/types_bikaya.h"
 #include "../include/system_const.h"
 #include "../generics/utils.h"
@@ -120,74 +121,17 @@ void scheduler(void) {
 
 
 // Returns a pointer to the ready queue
-struct list_head* getReadyQ(void) {
+extern inline struct list_head* getReadyQ(void) {
     return(&ready_queue);
 }
 
 // Returns the current executing process
-pcb_t* getCurrentProc(void) {
+extern inline pcb_t* getCurrentProc(void) {
     return(currentProcess);
 }
 
 
 // Sets the current process (usually used to set it to NULL)
-void setCurrentProc(pcb_t *proc) {
+extern inline void setCurrentProc(pcb_t *proc) {
     currentProcess = proc;
-}
-
-
-/*
-    Sets the Interval Timer in both architechture to the defined TIMESLICE
-
-    return: void
-*/
-void setIntervalTimer(void) {
-    #ifdef TARGET_UMPS
-    memaddr *intervalTimer = (memaddr*) INTERVAL_TIMER;
-    *intervalTimer = TIME_SLICE;
-    #endif
-    
-    #ifdef TARGET_UARM
-    setTIMER(TIME_SLICE);
-    #endif
-}
-
-
-/*
-    Set the Interval Timer in both architechture to a choosen timeslice
-    that could be different from the default timeslice (3 milliseconds)
-
-    time: the new interval that is desired to be set
-    return: void
-*/
-void setTimerTo(u_int time) {
-    // Timer setter on uMPS
-    #ifdef TARGET_UMPS
-    memaddr *intervalTimer = (memaddr*) INTERVAL_TIMER;
-    *intervalTimer = time;
-    #endif
-    
-    // Timer setter on uARM
-    #ifdef TARGET_UARM
-    setTIMER(time);
-    #endif
-}
-
-
-/*
-    Returns the current value in the Interval Timer as an unsigned int
-
-    return: the current timer value
-*/
-u_int getIntervalTimer(void) {
-    // Get the current elapsed time since the last timer ssetting uMPS
-    #ifdef TARGET_UMPS
-    memaddr *intervalTimer = (memaddr*) INTERVAL_TIMER;
-    return (*intervalTimer);
-    #endif
-    
-    // Get the current elapsed time since the last timer ssetting uARM
-    #ifdef TARGET_UARM
-    return (getTIMER());
-    #endif
 }

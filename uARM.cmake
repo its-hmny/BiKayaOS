@@ -23,7 +23,7 @@ add_library(crtso ${UARM_INC}/crtso.s)
 
 add_executable(
 	kernel ${SRC}/phase2_test.c ${EXC}interrupt.c ${EXC}/syscall_bp.c ${EXC}/trap.c ${EXC}/tlb.c
-	${GNR}/utils.c ${PRC}/scheduler.c ${PRC}/pcb.c ${PRC}/asl.c ${DEV}/term_utils.c
+	${GNR}/utils.c ${PRC}/scheduler.c ${PRC}/pcb.c ${PRC}/asl.c ${DEV}/term_utils.c ${DEV}/interval_timer_utils.c
 )
 
 target_link_libraries(kernel crtso libuarm libdiv)

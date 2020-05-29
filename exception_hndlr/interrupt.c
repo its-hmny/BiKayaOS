@@ -1,3 +1,4 @@
+#include "../devices/interval_timer_utils.h"
 #include "../include/system_const.h"
 #include "../process/scheduler.h"
 #include "../generics/utils.h"
