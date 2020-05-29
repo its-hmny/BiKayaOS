@@ -178,7 +178,7 @@ void loadCustomHandler(u_int exc_code, state_t* old_area) {
     // In case a process doesn't have a custom handler, it's killed
     if (! has_handler) 
         // NULL passed beacause the process to kill is the current one
-        terminate_process(NULL);
+        terminate_process(caller_proc);
 
     else {
         state_t *custom_old_area = caller_proc->custom_handler.handler_matrix[exc_code][CSTM_OLD_AREA];

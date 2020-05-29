@@ -113,7 +113,7 @@ void terminate_process(void* pid) {
     SYS_RETURN_VAL(old_area) = SUCCESS;
 
     // If I killed the current process, fix the dangling reference and chose another process
-    if (pid == NULL) {
+    if (pid == NULL || pid == getCurrentProc()) {
         setCurrentProc(NULL);
         scheduler();
     }
@@ -239,7 +239,7 @@ HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
     }
 
     // If a process try to "reset" a custom handler is killed
-    else terminate_process(NULL);
+    else terminate_process(caller);
 }
 
 
