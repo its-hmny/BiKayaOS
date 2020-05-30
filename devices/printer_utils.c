@@ -60,7 +60,7 @@ void send_printer (char *buffer) {
         }
         //This other statement print the next char and check also from possible errors
         else if (print_char(*buffer++)) {
-            term_puts("ERROR: writing into printer device\n");
+            term_puts("ERROR: writing into printer device\n", DEBUG_TERMINAL);
             return;
         }           
 }

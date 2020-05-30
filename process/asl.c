@@ -65,7 +65,7 @@ void initASL(void) {
 
     key: the key corresponding to the semaphore in wich we have to add the PCB
     p: the PCB desired to be added
-    return: 1 on success, 0 on fail
+    return: 0 on success, 1 on fail
 */
 int insertBlocked(int *key, pcb_t* p) {
     semd_t *tmp = getSemd(key); //Find the semd through his own key

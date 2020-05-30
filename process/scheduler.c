@@ -18,7 +18,7 @@
 // Ready queue of the scheduler
 struct list_head ready_queue;
 // Current process selected to be executed
-pcb_t *currentProcess;
+pcb_t *currentProcess = NULL;
 // The idle state let the processor active
 state_t idleState;
 
@@ -40,14 +40,13 @@ HIDDEN void aging(void) {
 }
 
 
-HIDDEN void idle(void) {
-    while(1)
-        ;
-}
+HIDDEN void idle(void) { while(1) ; }
 
 
 /*
-    Prepares the ready queue and sets the scheduer to be exeuted
+    Prepares the ready queue and sets the scheduer to be exeuted, also handles
+    the setup (with option, SP and PC) of the idle state that is loaded when 
+    all process are waiting on their condition.
 
     return: void
 */
