@@ -22,8 +22,11 @@ void initPcbs(void) {
 }
 
 /*
-    This function removes the given PCB from all the eventual list/queue that 
-    are related to him, but it gives error if the PCBs has some child.
+    This function add the given PCB to the pcbFree list.
+
+    WARNING: the PCB must be already removed from all the other list
+    (siblings list, ready queue or semaphor queue, etc), this function doesn't
+    control all this thing before adding the PCB, this could lead to inconsistence.
 
     p: the PCB wich has to be returned to the pcbFree_queue
     return: void
@@ -86,7 +89,8 @@ int emptyProcQ(struct list_head *head) {
 }
 
 /*
-    Insert the given PCB p to the pcbActive_queue, mainting the sorting by priority of the queue
+    Insert the given PCB p to the pcbActive_queue, maintaining
+    the sorting by priority of the queue, returns NULL if the args are invalid
 
     head: the pointer to the dummy of the queue
     p: the pointer to the pcb we want to add
@@ -120,9 +124,9 @@ void insertProcQ(struct list_head *head, pcb_t *p) {
 }
 
 /*
-    This function returns the first element of the pcb_active_queue, so the first PCB 
-    in the priority queue (after checking for errors). Note that it doesn't remove the PCB
-    from the queue (for that see removeProcQ() below).
+    This function returns a reference the first element of the pcb_active_queue,
+     so the first PCB in the priority queue (after checking for errors). 
+    NOTE: that it doesn't remove the PCB from the queue (for that see removeProcQ() below).
 
     head: the pointer to the dummy of the queue
     return: the PCB pointer or NULL for errors
@@ -135,8 +139,8 @@ pcb_t *headProcQ(struct list_head *head) {
 }
 
 /*
-    This function returns the first PCB in the queue as headProcQ but it removes it from the queue
-    instead of only returning a reference to it.
+    This function returns the first PCB in the queue as headProcQ but it
+    removes it from the queue instead of only returning a reference to it.
 
     head: the pointer to the dummy of the queue
     return: the PCB pointer or NULL for errors
@@ -181,7 +185,7 @@ pcb_t *outProcQ(struct list_head *head, pcb_t *p) {
     is NULL then returnes FALSE.
 
     this: a pointer to the PCB we want to check
-    return: 1 if the PCB has no child, 0 else
+    return: 1 if the PCB has no child, 0 else (for errors as well)
 */
 int emptyChild(pcb_t *this) {
     return (this != NULL && list_empty(&this->p_child));

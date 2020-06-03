@@ -34,14 +34,17 @@ HIDDEN void generic_dev_handler(unsigned int line) {
    
    for (unsigned int subdev = 0; subdev < DEV_PER_INT; subdev++) {
       // If a deviice has a pending interrupt, get a reference to it
-      if ((pending & (1 << subdev)) == ON) {
+      if ((pending & (1 << subdev))) {
          dtpreg_t *tmp_dev = (dtpreg_t*)DEV_REG_ADDR(line, subdev);
          
-         if (tmp_dev->status == DTP_RDY) {
+         if (DEV_STATUS_REG(tmp_dev) >= OP_COMPLETED) {
             pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line)][subdev]); 
+            // Return value from the Wait_IO syscall
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = DEV_STATUS_REG(tmp_dev);
-            tmp_dev->command = CMD_ACK; //Fare busy waiting per l'esecuzione, non credo??
+            tmp_dev->command = CMD_ACK;
          }
+
+         else PANIC();
       }
    }
 }
@@ -53,20 +56,24 @@ HIDDEN void terminal_handler(unsigned int line) {
    
    for (unsigned int subdev = 0; subdev < DEV_PER_INT; subdev++) {
       // If a deviice has a pending interrupt, get a reference to it
-      if ((pending & (1 << subdev)) == ON) {
+      if ((pending & (1 << subdev))) {
          termreg_t *tmp_term = (termreg_t*)DEV_REG_ADDR(IL_TERMINAL, subdev);
          
-         if (TRANSM_STATUS(tmp_term) == TERM_SUCCESS) {
+         if (TRANSM_STATUS(tmp_term) >= OP_COMPLETED) {
             pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line)][subdev]);
+            // Return value from the Wait_IO syscall
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = tmp_term->transm_status;
             tmp_term->transm_command = CMD_ACK;
          }
 
-         else if (RECV_STATUS(tmp_term) == TERM_SUCCESS) {
+         else if (RECV_STATUS(tmp_term) >= OP_COMPLETED) {
             pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line) + 1][subdev]);
+            // Return value from the Wait_IO syscall
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = tmp_term->recv_status;
             tmp_term->recv_command = CMD_ACK;
          }
+
+         else PANIC();
       }
    }
    
