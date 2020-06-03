@@ -58,7 +58,7 @@ void setStatusReg(state_t *proc_state, process_option *option) {
 void setStatusReg(state_t *proc_state, process_option *option) {
     STATUS_REG(proc_state) = (option->kernelMode) ? (STATUS_SYS_MODE) : (STATUS_USER_MODE); 
     STATUS_REG(proc_state) = (option->interruptEnabled) ? (STATUS_ENABLE_INT(STATUS_REG(proc_state))) : (STATUS_DISABLE_INT(STATUS_REG(proc_state)));
-    proc_state->CP15_Control = (option->virtualMemory) ? (CP15_ENABLE_VM(proc_state->CP15_Control)) : (CP15_DISABLE_VM(proc_state->CP15_Control));
+    CAUSE_REG(proc_state) = (option->virtualMemory) ? (CP15_ENABLE_VM(CAUSE_REG(proc_state))) : (CP15_DISABLE_VM(CAUSE_REG(proc_state)));
     STATUS_REG(proc_state) = (option->timerEnabled) ? (STATUS_ENABLE_TIMER(STATUS_REG(proc_state))) : (STATUS_DISABLE_TIMER(STATUS_REG(proc_state)));
 }
 #endif
@@ -152,7 +152,7 @@ void update_time(u_int option, u_int current_clock) {
     u_int *counterToUpdate = option ? &tmp->p_time.kernelmode_time : &tmp->p_time.usermode_time;
     u_int *last_update_clock = &tmp->p_time.last_update_time;
     
-    // Get the elapsed clock aand add it t the selcted counter
+    // Get the elapsed clock and add it t the selcted counter
     *counterToUpdate += current_clock - *last_update_clock;
     // Update the "last_update" field with the new value
     *last_update_clock = current_clock;
@@ -169,7 +169,7 @@ void update_time(u_int option, u_int current_clock) {
     return: void
 */
 void loadCustomHandler(u_int exc_code, state_t* old_area) {
-    // Retrieve and check the caler_proc
+    // Retrieve and check the caller_proc
     pcb_t *caller_proc  = getCurrentProc();
     (caller_proc) ? 0 : PANIC();
 

@@ -122,8 +122,7 @@ void terminate_process(void* pid) {
 /*
     This syscall releases the semaphore wich is identified with the semaddr arg.
     if other processes are waiting on the same semaphore then before leaving it
-    awakes the first in the sem's queue. If a semaphore results with processes 
-    blocked on him but removeBlocked returns NULL then kernel panic is issued
+    awakes the first in the sem's queue. 
     NOTE: the scheduler is RR but must be called manually!
 
     semaddr: the memory location/ value of the semaphore that has to be released
@@ -207,8 +206,6 @@ HIDDEN void wait_IO(u_int command, memaddr *dev_register, int subdevice) {
 
     // Block the process onto the queue
     int *matrix_cell = &IO_blocked[device_class + subdevice][device_no];
-    pcb_t *caller = getCurrentProc();
-    caller ? 0 : PANIC();
     passeren(matrix_cell);
 }
 

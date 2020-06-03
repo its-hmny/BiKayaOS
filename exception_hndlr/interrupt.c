@@ -21,7 +21,7 @@ HIDDEN void unsupported_dev_handler(unsigned int line) {
 }
 
 
-HIDDEN void intervalTimer_hadler(unsigned int line) {
+HIDDEN void intervalTimer_handler(unsigned int line) {
    // Send an Ack to the timer, sets him up to a timeslice
    setIntervalTimer();
 }
@@ -33,7 +33,7 @@ HIDDEN void generic_dev_handler(unsigned int line) {
    unsigned int pending = *((memaddr*) CDEV_BITMAP_ADDR(line));
    
    for (unsigned int subdev = 0; subdev < DEV_PER_INT; subdev++) {
-      // If a deviice has a pending interrupt, get a reference to it
+      // If a device has a pending interrupt, get a reference to it
       if ((pending & (1 << subdev))) {
          dtpreg_t *tmp_dev = (dtpreg_t*)DEV_REG_ADDR(line, subdev);
          
@@ -55,7 +55,7 @@ HIDDEN void terminal_handler(unsigned int line) {
    unsigned int pending = *((memaddr*) CDEV_BITMAP_ADDR(line));
    
    for (unsigned int subdev = 0; subdev < DEV_PER_INT; subdev++) {
-      // If a deviice has a pending interrupt, get a reference to it
+      // If a device has a pending interrupt, get a reference to it
       if ((pending & (1 << subdev))) {
          termreg_t *tmp_term = (termreg_t*)DEV_REG_ADDR(IL_TERMINAL, subdev);
          
@@ -111,7 +111,7 @@ HIDDEN void getInterruptLines(unsigned int interruptVector[]) {
 // Vector of subhandler, there's one handler for each interrupt line
 void (*subhandler[])(unsigned int) = { 
    // First three device handlers (single device per line). PLT and interprocess comunication not supported yet!
-   unsupported_dev_handler, unsupported_dev_handler, intervalTimer_hadler,
+   unsupported_dev_handler, unsupported_dev_handler, intervalTimer_handler,
    // Multiple device per line handlers 
    generic_dev_handler, generic_dev_handler, generic_dev_handler, generic_dev_handler, terminal_handler 
 };

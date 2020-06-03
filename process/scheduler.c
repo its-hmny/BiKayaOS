@@ -35,7 +35,7 @@ HIDDEN void aging(void) {
 
     list_for_each(tmp, &ready_queue) {
         pcb_t *currentPCB = container_of(tmp, pcb_t, p_next);
-        (currentPCB->priority)++;
+        currentPCB->priority++;
     }
 }
 

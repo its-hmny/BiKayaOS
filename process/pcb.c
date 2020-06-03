@@ -50,19 +50,18 @@ pcb_t *allocPcb(void) {
     if (tmp == NULL)
         return (NULL);
     
-    else {
-        //Delete the pcb from the pcbFree_queue, obtain the pcb_t struct with "container_of" and return it
-        pcb_t *newPcb = container_of(tmp, pcb_t, p_next);
-        list_del(&newPcb->p_next);
+    
+    //Delete the pcb from the pcbFree_queue, obtain the pcb_t struct with "container_of" and return it
+    pcb_t *newPcb = container_of(tmp, pcb_t, p_next);
+    list_del(&newPcb->p_next);
 
-        //Wipes the PCB and initialize his list to empty list
-        wipe_Memory(newPcb, sizeof(pcb_t));
-        INIT_LIST_HEAD(&newPcb->p_next);
-        INIT_LIST_HEAD(&newPcb->p_child);
-        INIT_LIST_HEAD(&newPcb->p_sib);
+    //Wipes the PCB and initialize his list to empty list
+    wipe_Memory(newPcb, sizeof(pcb_t));
+    INIT_LIST_HEAD(&newPcb->p_next);
+    INIT_LIST_HEAD(&newPcb->p_child);
+    INIT_LIST_HEAD(&newPcb->p_sib);
 
-        return(newPcb);
-    }
+    return(newPcb);
 }
 
 /*
@@ -250,8 +249,8 @@ pcb_t *outChild(pcb_t *p) {
 }
 
 /*
-    This functione given an array of pcb pointer with the first [0] initialized to the root process,
-    extrapoletes all the radicated tree in dynasty_vec[0], then returnes. The program wouldn't go in
+    This function given an array of pcb pointer with the first [0] initialized to the root process,
+    extrapolates all the radicated tree in dynasty_vec[0], then returnes. The program wouldn't go in
     buffer overflow but is strictly advised to use a MAXPROC vector lenght. 
 
     dynasty_vec: the vector in wich save the dynasty of vec[0], that has to be previously initialized
