@@ -54,9 +54,10 @@
 #define USR_MD_TIME 0
 #define KER_MD_TIME 1
 
+#define OFFSET_INT 8
+
 #ifndef NULL
         #define NULL ((void *) 0)
-        #define OFFSET_INT 8
 #endif
 
 
@@ -225,7 +226,7 @@
 #define RECV_STATUS(tp) ((tp->recv_status) & TERM_STATUS_MASK)
 
 #define CMD_ACK 1
-#define OP_COMPLETED 2
+#define OP_COMPLETED 3
 
 #define INTER_DEVICES(line) (INTER_DEVICES_BASE + (line - 3) * WS)
 
