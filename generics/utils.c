@@ -58,7 +58,7 @@ void setStatusReg(state_t *proc_state, process_option *option) {
 void setStatusReg(state_t *proc_state, process_option *option) {
     STATUS_REG(proc_state) = (option->kernelMode) ? (STATUS_SYS_MODE) : (STATUS_USER_MODE); 
     STATUS_REG(proc_state) = (option->interruptEnabled) ? (STATUS_ENABLE_INT(STATUS_REG(proc_state))) : (STATUS_DISABLE_INT(STATUS_REG(proc_state)));
-    CAUSE_REG(proc_state) = (option->virtualMemory) ? (CP15_ENABLE_VM(CAUSE_REG(proc_state))) : (CP15_DISABLE_VM(CAUSE_REG(proc_state)));
+    proc_state->CP15_Control = (option->virtualMemory) ? (CP15_ENABLE_VM(proc_state->CP15_Control)) : (CP15_DISABLE_VM(proc_state->CP15_Control));
     STATUS_REG(proc_state) = (option->timerEnabled) ? (STATUS_ENABLE_TIMER(STATUS_REG(proc_state))) : (STATUS_DISABLE_TIMER(STATUS_REG(proc_state)));
 }
 #endif

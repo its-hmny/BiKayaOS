@@ -123,7 +123,7 @@ void terminate_process(void* pid) {
     This syscall releases the semaphore wich is identified with the semaddr arg.
     if other processes are waiting on the same semaphore then before leaving it
     awakes the first in the sem's queue. 
-    NOTE: the scheduler is RR but must be called manually!
+    NOTE: the scheduler is preemptive but must be called manually!
 
     semaddr: the memory location/ value of the semaphore that has to be released
     return: the unblocked process (for internal use only)
