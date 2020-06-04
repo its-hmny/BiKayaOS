@@ -83,7 +83,7 @@ HIDDEN void create_process(state_t* statep, int priority, void** cpid) {
 */
 void terminate_process(void* pid) {
     pcb_t *dynasty_vector[MAXPROC];
-    dynasty_vector[0] = pid ? pid : getCurrentProc(); 
+    dynasty_vector[0] = (pid != NULL) ? pid : getCurrentProc(); 
     
     // The function has no process to kill
     if (dynasty_vector[0] == NULL) {
@@ -100,7 +100,7 @@ void terminate_process(void* pid) {
         // Removes the root from father's child list
         outChild(proc);
         
-        // Removes it from the sem queue if present, and eventually calls V on the semaphore
+        // Removes it from the sem queue if present
         outBlocked(proc);
         
         // Removes it from the ready queue if present 
@@ -132,7 +132,7 @@ pcb_t* verhogen(int *semaddr) {
     if (*semaddr <= 0) {
         pcb_t *unblocked_proc = removeBlocked(semaddr);
         
-        if (unblocked_proc) {
+        if (unblocked_proc != NULL) {
             scheduler_add(unblocked_proc);
             return(unblocked_proc);
         }
