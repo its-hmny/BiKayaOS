@@ -1,7 +1,7 @@
 # BiKayaOS
 **A variation of the Kaya OS that can run on both uARM and uMPS architechtures, this is the project for the OS Course a.y. 2019/2020**
 
-Large portionsof this project are written by [Enea Guidi](https://github.com/its-hmny), [Marco Tomasone](https://github.com/MarcoTomasone), [Luca Genova](https://github.com/Lucajett99) and [Simone Boldrini](https://github.com/minosse99). The goal of the project is to write a kernel which can run on both uMPS and uARM architechture, and it was divided in 3 main phases.
+Large portions of this project are written by [Enea Guidi](https://github.com/its-hmny), [Marco Tomasone](https://github.com/MarcoTomasone), [Luca Genova](https://github.com/Lucajett99) and [Simone Boldrini](https://github.com/minosse99). The goal of the project is to write a kernel which can run on both uMPS and uARM architechture, and it was divided in 3 main phases.
 
 ## **What is**
 BiKayaOS is an educational OS, created by Renzo Davoli, that comes directly from KayaOS. It's a simple kernel that uses a preemptive scheduler with timeslice mechanisms, and aging priority to prevent starvation of low priority process, it has an API for both Active Semaphores List and Process Control Block manipulation, as well as low level system call implementation. For now there are as well API for simulated terminal and printer devices interaction. There's excepion handling support with the possibility to set custom handler for syscall, breakpoint, TLB, and trap giving the possibility to implement for example custom syscall for specific processes. At the moment it doesn't support virtual memory or more advanced OS mechanism.
