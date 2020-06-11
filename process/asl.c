@@ -87,7 +87,7 @@ int insertBlocked(int *key, pcb_t* p) {
         else
             return (TRUE);
     }
-    p->p_semkey = key;
+    p->p_semkey = tmp->s_key;
     list_add_tail(&p->p_next, &tmp->s_procQ);
     return (FALSE);  
 }

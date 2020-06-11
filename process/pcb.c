@@ -134,7 +134,7 @@ pcb_t *headProcQ(struct list_head *head) {
     if (head == NULL || list_empty(head))
         return (NULL);
 
-    return(container_of(head->next, pcb_t, p_next));
+    return(container_of(list_next(head), pcb_t, p_next));
 }
 
 /*

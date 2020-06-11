@@ -131,7 +131,7 @@ void terminate_process(void* pid) {
 pcb_t* verhogen(int *semaddr) {
     if (*semaddr <= 0) {
         pcb_t *unblocked_proc = removeBlocked(semaddr);
-        
+
         if (unblocked_proc != NULL) {
             scheduler_add(unblocked_proc);
             return(unblocked_proc);
@@ -192,7 +192,7 @@ HIDDEN void wait_IO(u_int command, memaddr *dev_register, int subdevice) {
     memaddr current_memaddr = (memaddr)dev_register;
 
     // Checks arguments and calculate the offset in words
-    (current_memaddr > dev_start) ? 0 : PANIC();
+    (current_memaddr >= dev_start) ? 0 : PANIC();
     u_int offset = current_memaddr - dev_start;
 
     // From the word offset then is easy to obtain device class and subdevice
@@ -227,6 +227,9 @@ HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
 
     // Arguments control, void* conversion only to remove compiler warning
     (type < CSTM_HNDLRS && old && new) ? NULL : (void*)(SYS_RETURN_VAL(old_area) = FAILURE);
+
+    if (SYS_RETURN_VAL(old_area) == FAILURE)
+        return ;
     
     // The custom handler could be only setted once for each exception
     if (! p_hndlr->has_custom[type]) {

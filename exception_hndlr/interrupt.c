@@ -37,7 +37,7 @@ HIDDEN void generic_dev_handler(unsigned int line) {
       if ((pending & (1 << subdev))) {
          dtpreg_t *tmp_dev = (dtpreg_t*)DEV_REG_ADDR(line, subdev);
          
-         if (DEV_STATUS_REG(tmp_dev) >= OP_COMPLETED) {
+         if (DEV_STATUS_REG(tmp_dev) > OP_COMPLETED) {
             pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line)][subdev]); 
             // Return value from the Wait_IO syscall
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = DEV_STATUS_REG(tmp_dev);
@@ -59,14 +59,14 @@ HIDDEN void terminal_handler(unsigned int line) {
       if ((pending & (1 << subdev))) {
          termreg_t *tmp_term = (termreg_t*)DEV_REG_ADDR(IL_TERMINAL, subdev);
          
-         if (TRANSM_STATUS(tmp_term) >= OP_COMPLETED) {
+         if (TRANSM_STATUS(tmp_term) > OP_COMPLETED) {
             pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line)][subdev]);
             // Return value from the Wait_IO syscall
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = tmp_term->transm_status;
             tmp_term->transm_command = CMD_ACK;
          }
 
-         else if (RECV_STATUS(tmp_term) >= OP_COMPLETED) {
+         else if (RECV_STATUS(tmp_term) > OP_COMPLETED) {
             pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line) + 1][subdev]);
             // Return value from the Wait_IO syscall
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = tmp_term->recv_status;
@@ -123,6 +123,7 @@ void (*subhandler[])(unsigned int) = {
    on the line that presents an interrupt pending
 */
 void interrupt_handler(void) {
+   update_time(USR_MD_TIME, TOD_LO);
    old_area = (state_t*) OLD_AREA_INTERRUPT;
    
    // In uARM an interrupt can block the current instructon so it has to be broght back the PC
@@ -145,6 +146,7 @@ void interrupt_handler(void) {
    // Save the current old area state to the process that has executed
    pcb_t *currentProcess = getCurrentProc();
    currentProcess ? cloneState(&currentProcess->p_s, old_area, sizeof(state_t)) : 0;
+   update_time(KER_MD_TIME, TOD_LO);
    // The scheduler will chose a process and reset a timeslice, else it will loop
    scheduler();
 }
