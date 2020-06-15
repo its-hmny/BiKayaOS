@@ -3,7 +3,7 @@
 #include "../process/scheduler.h"
 #include "../generics/utils.h"
 #include "../process/pcb.h"
-#include "syscall_bp.h"
+#include "../process/asl.h"
 #include "interrupt.h"
 
 
@@ -38,7 +38,8 @@ HIDDEN void generic_dev_handler(unsigned int line) {
          dtpreg_t *tmp_dev = (dtpreg_t*)DEV_REG_ADDR(line, subdev);
          
          if (DEV_STATUS_REG(tmp_dev) > OP_COMPLETED) {
-            pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line)][subdev]); 
+            pcb_t *unblocked = removeBlocked(&IO_blocked[EXT_IL_INDEX(line)][subdev]); 
+            scheduler_add(unblocked);
             // Return value from the Wait_IO syscall
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = DEV_STATUS_REG(tmp_dev);
             tmp_dev->command = CMD_ACK;
@@ -60,14 +61,16 @@ HIDDEN void terminal_handler(unsigned int line) {
          termreg_t *tmp_term = (termreg_t*)DEV_REG_ADDR(IL_TERMINAL, subdev);
          
          if (TRANSM_STATUS(tmp_term) > OP_COMPLETED) {
-            pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line)][subdev]);
+            pcb_t *unblocked = removeBlocked(&IO_blocked[EXT_IL_INDEX(line)][subdev]);
+            scheduler_add(unblocked);
             // Return value from the Wait_IO syscall
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = tmp_term->transm_status;
             tmp_term->transm_command = CMD_ACK;
          }
 
          else if (RECV_STATUS(tmp_term) > OP_COMPLETED) {
-            pcb_t *unblocked = verhogen(&IO_blocked[EXT_IL_INDEX(line) + 1][subdev]);
+            pcb_t *unblocked = removeBlocked(&IO_blocked[EXT_IL_INDEX(line) + 1][subdev]);
+            scheduler_add(unblocked);
             // Return value from the Wait_IO syscall
             SYS_RETURN_VAL(((state_t*) &unblocked->p_s)) = tmp_term->recv_status;
             tmp_term->recv_command = CMD_ACK;

@@ -32,7 +32,8 @@ void initPcbs(void) {
     return: void
 */
 void freePcb(pcb_t *p) {
-    list_add_tail(&p->p_next, &pcbFree);
+    if (p != NULL)
+        list_add_tail(&p->p_next, &pcbFree);
 }
 
 /*

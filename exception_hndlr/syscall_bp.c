@@ -50,8 +50,10 @@ HIDDEN void create_process(state_t* statep, int priority, void** cpid) {
     pcb_t *parent = getCurrentProc();
 
     // Error during allocation, error code returned
-    if (new_proc == NULL || statep == NULL || parent == NULL)
+    if (new_proc == NULL || statep == NULL || parent == NULL) {
         SYS_RETURN_VAL(old_area) = FAILURE;
+        freePcb(new_proc);
+    }
 
     // Set the given state to the new process
     cloneState(&new_proc->p_s, statep, sizeof(state_t));
@@ -128,18 +130,17 @@ void terminate_process(void* pid) {
     semaddr: the memory location/ value of the semaphore that has to be released
     return: the unblocked process (for internal use only)
 */
-pcb_t* verhogen(int *semaddr) {
+HIDDEN void verhogen(int *semaddr) {
     if (*semaddr <= 0) {
         pcb_t *unblocked_proc = removeBlocked(semaddr);
 
         if (unblocked_proc != NULL) {
             scheduler_add(unblocked_proc);
-            return(unblocked_proc);
+            return ;
         }
     }
 
-    *semaddr += 1;
-    return(NULL);
+    *semaddr += 1;;
 }
 
 
