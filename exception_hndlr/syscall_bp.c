@@ -53,7 +53,7 @@ HIDDEN void create_process(state_t* statep, int priority, void** cpid) {
     if (new_proc == NULL || statep == NULL || parent == NULL) {
         SYS_RETURN_VAL(old_area) = FAILURE;
         freePcb(new_proc);
-        return;
+        return ;
     }
 
     // Set the given state to the new process
@@ -92,7 +92,7 @@ void terminate_process(void* pid) {
     // The function has no process to kill
     if (dynasty_vector[0] == NULL) {
         SYS_RETURN_VAL(old_area) = FAILURE;
-        return;
+        return ;
     }
     
     // Get all the descendants in a vector
@@ -239,8 +239,8 @@ HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
         p_hndlr->has_custom[type] = ON;
         p_hndlr->handler_matrix[type][CSTM_NEW_AREA] = new;
         p_hndlr->handler_matrix[type][CSTM_OLD_AREA] = old;
+        SYS_RETURN_VAL(old_area) = SUCCESS;
     }
-    SYS_RETURN_VAL(old_area) = SUCCESS;
     // If a process try to "reset" a custom handler is killed
     else terminate_process(caller);
 }
