@@ -53,6 +53,7 @@ HIDDEN void create_process(state_t* statep, int priority, void** cpid) {
     if (new_proc == NULL || statep == NULL || parent == NULL) {
         SYS_RETURN_VAL(old_area) = FAILURE;
         freePcb(new_proc);
+        return;
     }
 
     // Set the given state to the new process
@@ -70,6 +71,7 @@ HIDDEN void create_process(state_t* statep, int priority, void** cpid) {
 
     // The scheduler is Round Robin, so it saves the new state and calls for another process to execute
     cloneState(&parent->p_s, old_area, sizeof(state_t));
+    update_time(KER_MD_TIME, TOD_LO);
     scheduler();
 }
 
@@ -238,7 +240,7 @@ HIDDEN void spec_passup(int type, state_t *old, state_t *new) {
         p_hndlr->handler_matrix[type][CSTM_NEW_AREA] = new;
         p_hndlr->handler_matrix[type][CSTM_OLD_AREA] = old;
     }
-
+    SYS_RETURN_VAL(old_area) = SUCCESS;
     // If a process try to "reset" a custom handler is killed
     else terminate_process(caller);
 }
