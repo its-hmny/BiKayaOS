@@ -37,7 +37,7 @@ HIDDEN void generic_dev_handler(unsigned int line) {
       if ((pending & (1 << subdev))) {
          dtpreg_t *tmp_dev = (dtpreg_t*)DEV_REG_ADDR(line, subdev);
          
-         if (DEV_STATUS_REG(tmp_dev) > OP_COMPLETED) {
+         if (DEV_STATUS_REG(tmp_dev) != 0 && DEV_STATUS_REG(tmp_dev) != 3 ) {
             pcb_t *unblocked = removeBlocked(&IO_blocked[EXT_IL_INDEX(line)][subdev]); 
             scheduler_add(unblocked);
             // Return value from the Wait_IO syscall
@@ -60,7 +60,7 @@ HIDDEN void terminal_handler(unsigned int line) {
       if ((pending & (1 << subdev))) {
          termreg_t *tmp_term = (termreg_t*)DEV_REG_ADDR(IL_TERMINAL, subdev);
          
-         if (TRANSM_STATUS(tmp_term) > OP_COMPLETED) {
+        if (TRANSM_STATUS(tmp_term) != 0 && TRANSM_STATUS(tmp_term) != 3 ) {
             pcb_t *unblocked = removeBlocked(&IO_blocked[EXT_IL_INDEX(line)][subdev]);
             scheduler_add(unblocked);
             // Return value from the Wait_IO syscall
@@ -68,7 +68,7 @@ HIDDEN void terminal_handler(unsigned int line) {
             tmp_term->transm_command = CMD_ACK;
          }
 
-         else if (RECV_STATUS(tmp_term) > OP_COMPLETED) {
+         else if (RECV_STATUS(tmp_term) != 0 && RECV_STATUS(tmp_term) != 3 ) {
             pcb_t *unblocked = removeBlocked(&IO_blocked[EXT_IL_INDEX(line) + 1][subdev]);
             scheduler_add(unblocked);
             // Return value from the Wait_IO syscall
