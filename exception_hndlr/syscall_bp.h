@@ -5,6 +5,5 @@
 
 void terminate_process(void* pid);
 void syscall_breakpoint_handler(void);
-void syscallDispatcher(u_int sysNumber);
 
 #endif

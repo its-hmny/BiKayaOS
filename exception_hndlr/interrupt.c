@@ -11,7 +11,9 @@
 // Old Area pointer, used to retrieve info about the exception
 HIDDEN state_t *old_area = NULL;
 
-
+// Matrix of current IO request/executions (the terminal is counted twice for receiving an transmission)
+// This means that blocked[n-1] is transmission request IO instead blocked[n] is receive request
+int IO_blocked[MULTIPLE_DEV_LINE + 1][DEV_PER_INT];
 
 /* ============= SUBHANDLER DEFINITION ============ */
 

@@ -272,7 +272,7 @@ HIDDEN void get_PID_PPID(void** pid, void** ppid){
     sysNumber: the syscall number retrieved from the Old Area
     return: void
 */
-void syscallDispatcher(u_int sysNumber) {
+HIDDEN void syscallDispatcher(u_int sysNumber) {
     switch (sysNumber) {
         case GETCPUTIME:
             getCPU_time((u_int*)SYS_ARG_1(old_area), (u_int*)SYS_ARG_2(old_area), (u_int*)SYS_ARG_3(old_area));
