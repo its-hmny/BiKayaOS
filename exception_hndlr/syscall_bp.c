@@ -126,8 +126,7 @@ void terminate_process(void* pid) {
 /*
     This syscall releases the semaphore wich is identified with the semaddr arg.
     if other processes are waiting on the same semaphore then before leaving it
-    awakes the first in the sem's queue. 
-    NOTE: the scheduler is preemptive but must be called manually!
+    awakes the first in the sem's queue.
 
     semaddr: the memory location/ value of the semaphore that has to be released
     return: the unblocked process (for internal use only)
@@ -138,6 +137,12 @@ HIDDEN void verhogen(int *semaddr) {
 
         if (unblocked_proc != NULL) {
             scheduler_add(unblocked_proc);
+
+            // After unblocking a process, a context switch occurs (preemptive scheduler)
+            update_time(KER_MD_TIME, TOD_LO);
+            cloneState(&getCurrentProc()->p_s, old_area, sizeof(state_t));
+            scheduler();
+            
             return ;
         }
     }
